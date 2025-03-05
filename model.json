@@ -1,0 +1,30 @@
+//admin odabire opciju "New Tournament"
+{
+    "name": "Football World Cup 2026",
+    "groups1": {
+        //ovo
+        "A": ["Germany", "Italy", "Croatia"],
+        "B": ["England", "Brazil", "Argentina"],
+        "C": ["Serbia", "Spain", "USA"],
+        "D": ["France", "Mexico", "Japan"]
+    },
+    "groups2": [
+        //ili ovo
+        ["Germany", "Italy", "Croatia"],
+        ["England", "Brazil", "Argentina"],
+        ["Serbia", "Spain", "USA"],
+        ["France", "Mexico", "Japan"]
+    ],
+    "firstRoundOfElimination": "roundOf16",
+    "roundOf16": ["11|22", "12|21", "..."], //12 = first in group B, 22 = second in group B -> use them as indexes
+    //"quarterfinals": [], //podrzaumijeva se da igraju prvi i drugi iz razine iznad, dakle treba mi samo najniža razina!
+    //"semifinals": [],
+    //"finals": []
+}
+
+
+//admin odabire opciju "Upload match results"
+{
+    "gameId": 12,
+    "winner": "homeNation" //ili "awayNation"
+}
