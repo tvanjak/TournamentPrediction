@@ -23,8 +23,13 @@
 }
 
 
-//admin odabire opciju "Upload match results"
+//admin zadaje turnir interaktivnim sučeljem"
 {
-    "gameId": 12,
-    "winner": "homeNation" //ili "awayNation"
+    "name": "Football World Cup 2026",
+    "number of teams": 64,
+    "number of groups": 12,
+    "advancingPlacings": [1,2],
+    "advancingThirdTeams": 8,
+    "firstRoundOfElimination": "roundOf16",
+    "roundOf16": ["11|22", "12|21", "..."], //12 = first in group B, 22 = second in group B -> use them as indexes
 }
