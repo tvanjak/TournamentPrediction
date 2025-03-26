@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,285 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model additional_group_rankings {
+  id            Int          @id @default(autoincrement())
+  tournament_id Int?
+  team_id       Int?
+  points        Int
+  rank          Int
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  teams         teams?       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model all_time_leaderboard {
+  id                 Int       @id @default(autoincrement())
+  user_id            Int?      @unique
+  total_points       Int?      @default(0)
+  average_points     Float?    @default(0)
+  tournaments_played Int?      @default(0)
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  modified_at        DateTime? @default(now()) @db.Timestamp(6)
+  users              users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model countries {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(255)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  modified_at DateTime? @default(now()) @db.Timestamp(6)
+  teams       teams?
+}
+
+model elimination_games {
+  id                                       Int                             @id @default(autoincrement())
+  tournament_id                            Int?
+  team1_id                                 Int?
+  team2_id                                 Int?
+  winner_id                                Int?
+  status                                   status_enum?                    @default(pending)
+  round_id                                 Int?
+  created_at                               DateTime?                       @default(now()) @db.Timestamp(6)
+  modified_at                              DateTime?                       @default(now()) @db.Timestamp(6)
+  rounds                                   rounds?                         @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teams_elimination_games_team1_idToteams  teams?                          @relation("elimination_games_team1_idToteams", fields: [team1_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams_elimination_games_team2_idToteams  teams?                          @relation("elimination_games_team2_idToteams", fields: [team2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments                              tournaments?                    @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams_elimination_games_winner_idToteams teams?                          @relation("elimination_games_winner_idToteams", fields: [winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  elimination_games_predictions            elimination_games_predictions[]
+}
+
+model elimination_games_predictions {
+  id                  Int                @id @default(autoincrement())
+  prediction_id       Int?
+  game_id             Int?
+  predicted_winner_id Int
+  points_awarded      Int?
+  round_id            Int?
+  created_at          DateTime?          @default(now()) @db.Timestamp(6)
+  modified_at         DateTime?          @default(now()) @db.Timestamp(6)
+  elimination_games   elimination_games? @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams               teams              @relation(fields: [predicted_winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  predictions         predictions?       @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  rounds              rounds?            @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model elimination_matchups {
+  id            Int          @id @default(autoincrement())
+  tournament_id Int?
+  team1_id      String?      @db.VarChar(2)
+  team2_id      String[]     @db.VarChar(2)
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model group_games {
+  id                                Int                       @id @default(autoincrement())
+  tournament_id                     Int?
+  group_id                          Int?
+  team1_id                          Int?
+  team2_id                          Int?
+  result                            result_enum?
+  status                            status_enum?              @default(pending)
+  created_at                        DateTime?                 @default(now()) @db.Timestamp(6)
+  modified_at                       DateTime?                 @default(now()) @db.Timestamp(6)
+  groups                            groups?                   @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams_group_games_team1_idToteams teams?                    @relation("group_games_team1_idToteams", fields: [team1_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams_group_games_team2_idToteams teams?                    @relation("group_games_team2_idToteams", fields: [team2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments                       tournaments?              @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  group_games_predictions           group_games_predictions[]
+}
+
+model group_games_predictions {
+  id               Int          @id @default(autoincrement())
+  prediction_id    Int?
+  game_id          Int?
+  predicted_result result_enum?
+  points_awarded   Int?
+  created_at       DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at      DateTime?    @default(now()) @db.Timestamp(6)
+  group_games      group_games? @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  predictions      predictions? @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model group_rankings {
+  id            Int          @id @default(autoincrement())
+  tournament_id Int?
+  group_id      Int?
+  team_id       Int?
+  points        Int
+  rank          Int
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  groups        groups?      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams         teams?       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tournament_id, group_id, team_id])
+}
+
+model group_rankings_predictions {
+  id            Int          @id @default(autoincrement())
+  prediction_id Int?
+  group_id      Int?
+  team_id       Int?
+  points        Int
+  rank          Int
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  groups        groups?      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  predictions   predictions? @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams         teams?       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([prediction_id, group_id, team_id])
+}
+
+model groups {
+  id                         Int                          @id @default(autoincrement())
+  tournament_id              Int?
+  name                       String                       @db.Char(1)
+  created_at                 DateTime?                    @default(now()) @db.Timestamp(6)
+  modified_at                DateTime?                    @default(now()) @db.Timestamp(6)
+  group_games                group_games[]
+  group_rankings             group_rankings[]
+  group_rankings_predictions group_rankings_predictions[]
+  tournaments                tournaments?                 @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tournament_id, name])
+}
+
+model predictions {
+  id                            Int                             @id @default(autoincrement())
+  tournament_id                 Int?
+  user_id                       Int?
+  status                        status_enum?                    @default(pending)
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
+  elimination_games_predictions elimination_games_predictions[]
+  group_games_predictions       group_games_predictions[]
+  group_rankings_predictions    group_rankings_predictions[]
+  tournaments                   tournaments?                    @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                         users?                          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tournament_id, user_id])
+}
+
+model rounds {
+  id                            Int                             @id @default(autoincrement())
+  name                          String                          @unique @db.VarChar(255)
+  teamguessed_points            Int
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
+  elimination_games             elimination_games[]
+  elimination_games_predictions elimination_games_predictions[]
+}
+
+model sports {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(255)
+  points_win  Int
+  points_draw Int
+  points_loss Int           @default(0)
+  created_at  DateTime?     @default(now()) @db.Timestamp(6)
+  modified_at DateTime?     @default(now()) @db.Timestamp(6)
+  tournaments tournaments[]
+}
+
+model teams {
+  id                                                   Int                             @id @default(autoincrement())
+  country_id                                           Int?                            @unique
+  created_at                                           DateTime?                       @default(now()) @db.Timestamp(6)
+  modified_at                                          DateTime?                       @default(now()) @db.Timestamp(6)
+  additional_group_rankings                            additional_group_rankings[]
+  elimination_games_elimination_games_team1_idToteams  elimination_games[]             @relation("elimination_games_team1_idToteams")
+  elimination_games_elimination_games_team2_idToteams  elimination_games[]             @relation("elimination_games_team2_idToteams")
+  elimination_games_elimination_games_winner_idToteams elimination_games[]             @relation("elimination_games_winner_idToteams")
+  elimination_games_predictions                        elimination_games_predictions[]
+  group_games_group_games_team1_idToteams              group_games[]                   @relation("group_games_team1_idToteams")
+  group_games_group_games_team2_idToteams              group_games[]                   @relation("group_games_team2_idToteams")
+  group_rankings                                       group_rankings[]
+  group_rankings_predictions                           group_rankings_predictions[]
+  countries                                            countries?                      @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tournament_leaderboards {
+  id            Int          @id @default(autoincrement())
+  tournament_id Int?
+  user_id       Int?
+  total_points  Int?         @default(0)
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users?       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tournament_id, user_id])
+}
+
+model tournaments {
+  id                        Int                         @id @default(autoincrement())
+  sport_id                  Int?
+  name                      String                      @db.VarChar(100)
+  year                      Int
+  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  modified_at               DateTime?                   @default(now()) @db.Timestamp(6)
+  additional_group_rankings additional_group_rankings[]
+  elimination_games         elimination_games[]
+  elimination_matchups      elimination_matchups[]
+  group_games               group_games[]
+  group_rankings            group_rankings[]
+  groups                    groups[]
+  predictions               predictions[]
+  tournament_leaderboards   tournament_leaderboards[]
+  sports                    sports?                     @relation(fields: [sport_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_group_members {
+  id            Int          @id @default(autoincrement())
+  user_group_id Int?
+  user_id       Int?
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  user_groups   user_groups? @relation(fields: [user_group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users?       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_group_id, user_id])
+}
+
+model user_groups {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(100)
+  created_by         Int?
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  modified_at        DateTime?            @default(now()) @db.Timestamp(6)
+  user_group_members user_group_members[]
+  users              users?               @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+}
+
+model users {
+  id                      Int                       @id @default(autoincrement())
+  username                String                    @unique @db.VarChar(50)
+  email                   String                    @unique @db.VarChar(100)
+  is_admin                Boolean?                  @default(false)
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  modified_at             DateTime?                 @default(now()) @db.Timestamp(6)
+  all_time_leaderboard    all_time_leaderboard?
+  predictions             predictions[]
+  tournament_leaderboards tournament_leaderboards[]
+  user_group_members      user_group_members[]
+  user_groups             user_groups[]
+}
+
+enum result_enum {
+  homeWin
+  draw
+  awayWin
+}
+
+enum status_enum {
+  pending
+  finished
 }
