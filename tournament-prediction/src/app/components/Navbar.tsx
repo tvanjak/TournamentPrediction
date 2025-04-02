@@ -13,7 +13,7 @@ export default function Navbar() {
                         href="/"
                         style={{ color: "inherit", textDecoration: "none" }}
                     >
-                        Your App Name
+                        TournamentPrediction
                     </Link>
                 </Typography>
                 <LoginButton />
