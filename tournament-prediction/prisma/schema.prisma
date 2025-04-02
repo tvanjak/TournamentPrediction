@@ -264,12 +264,18 @@ model user_groups {
 }
 
 model users {
-  id                      Int                       @id @default(autoincrement())
-  username                String                    @unique @db.VarChar(50)
-  email                   String                    @unique @db.VarChar(100)
-  is_admin                Boolean?                  @default(false)
-  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
-  modified_at             DateTime?                 @default(now()) @db.Timestamp(6)
+  id          Int       @id @default(autoincrement())
+  username    String?   @unique @db.VarChar(50)
+  email       String    @unique @db.VarChar(100)
+  is_admin    Boolean?  @default(false)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  modified_at DateTime? @default(now()) @db.Timestamp(6)
+
+  //name                  String?   // Google name
+  image               String? // Google profile image URL
+  provider_account_id String  @unique // Unique ID from the Google account
+  provider            String  @default("google") // The OAuth provider (Google)
+
   all_time_leaderboard    all_time_leaderboard?
   predictions             predictions[]
   tournament_leaderboards tournament_leaderboards[]
