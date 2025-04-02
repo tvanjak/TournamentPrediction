@@ -1,9 +1,23 @@
-import React from "react";
+"use client";
 
-type Props = {};
+import { AppBar, Toolbar, Typography, Box } from "@mui/material";
+import LoginButton from "./login-button";
+import Link from "next/link";
 
-const Navbar = (props: Props) => {
-    return <div>Navbar</div>;
-};
-
-export default Navbar;
+export default function Navbar() {
+    return (
+        <AppBar position="static">
+            <Toolbar>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    <Link
+                        href="/"
+                        style={{ color: "inherit", textDecoration: "none" }}
+                    >
+                        Your App Name
+                    </Link>
+                </Typography>
+                <LoginButton />
+            </Toolbar>
+        </AppBar>
+    );
+}

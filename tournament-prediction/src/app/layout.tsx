@@ -1,15 +1,19 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { AuthProvider } from "./components/auth-provider";
+import Navbar from "./components/Navbar";
 
 export default function RootLayout({
     children,
-}: Readonly<{
+}: {
     children: React.ReactNode;
-}>) {
+}) {
     return (
         <html lang="en">
-            <body>{children}</body>
+            <body>
+                <AuthProvider>
+                    <Navbar></Navbar>
+                    <main>{children}</main>
+                </AuthProvider>
+            </body>
         </html>
     );
 }
