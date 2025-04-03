@@ -272,9 +272,7 @@ model users {
   modified_at DateTime? @default(now()) @db.Timestamp(6)
 
   //name                  String?   // Google name
-  image               String? // Google profile image URL
-  provider_account_id String  @unique // Unique ID from the Google account
-  provider            String  @default("google") // The OAuth provider (Google)
+  image String? // Google profile image URL
 
   all_time_leaderboard    all_time_leaderboard?
   predictions             predictions[]
