@@ -4,8 +4,10 @@ import { Avatar, Button, IconButton, Menu, MenuItem } from "@mui/material";
 import { signIn, signOut, useSession } from "next-auth/react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginButton() {
+    const router = useRouter();
     const { data: session, status } = useSession();
     const loading = status === "loading";
 
@@ -17,6 +19,7 @@ export default function LoginButton() {
 
     const handleClose1 = () => {
         setAnchorEl(null);
+        router.push("/profile");
     };
     const handleClose2 = () => {
         setAnchorEl(null);

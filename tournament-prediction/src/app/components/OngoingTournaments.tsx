@@ -1,6 +1,7 @@
 import { Box, List, ListItem, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import theme from "../styles/theme";
+import InfoBox from "./InfoBox";
 
 type Props = {};
 
@@ -19,9 +20,7 @@ const OngoingTournaments = (props: Props) => {
                 width: 400,
             }}
         >
-            <Box sx={(theme) => theme.customBoxes.infoBox}>
-                Ongoing tournaments
-            </Box>
+            <InfoBox>Ongoing tournaments</InfoBox>
             <List>
                 {tournaments.map((tournament, index) => (
                     <ListItem key={index}>

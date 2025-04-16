@@ -1,12 +1,16 @@
 "use client";
 
 import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
-import LoginButton from "./loginButton";
+import LoginButton from "./LoginButton";
 import Link from "next/link";
+import theme from "../styles/theme";
 
 export default function Navbar() {
     return (
-        <AppBar position="static">
+        <AppBar
+            position="static"
+            sx={{ backgroundColor: theme.palette.primary.main }}
+        >
             <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="h6" component="div">
                     <Link

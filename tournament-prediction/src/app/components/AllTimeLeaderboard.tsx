@@ -9,7 +9,8 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import InfoBox from "./InfoBox";
 
 type Props = {};
 
@@ -86,6 +87,14 @@ const AllTimeLeaderboard = (props: Props) => {
         },
     ];
 
+    useEffect(() => {
+        async function loadLeaderborad() {
+            const res = await fetch("/api/users/leaderboard");
+            const data = await res.json();
+            console.log(data.users); // [{ userId, username, email, ... }]
+        }
+    });
+
     return (
         <Container
             sx={{
@@ -95,8 +104,8 @@ const AllTimeLeaderboard = (props: Props) => {
             }}
         >
             {groupsInfo.map((group, index) => (
-                <Box sx={{ p: 5 }} key={index}>
-                    <Box sx={{ textAlign: "center" }}>{group.groupName}</Box>
+                <Box sx={{ p: 3 }} key={index}>
+                    <InfoBox>{group.groupName}</InfoBox>
                     <TableContainer>
                         <Table>
                             <TableHead>

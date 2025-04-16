@@ -4,7 +4,7 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
     palette: {
         primary: {
-            main: "##1ECBE1",
+            main: "#1ECBE1",
         },
         secondary: {
             main: "#dedcff",
@@ -28,11 +28,14 @@ const theme = createTheme({
         red: {
             main: "#d95763", // Failure color
         },
+        secondaryHover: {
+            main: "#c8c0f5", // hover over secondary color
+        },
         /*text: {
             primary: "#333333", // Dark gray for primary text
             secondary: "#555555", // Medium gray for secondary text
         },
-        divider: "#e0e0e0", // Light gray for borders or dividers*/
+        */ divider: "#e0e0e0", // Light gray for borders or dividers*/
     },
     typography: {
         //fontove treba popravit
@@ -70,20 +73,6 @@ const theme = createTheme({
                     },
                 },
             ],
-        },
-    },
-    customBoxes: {
-        infoBox: {
-            border: "1px solid black",
-            borderRadius: 5,
-            textAlign: "center",
-            padding: 2,
-            backgroundColor: "#FFC300",
-            color: "#003049",
-            fontWeight: "600",
-            "&:hover": {
-                backgroundColor: "#E5A800",
-            },
         },
     },
 });

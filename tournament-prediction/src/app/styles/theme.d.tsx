@@ -9,6 +9,7 @@ declare module "@mui/material/styles" {
         textWhite: SimplePaletteColorOptions;
         green: SimplePaletteColorOptions;
         red: SimplePaletteColorOptions;
+        secondaryHover: SimplePaletteColorOptions;
     }
 
     interface PaletteOptions {
@@ -17,22 +18,7 @@ declare module "@mui/material/styles" {
         textWhite?: SimplePaletteColorOptions;
         green?: SimplePaletteColorOptions;
         red?: SimplePaletteColorOptions;
-    }
-
-    interface Theme {
-        customBoxes: {
-            infoBox: SxProps<Theme>;
-            // You can define more variants like:
-            // cardBox: SxProps<Theme>;
-            // alertBox: SxProps<Theme>;
-        };
-    }
-
-    interface ThemeOptions {
-        customBoxes?: {
-            infoBox?: SxProps<Theme>;
-            // Define others as optional if needed
-        };
+        secondaryHover?: SimplePaletteColorOptions;
     }
 
     /*interface Theme {
