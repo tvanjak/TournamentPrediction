@@ -157,8 +157,8 @@ const AllTimeLeaderboard = (props: Props) => {
                                               (a, b) =>
                                                   b.AvgPoints - a.AvgPoints
                                           ) // sort descending
-                                          .map((playerInfo) => (
-                                              <TableRow>
+                                          .map((playerInfo, index) => (
+                                              <TableRow key={index}>
                                                   <TableCell
                                                       sx={{
                                                           textAlign: "center",

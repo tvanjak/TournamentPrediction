@@ -1,4 +1,5 @@
 import { SimplePaletteColorOptions } from "@mui/material";
+import { SxProps } from "@mui/system";
 
 declare module "@mui/material/styles" {
     // Extend the Palette interface to add custom colors
@@ -16,6 +17,22 @@ declare module "@mui/material/styles" {
         textWhite?: SimplePaletteColorOptions;
         green?: SimplePaletteColorOptions;
         red?: SimplePaletteColorOptions;
+    }
+
+    interface Theme {
+        customBoxes: {
+            infoBox: SxProps<Theme>;
+            // You can define more variants like:
+            // cardBox: SxProps<Theme>;
+            // alertBox: SxProps<Theme>;
+        };
+    }
+
+    interface ThemeOptions {
+        customBoxes?: {
+            infoBox?: SxProps<Theme>;
+            // Define others as optional if needed
+        };
     }
 
     /*interface Theme {
@@ -50,6 +67,6 @@ declare module "@mui/material/styles" {
 declare module "@mui/material/Button" {
     interface ButtonPropsVariantOverrides {
         accentBtn: true;
-        categoryBtn: true;
+        infoBtn: true;
     }
 }

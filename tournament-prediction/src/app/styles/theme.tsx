@@ -72,6 +72,20 @@ const theme = createTheme({
             ],
         },
     },
+    customBoxes: {
+        infoBox: {
+            border: "1px solid black",
+            borderRadius: 5,
+            textAlign: "center",
+            padding: 2,
+            backgroundColor: "#FFC300",
+            color: "#003049",
+            fontWeight: "600",
+            "&:hover": {
+                backgroundColor: "#E5A800",
+            },
+        },
+    },
 });
 
 export default theme;
