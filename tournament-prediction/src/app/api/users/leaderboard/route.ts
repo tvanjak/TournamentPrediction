@@ -1,5 +1,3 @@
-// app/api/users/leaderboard/route.ts
-
 import { NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma-client"; // Adjust path if needed
 

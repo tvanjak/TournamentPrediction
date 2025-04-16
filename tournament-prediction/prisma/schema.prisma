@@ -230,6 +230,7 @@ model tournaments {
   year                      Int
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   modified_at               DateTime?                   @default(now()) @db.Timestamp(6)
+  status                    TournamentStatus            @default(ONGOING)
   additional_group_rankings additional_group_rankings[]
   elimination_games         elimination_games[]
   elimination_matchups      elimination_matchups[]
@@ -328,4 +329,10 @@ enum result_enum {
 enum status_enum {
   pending
   finished
+}
+
+enum TournamentStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
 }
