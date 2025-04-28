@@ -1,6 +1,6 @@
 // AccentBox.tsx
 import { Box, BoxProps } from "@mui/material";
-import theme from "../styles/theme";
+import theme from "../../styles/theme";
 
 const InfoBox = (props: BoxProps) => {
     return (
@@ -16,7 +16,7 @@ const InfoBox = (props: BoxProps) => {
                 fontWeight: "600",
                 transition: "background-color 0.3s ease",
                 "&:hover": {
-                    backgroundColor: "#c8c0f5",
+                    //backgroundColor: "#c8c0f5",
                 },
                 ...props.sx, // allow override
             }}

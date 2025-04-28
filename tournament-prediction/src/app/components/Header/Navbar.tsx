@@ -3,7 +3,7 @@
 import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
 import LoginButton from "./LoginButton";
 import Link from "next/link";
-import theme from "../styles/theme";
+import theme from "../../styles/theme";
 
 export default function Navbar() {
     return (
@@ -35,7 +35,15 @@ export default function Navbar() {
                         My groups
                     </Button>
                 </Box>
-                <LoginButton />
+                <Box
+                    sx={{
+                        width: "200px",
+                        display: "flex",
+                        justifyContent: "end",
+                    }}
+                >
+                    <LoginButton />
+                </Box>
             </Toolbar>
         </AppBar>
     );

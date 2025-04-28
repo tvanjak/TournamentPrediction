@@ -17,6 +17,9 @@ export default function LoginButton() {
         setAnchorEl(event.currentTarget);
     };
 
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     const handleClose1 = () => {
         setAnchorEl(null);
         router.push("/profile");
@@ -67,7 +70,7 @@ export default function LoginButton() {
                         horizontal: "right",
                     }}*/
                     open={Boolean(anchorEl)}
-                    onClose={handleClose1}
+                    onClose={handleClose}
                 >
                     <MenuItem onClick={handleClose1}>Profile</MenuItem>
                     <MenuItem onClick={handleClose2}>Logout</MenuItem>
