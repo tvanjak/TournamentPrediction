@@ -99,18 +99,58 @@ const AllTimeLeaderboard = (props: Props) => {
                                     </Typography>
                                 </TableCell>
                                 <TableCell
-                                    sx={{ textAlign: "center" }}
                                     onClick={setPointsTrue}
+                                    sx={{
+                                        textAlign: "center",
+                                        cursor: "pointer",
+                                        backgroundColor: pointsSort
+                                            ? "rgba(0, 0, 0, 0.4)"
+                                            : "inherit",
+                                        color: pointsSort ? "white" : "inherit",
+                                        "&:hover": {
+                                            backgroundColor: pointsSort
+                                                ? "rgba(0, 0, 0, 0.5)"
+                                                : "rgba(0, 0, 0, 0.04)",
+                                        },
+                                    }}
                                 >
-                                    <Typography sx={{ fontStyle: "italic" }}>
+                                    <Typography
+                                        sx={{
+                                            fontStyle: "italic",
+                                            fontWeight: pointsSort
+                                                ? "bold"
+                                                : "normal",
+                                        }}
+                                    >
                                         Avg Points
                                     </Typography>
                                 </TableCell>
                                 <TableCell
-                                    sx={{ textAlign: "center" }}
                                     onClick={setPointsFalse}
+                                    sx={{
+                                        textAlign: "center",
+                                        cursor: "pointer",
+                                        backgroundColor: !pointsSort
+                                            ? "rgba(0, 0, 0, 0.4)"
+                                            : "inherit",
+                                        color: !pointsSort
+                                            ? "white"
+                                            : "inherit",
+                                        "&:hover": {
+                                            backgroundColor: !pointsSort
+                                                ? "rgba(0, 0, 0, 0.5)"
+                                                : "rgba(0, 0, 0, 0.04)",
+                                        },
+                                    }}
                                 >
-                                    <Typography sx={{ fontStyle: "italic" }}>
+                                    <Typography
+                                        sx={{
+                                            fontStyle: "italic",
+                                            fontWeight: !pointsSort
+                                                ? "bold"
+                                                : "normal",
+                                        }}
+                                    >
                                         Total Points
                                     </Typography>
                                 </TableCell>
