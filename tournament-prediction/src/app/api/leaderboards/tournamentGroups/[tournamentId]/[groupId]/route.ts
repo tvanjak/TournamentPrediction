@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client"; // Adjust path if needed
+import prisma from "@/lib/prisma-client";
 
 export async function GET(request: Request, { params }: { params: { tournamentId: string, groupId: string } }) {
   try {
@@ -10,19 +10,43 @@ export async function GET(request: Request, { params }: { params: { tournamentId
       return new NextResponse("Tournament ID and Group ID are required", { status: 400 });
     }
 
-    // Log tournamentId and groupId for debugging
-    console.log("Fetching leaderboard for tournamentId:", tournamentId, "and groupId:", groupId);
+    // Parse IDs
+    const tournamentIdInt = parseInt(tournamentId);
+    const groupIdInt = parseInt(groupId);
 
-    // Query the database to get users in the specified group and their points in the tournament
+    console.log("Fetching leaderboard for tournamentId:", tournamentIdInt, "and groupId:", groupIdInt);
+
+    // Fetch tournament name
+    const tournament = await prisma.tournaments.findUnique({
+      where: { id: tournamentIdInt },
+      select: { name: true },
+    });
+
+    if (!tournament) {
+      return new NextResponse("Tournament not found", { status: 404 });
+    }
+
+    // Fetch group name
+    const group = await prisma.user_groups.findUnique({
+      where: { id: groupIdInt },
+      select: { name: true },
+    });
+
+    if (!group) {
+      return new NextResponse("User group not found", { status: 404 });
+    }
+
+    // Get user IDs in group
+    const userIds = await prisma.user_group_members.findMany({
+      where: { user_group_id: groupIdInt },
+      select: { user_id: true },
+    }).then((members) => members.map((member) => member.user_id));
+
+    // Get leaderboard entries
     const leaderboard = await prisma.tournament_leaderboards.findMany({
       where: {
-        tournament_id: parseInt(tournamentId),
-        user_id: {
-          in: await prisma.user_group_members.findMany({
-            where: { user_group_id: parseInt(groupId) },
-            select: { user_id: true },
-          }).then((members) => members.map((member) => member.user_id)),
-        },
+        tournament_id: tournamentIdInt,
+        user_id: { in: userIds },
       },
       include: {
         users: {
@@ -35,7 +59,7 @@ export async function GET(request: Request, { params }: { params: { tournamentId
         },
       },
       orderBy: {
-        total_points: "desc", // Order by total points, descending
+        total_points: "desc",
       },
     });
 
@@ -44,16 +68,17 @@ export async function GET(request: Request, { params }: { params: { tournamentId
       return new NextResponse("No participants found for the tournament and group", { status: 404 });
     }
 
-    // Format the leaderboard data to return
     const formattedLeaderboard = leaderboard.map((entry) => ({
       username: entry.users?.username,
       totalPoints: entry.total_points ?? 0,
-      email: entry.users?.email,
-      image: entry.users?.image,
     }));
 
-    // Return the leaderboard data as JSON
-    return NextResponse.json({ leaderboard: formattedLeaderboard });
+    // Return leaderboard with tournament and group names
+    return NextResponse.json({
+      tournamentName: tournament.name,
+      groupName: group.name,
+      users: formattedLeaderboard,
+    });
   } catch (error) {
     console.error("[GET_TOURNAMENT_GROUP_LEADERBOARD_ERROR]", error);
     return new NextResponse("Internal Server Error", { status: 500 });

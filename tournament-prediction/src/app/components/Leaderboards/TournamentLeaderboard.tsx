@@ -10,7 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import InfoBox from "../General/InfoBox";
+import GroupBox from "../General/GroupBox";
 import Loading from "../General/Loading";
 import TablePagination from "@mui/material/TablePagination";
 
@@ -105,11 +105,16 @@ const TournamentLeaderboard = (props: Props) => {
             }}
         >
             <Box sx={{ p: 3 }}>
-                <InfoBox>{leaderboard.tournamentName}</InfoBox>
+                <GroupBox>{leaderboard.tournamentName}</GroupBox>
                 <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontStyle: "italic" }}>
+                                        Rank
+                                    </Typography>
+                                </TableCell>
                                 <TableCell sx={{ textAlign: "center" }}>
                                     <Typography sx={{ fontStyle: "italic" }}>
                                         Players
@@ -140,6 +145,9 @@ const TournamentLeaderboard = (props: Props) => {
                                             },
                                         }}
                                     >
+                                        <TableCell sx={{ textAlign: "center" }}>
+                                            {page * rowsPerPage + index + 1}.
+                                        </TableCell>
                                         <TableCell
                                             sx={{
                                                 textAlign: "center",

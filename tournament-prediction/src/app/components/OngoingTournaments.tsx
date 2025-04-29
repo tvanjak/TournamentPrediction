@@ -1,7 +1,7 @@
 import { Box, List, ListItem, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import theme from "../styles/theme";
-import InfoBox from "./General/InfoBox";
+import InfoBox from "./General/GroupBox";
 
 type Props = {};
 

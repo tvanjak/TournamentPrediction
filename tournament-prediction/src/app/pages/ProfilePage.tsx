@@ -8,6 +8,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import GroupLeaderboard from "../components/Leaderboards/AllTimeGroupsLeaderboard";
 import Loading from "../components/General/Loading";
 import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
+import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupsLeaderboards";
 
 type Props = {};
 
@@ -129,7 +130,10 @@ const ProfilePage = (props: Props) => {
                 ) : (
                     <Loading></Loading>
                 )}
-                <TournamentLeaderboard tournamentId="1"></TournamentLeaderboard>
+                <TournamentGroupLeaderboard
+                    tournamentId={1}
+                    groupId={1}
+                ></TournamentGroupLeaderboard>
             </Container>
         );
 };

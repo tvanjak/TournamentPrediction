@@ -10,67 +10,58 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import InfoBox from "../General/InfoBox";
+import GroupBox from "../General/GroupBox";
 import Loading from "../General/Loading";
+import TournamentBox from "../General/TournamentBox";
 
 interface User {
     username: string;
-    email: string;
-    image: string;
     totalPoints: number;
-    averagePoints: number;
-    tournamentsPlayed: number;
 }
 
 interface GroupLeaderboard {
     groupName: string;
+    tournamentName: string;
     users: User[];
 }
 
 type Props = {
-    groupIds: number[];
+    tournamentId: number;
+    groupId: number;
 };
 
-const AllTimeGroupLeaderboard = (props: Props) => {
-    const [pointsSort, setPointsSort] = useState(true);
-
-    function setPointsTrue() {
-        setPointsSort(true);
-    }
-    function setPointsFalse() {
-        setPointsSort(false);
-    }
-
-    const [groupLeaderboards, setGroupLeaderboards] = useState<
-        GroupLeaderboard[]
-    >([]);
+const TournamentGroupLeaderboard = (props: Props) => {
+    const [groupLeaderboard, setGroupLeaderboard] =
+        useState<GroupLeaderboard>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchGroupLeaderboards(groupIds: number[]) {
+        async function fetchGroupLeaderboard(
+            tournamentId: number,
+            groupId: number
+        ) {
             try {
-                const res = await fetch("/api/leaderboards/all-timeGroups", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ groupIds }),
-                });
-
+                const res = await fetch(
+                    `/api/leaderboards/tournamentGroups/${tournamentId}/${groupId}`
+                );
                 if (!res.ok) {
                     throw new Error("Failed to fetch group leaderboards");
                 }
-
                 const data = await res.json();
-                setGroupLeaderboards(data);
+                console.log(data);
+                setGroupLeaderboard(data);
             } catch (error) {
                 console.error(error);
             } finally {
                 setLoading(false);
             }
         }
-        fetchGroupLeaderboards(props.groupIds);
+        fetchGroupLeaderboard(props.tournamentId, props.groupId);
     }, []);
 
     if (loading) return <Loading></Loading>;
+
+    if (!groupLeaderboard || !groupLeaderboard.users) return null;
 
     return (
         <Container
@@ -81,154 +72,75 @@ const AllTimeGroupLeaderboard = (props: Props) => {
             }}
         >
             <Box sx={{ p: 3 }}>
-                {groupLeaderboards.map((group, index) => (
-                    <Box key={index} sx={{ mb: 2 }}>
-                        <InfoBox>{group.groupName}</InfoBox>
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
+                <TournamentBox>
+                    {groupLeaderboard?.tournamentName}
+                </TournamentBox>
+                <GroupBox>{groupLeaderboard?.groupName}</GroupBox>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontStyle: "italic" }}>
+                                        Rank
+                                    </Typography>
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontStyle: "italic" }}>
+                                        Players
+                                    </Typography>
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontStyle: "italic" }}>
+                                        Total Points
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {groupLeaderboard.users
+                                .slice() // create a shallow copy so you don't mutate the original
+                                .sort((a, b) => b.totalPoints - a.totalPoints) // sort descending
+                                .map((playerInfo, index) => (
+                                    <TableRow
+                                        key={index}
+                                        sx={{
+                                            backgroundColor:
+                                                index % 2 === 0
+                                                    ? "rgba(0, 0, 0, 0.05)"
+                                                    : "white",
+                                            "&:hover": {
+                                                backgroundColor:
+                                                    "rgba(0, 0, 0, 0.1)",
+                                            },
+                                        }}
+                                    >
                                         <TableCell sx={{ textAlign: "center" }}>
-                                            <Typography
-                                                sx={{ fontStyle: "italic" }}
-                                            >
-                                                Players
-                                            </Typography>
+                                            {index + 1}.
                                         </TableCell>
                                         <TableCell
-                                            sx={{ textAlign: "center" }}
-                                            onClick={setPointsTrue}
+                                            sx={{
+                                                textAlign: "center",
+                                            }}
                                         >
-                                            <Typography
-                                                sx={{ fontStyle: "italic" }}
-                                            >
-                                                Avg Points
-                                            </Typography>
+                                            {playerInfo.username}
                                         </TableCell>
+
                                         <TableCell
-                                            sx={{ textAlign: "center" }}
-                                            onClick={setPointsFalse}
+                                            sx={{
+                                                textAlign: "center",
+                                            }}
                                         >
-                                            <Typography
-                                                sx={{ fontStyle: "italic" }}
-                                            >
-                                                Total Points
-                                            </Typography>
+                                            {playerInfo.totalPoints}
                                         </TableCell>
                                     </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {!pointsSort
-                                        ? group.users
-                                              .slice() // create a shallow copy so you don't mutate the original
-                                              .sort(
-                                                  (a, b) =>
-                                                      b.totalPoints -
-                                                      a.totalPoints
-                                              ) // sort descending
-                                              .map((playerInfo, index) => (
-                                                  <TableRow
-                                                      key={index}
-                                                      sx={{
-                                                          backgroundColor:
-                                                              index % 2 === 0
-                                                                  ? "rgba(0, 0, 0, 0.05)"
-                                                                  : "white",
-                                                          "&:hover": {
-                                                              backgroundColor:
-                                                                  "rgba(0, 0, 0, 0.1)",
-                                                          },
-                                                      }}
-                                                  >
-                                                      <TableCell
-                                                          sx={{
-                                                              textAlign:
-                                                                  "center",
-                                                          }}
-                                                      >
-                                                          {playerInfo.username}
-                                                      </TableCell>
-                                                      <TableCell
-                                                          sx={{
-                                                              textAlign:
-                                                                  "center",
-                                                          }}
-                                                      >
-                                                          {
-                                                              playerInfo.averagePoints
-                                                          }
-                                                      </TableCell>
-                                                      <TableCell
-                                                          sx={{
-                                                              textAlign:
-                                                                  "center",
-                                                          }}
-                                                      >
-                                                          {
-                                                              playerInfo.totalPoints
-                                                          }
-                                                      </TableCell>
-                                                  </TableRow>
-                                              ))
-                                        : group.users
-                                              .slice() // create a shallow copy so you don't mutate the original
-                                              .sort(
-                                                  (a, b) =>
-                                                      b.averagePoints -
-                                                      a.averagePoints
-                                              ) // sort descending
-                                              .map((playerInfo, index) => (
-                                                  <TableRow
-                                                      key={index}
-                                                      sx={{
-                                                          backgroundColor:
-                                                              index % 2 === 0
-                                                                  ? "rgba(0, 0, 0, 0.05)"
-                                                                  : "white",
-                                                          "&:hover": {
-                                                              backgroundColor:
-                                                                  "rgba(0, 0, 0, 0.1)",
-                                                          },
-                                                      }}
-                                                  >
-                                                      <TableCell
-                                                          sx={{
-                                                              textAlign:
-                                                                  "center",
-                                                          }}
-                                                      >
-                                                          {playerInfo.username}
-                                                      </TableCell>
-                                                      <TableCell
-                                                          sx={{
-                                                              textAlign:
-                                                                  "center",
-                                                          }}
-                                                      >
-                                                          {
-                                                              playerInfo.averagePoints
-                                                          }
-                                                      </TableCell>
-                                                      <TableCell
-                                                          sx={{
-                                                              textAlign:
-                                                                  "center",
-                                                          }}
-                                                      >
-                                                          {
-                                                              playerInfo.totalPoints
-                                                          }
-                                                      </TableCell>
-                                                  </TableRow>
-                                              ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Box>
-                ))}
+                                ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Box>
         </Container>
     );
 };
 
-export default AllTimeGroupLeaderboard;
+export default TournamentGroupLeaderboard;

@@ -2,7 +2,7 @@
 import { Box, BoxProps } from "@mui/material";
 import theme from "../../styles/theme";
 
-const InfoBox = (props: BoxProps) => {
+const GroupBox = (props: BoxProps) => {
     return (
         <Box
             sx={{
@@ -11,6 +11,8 @@ const InfoBox = (props: BoxProps) => {
                 borderRadius: 5,
                 textAlign: "center",
                 padding: 2,
+                mx: 2,
+                my: 1,
                 backgroundColor: theme.palette.secondary.main,
                 color: theme.palette.textBlack.main,
                 fontWeight: "600",
@@ -25,4 +27,4 @@ const InfoBox = (props: BoxProps) => {
     );
 };
 
-export default InfoBox;
+export default GroupBox;

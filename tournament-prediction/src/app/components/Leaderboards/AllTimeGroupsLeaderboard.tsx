@@ -10,7 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import InfoBox from "../General/InfoBox";
+import GroupBox from "../General/GroupBox";
 import Loading from "../General/Loading";
 
 interface User {
@@ -32,7 +32,7 @@ type Props = {
 };
 
 const AllTimeGroupLeaderboard = (props: Props) => {
-    const [pointsSort, setPointsSort] = useState(true);
+    const [pointsSort, setPointsSort] = useState(true); //pointsSort - jedan vrijedi za sve prikazane ljestvice
 
     function setPointsTrue() {
         setPointsSort(true);
@@ -89,11 +89,18 @@ const AllTimeGroupLeaderboard = (props: Props) => {
             >
                 {groupLeaderboards.map((group, index) => (
                     <Box key={index} sx={{ my: 2, mx: 4 }}>
-                        <InfoBox>{group.groupName}</InfoBox>
+                        <GroupBox>{group.groupName}</GroupBox>
                         <TableContainer>
                             <Table>
                                 <TableHead>
                                     <TableRow>
+                                        <TableCell sx={{ textAlign: "center" }}>
+                                            <Typography
+                                                sx={{ fontStyle: "italic" }}
+                                            >
+                                                Rank
+                                            </Typography>
+                                        </TableCell>
                                         <TableCell sx={{ textAlign: "center" }}>
                                             <Typography
                                                 sx={{ fontStyle: "italic" }}
@@ -190,6 +197,14 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                                                   "center",
                                                           }}
                                                       >
+                                                          {index + 1}.
+                                                      </TableCell>
+                                                      <TableCell
+                                                          sx={{
+                                                              textAlign:
+                                                                  "center",
+                                                          }}
+                                                      >
                                                           {playerInfo.username}
                                                       </TableCell>
                                                       <TableCell
@@ -235,6 +250,14 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                                           },
                                                       }}
                                                   >
+                                                      <TableCell
+                                                          sx={{
+                                                              textAlign:
+                                                                  "center",
+                                                          }}
+                                                      >
+                                                          {index + 1}.
+                                                      </TableCell>
                                                       <TableCell
                                                           sx={{
                                                               textAlign:
