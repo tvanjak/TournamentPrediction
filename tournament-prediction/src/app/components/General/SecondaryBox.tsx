@@ -6,6 +6,7 @@ const SecondaryBox = (props: BoxProps) => {
     return (
         <Box
             sx={{
+                fontSize: 20,
                 border: "1px solid",
                 borderColor: theme.palette.divider,
                 borderRadius: 5,
@@ -15,7 +16,7 @@ const SecondaryBox = (props: BoxProps) => {
                 my: 1,
                 backgroundColor: theme.palette.secondary.main,
                 color: theme.palette.textBlack.main,
-                fontWeight: "600",
+                fontWeight: "550",
                 transition: "background-color 0.3s ease",
                 "&:hover": {
                     //backgroundColor: "#c8c0f5",

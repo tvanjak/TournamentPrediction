@@ -12,6 +12,7 @@ const Loading = (props: Props) => {
             alignItems="center"
             minHeight="300px" // You can adjust this if needed
             gap={2} // space between spinner and text
+            padding={3}
         >
             <CircularProgress />
             <Typography variant="h6" color="textSecondary">
