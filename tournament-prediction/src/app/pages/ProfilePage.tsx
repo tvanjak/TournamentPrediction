@@ -21,7 +21,6 @@ const ProfilePage = (props: Props) => {
     useEffect(() => {
         const fetchUserId = async () => {
             try {
-                console.log("EMail: ", session?.user.email);
                 const response = await fetch(
                     `/api/users/getIdByEmail?email=${session?.user.email}`
                 );
@@ -73,7 +72,6 @@ const ProfilePage = (props: Props) => {
                     throw new Error("Failed to fetch group IDs");
                 }
                 const data = await response.json();
-                console.log(data.groupIds);
                 setGroupIds(data.groupIds);
             } catch (error) {
                 console.log("Error fetching group IDs: ", error);

@@ -17,8 +17,6 @@ import TablePagination from "@mui/material/TablePagination";
 interface LeaderboardUser {
     username: string;
     totalPoints: number;
-    averagePoints: number;
-    tournamentsPlayed: number;
 }
 
 interface TournamentLeaderboardInterface {
@@ -42,12 +40,13 @@ const TournamentLeaderboard = (props: Props) => {
 
     const [leaderboard, setLeaderboard] =
         useState<TournamentLeaderboardInterface>();
+    const [paginatedUsers, setPaginatedUsers] = useState<LeaderboardUser[]>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchTournamentLeaderboard = async () => {
             try {
-                console.log("tour: ", props.tournamentId);
+                console.log("tour: ", props.tournamentId); //delete--------------
                 const response = await fetch(
                     `/api/leaderboards/tournamentAll/${props.tournamentId}`
                 );
@@ -55,14 +54,26 @@ const TournamentLeaderboard = (props: Props) => {
                     throw new Error("Failed to fetch tournament leaderboard");
                 }
                 const data = await response.json();
-                setLeaderboard(data.leaderboard);
+                setLeaderboard(data);
             } catch (error) {
                 console.error("Error fetching tournament leaderboard: ", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchTournamentLeaderboard();
     }, [props.tournamentId]);
+
+    useEffect(() => {
+        if (leaderboard && leaderboard.users) {
+            const temp = leaderboard?.users.slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage
+            );
+            setPaginatedUsers(temp);
+        }
+    }, [leaderboard]);
 
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(5);
@@ -81,14 +92,9 @@ const TournamentLeaderboard = (props: Props) => {
         setPage(0); // reset to first page
     };
 
-    if (leaderboard?.users) {
-        const paginatedUsers = leaderboard?.users.slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage
-        );
-    }
-
     if (loading) return <Loading></Loading>;
+
+    if (!leaderboard || !paginatedUsers) return null;
 
     return (
         <Container
@@ -98,86 +104,71 @@ const TournamentLeaderboard = (props: Props) => {
                 alignItems: "center",
             }}
         >
-            {leaderboard && paginatedUsers && (
-                <Box sx={{ p: 3 }}>
-                    <InfoBox>{leaderboard?.tournamentName}</InfoBox>
-                    <TableContainer>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell sx={{ textAlign: "center" }}>
-                                        <Typography
-                                            sx={{ fontStyle: "italic" }}
-                                        >
-                                            Players
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ textAlign: "center" }}>
-                                        <Typography
-                                            sx={{ fontStyle: "italic" }}
-                                        >
-                                            Total Points
-                                        </Typography>
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {paginatedUsers
-                                    .slice() // create a shallow copy so you don't mutate the original
-                                    .sort(
-                                        (a, b) => b.totalPoints - a.totalPoints
-                                    ) // sort descending
-                                    .map((playerInfo, index) => (
-                                        <TableRow
-                                            key={index}
-                                            sx={{
+            <Box sx={{ p: 3 }}>
+                <InfoBox>{leaderboard.tournamentName}</InfoBox>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontStyle: "italic" }}>
+                                        Players
+                                    </Typography>
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                    <Typography sx={{ fontStyle: "italic" }}>
+                                        Total Points
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {paginatedUsers
+                                .slice() // create a shallow copy so you don't mutate the original
+                                .sort((a, b) => b.totalPoints - a.totalPoints) // sort descending
+                                .map((playerInfo, index) => (
+                                    <TableRow
+                                        key={index}
+                                        sx={{
+                                            backgroundColor:
+                                                index % 2 === 0
+                                                    ? "rgba(0, 0, 0, 0.05)"
+                                                    : "white",
+                                            "&:hover": {
                                                 backgroundColor:
-                                                    index % 2 === 0
-                                                        ? "rgba(0, 0, 0, 0.05)"
-                                                        : "white",
-                                                "&:hover": {
-                                                    backgroundColor:
-                                                        "rgba(0, 0, 0, 0.1)",
-                                                },
+                                                    "rgba(0, 0, 0, 0.1)",
+                                            },
+                                        }}
+                                    >
+                                        <TableCell
+                                            sx={{
+                                                textAlign: "center",
                                             }}
                                         >
-                                            <TableCell
-                                                sx={{
-                                                    textAlign: "center",
-                                                }}
-                                            >
-                                                {playerInfo.username}
-                                            </TableCell>
-                                            <TableCell
-                                                sx={{
-                                                    textAlign: "center",
-                                                }}
-                                            >
-                                                {playerInfo.averagePoints}
-                                            </TableCell>
-                                            <TableCell
-                                                sx={{
-                                                    textAlign: "center",
-                                                }}
-                                            >
-                                                {playerInfo.totalPoints}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[5, 10, 25]}
-                        component="div"
-                        count={leaderboard?.users.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                </Box>
-            )}
+                                            {playerInfo.username}
+                                        </TableCell>
+                                        <TableCell
+                                            sx={{
+                                                textAlign: "center",
+                                            }}
+                                        >
+                                            {playerInfo.totalPoints}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={leaderboard?.users.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+            </Box>
         </Container>
     );
 };

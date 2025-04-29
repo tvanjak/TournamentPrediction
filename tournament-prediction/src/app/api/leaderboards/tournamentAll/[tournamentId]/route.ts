@@ -45,14 +45,12 @@ export async function GET(request: Request, { params }: { params: { tournamentId
     const leaderboard = tournamentData.tournament_leaderboards.map((entry) => ({
       username: entry.users?.username,
       totalPoints: entry.total_points ?? 0,
-      email: entry.users?.email,
-      image: entry.users?.image,
     }));
 
     // Return the tournament name along with the leaderboard data
     return NextResponse.json({
       tournamentName: tournamentData.name,
-      leaderboard: leaderboard,
+      users: leaderboard,
     });
   } catch (error) {
     console.error("[GET_TOURNAMENT_LEADERBOARD_ERROR]", error);
