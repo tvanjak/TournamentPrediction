@@ -2,7 +2,7 @@
 import { Box, BoxProps } from "@mui/material";
 import theme from "../../styles/theme";
 
-const TournamentBox = (props: BoxProps) => {
+const PrimaryBox = (props: BoxProps) => {
     return (
         <Box
             sx={{
@@ -12,7 +12,6 @@ const TournamentBox = (props: BoxProps) => {
                 textAlign: "center",
                 padding: 2,
                 mx: 2,
-                my: 1,
                 backgroundColor: theme.palette.primary.main,
                 color: theme.palette.textBlack.main,
                 fontWeight: "600",
@@ -27,4 +26,4 @@ const TournamentBox = (props: BoxProps) => {
     );
 };
 
-export default TournamentBox;
+export default PrimaryBox;

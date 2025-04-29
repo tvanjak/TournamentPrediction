@@ -2,7 +2,7 @@
 import { Box, BoxProps } from "@mui/material";
 import theme from "../../styles/theme";
 
-const GroupBox = (props: BoxProps) => {
+const SecondaryBox = (props: BoxProps) => {
     return (
         <Box
             sx={{
@@ -27,4 +27,4 @@ const GroupBox = (props: BoxProps) => {
     );
 };
 
-export default GroupBox;
+export default SecondaryBox;

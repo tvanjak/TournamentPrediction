@@ -12,93 +12,61 @@ import {
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
 import Loading from "../General/Loading";
-import TablePagination from "@mui/material/TablePagination";
+import PrimaryBox from "../General/PrimaryBox";
 
-interface LeaderboardUser {
+interface User {
     username: string;
     totalPoints: number;
 }
 
-interface TournamentLeaderboardInterface {
+interface GroupLeaderboard {
+    groupName: string;
     tournamentName: string;
-    users: LeaderboardUser[];
+    users: User[];
 }
 
 type Props = {
-    tournamentId: string;
+    tournamentId: number;
+    groupId: number;
 };
 
-const TournamentLeaderboard = (props: Props) => {
-    /*const [pointsSort, setPointsSort] = useState(true);
-
-    function setPointsTrue() {
-        setPointsSort(true);
-    }
-    function setPointsFalse() {
-        setPointsSort(false);
-    }*/
-
-    const [leaderboard, setLeaderboard] =
-        useState<TournamentLeaderboardInterface>();
-    const [paginatedUsers, setPaginatedUsers] = useState<LeaderboardUser[]>();
+const TournamentGroupLeaderboard = (props: Props) => {
+    const [groupLeaderboard, setGroupLeaderboard] =
+        useState<GroupLeaderboard>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchTournamentLeaderboard = async () => {
+        async function fetchGroupLeaderboard(
+            tournamentId: number,
+            groupId: number
+        ) {
             try {
-                console.log("tour: ", props.tournamentId); //delete--------------
-                const response = await fetch(
-                    `/api/leaderboards/tournamentAll/${props.tournamentId}`
+                const res = await fetch(
+                    `/api/leaderboards/tournamentGroups/${tournamentId}/${groupId}`
                 );
-                if (!response.ok) {
-                    throw new Error("Failed to fetch tournament leaderboard");
+                if (!res.ok) {
+                    throw new Error("Failed to fetch group leaderboards");
                 }
-                const data = await response.json();
-                setLeaderboard(data);
+                const data = await res.json();
+                console.log(data);
+                setGroupLeaderboard(data);
             } catch (error) {
-                console.error("Error fetching tournament leaderboard: ", error);
+                console.error(error);
             } finally {
                 setLoading(false);
             }
-        };
-
-        fetchTournamentLeaderboard();
-    }, [props.tournamentId]);
-
-    useEffect(() => {
-        if (leaderboard && leaderboard.users) {
-            const temp = leaderboard?.users.slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage
-            );
-            setPaginatedUsers(temp);
         }
-    }, [leaderboard]);
-
-    const [page, setPage] = useState<number>(0);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-
-    const handleChangePage = (
-        event: React.MouseEvent<HTMLButtonElement> | null,
-        newPage: number
-    ): void => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ): void => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0); // reset to first page
-    };
+        fetchGroupLeaderboard(props.tournamentId, props.groupId);
+    }, []);
 
     if (loading) return <Loading></Loading>;
 
-    if (!leaderboard || !paginatedUsers) return null;
+    if (!groupLeaderboard || !groupLeaderboard.users) return null;
 
     return (
         <Box sx={{ p: 3 }}>
-            <SecondaryBox>{leaderboard.tournamentName}</SecondaryBox>
+            <PrimaryBox>{groupLeaderboard?.tournamentName}</PrimaryBox>
+            <SecondaryBox>{groupLeaderboard?.groupName}</SecondaryBox>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -121,7 +89,7 @@ const TournamentLeaderboard = (props: Props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedUsers
+                        {groupLeaderboard.users
                             .slice() // create a shallow copy so you don't mutate the original
                             .sort((a, b) => b.totalPoints - a.totalPoints) // sort descending
                             .map((playerInfo, index) => (
@@ -139,7 +107,7 @@ const TournamentLeaderboard = (props: Props) => {
                                     }}
                                 >
                                     <TableCell sx={{ textAlign: "center" }}>
-                                        {page * rowsPerPage + index + 1}.
+                                        {index + 1}.
                                     </TableCell>
                                     <TableCell
                                         sx={{
@@ -148,6 +116,7 @@ const TournamentLeaderboard = (props: Props) => {
                                     >
                                         {playerInfo.username}
                                     </TableCell>
+
                                     <TableCell
                                         sx={{
                                             textAlign: "center",
@@ -160,17 +129,8 @@ const TournamentLeaderboard = (props: Props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={leaderboard?.users.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
         </Box>
     );
 };
 
-export default TournamentLeaderboard;
+export default TournamentGroupLeaderboard;

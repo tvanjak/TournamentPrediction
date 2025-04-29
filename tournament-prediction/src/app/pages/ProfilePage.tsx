@@ -5,10 +5,11 @@ import React, { useEffect, useState } from "react";
 import theme from "../styles/theme";
 import { useSession } from "next-auth/react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import GroupLeaderboard from "../components/Leaderboards/AllTimeGroupsLeaderboard";
+import GroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
 import Loading from "../components/General/Loading";
 import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
-import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupsLeaderboards";
+import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
+import PrimaryBox from "../components/General/PrimaryBox";
 
 type Props = {};
 
@@ -102,6 +103,7 @@ const ProfilePage = (props: Props) => {
                         display: "flex",
                         justifyContent: "start",
                         alignItems: "center",
+                        mb: 2,
                     }}
                 >
                     <Box sx={{ p: 2 }}>
@@ -125,8 +127,21 @@ const ProfilePage = (props: Props) => {
                         </Typography>
                     </Box>
                 </Box>
+                <PrimaryBox>All-time Group Leaderboards</PrimaryBox>
                 {groupIds ? (
-                    <GroupLeaderboard groupIds={groupIds}></GroupLeaderboard>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-evenly",
+                        }}
+                    >
+                        {groupIds.map((groupId, index) => (
+                            <GroupLeaderboard
+                                groupId={groupId}
+                                key={index}
+                            ></GroupLeaderboard>
+                        ))}
+                    </Box>
                 ) : (
                     <Loading></Loading>
                 )}

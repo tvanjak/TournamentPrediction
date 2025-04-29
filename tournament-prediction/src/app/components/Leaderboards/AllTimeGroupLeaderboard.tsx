@@ -12,19 +12,27 @@ import {
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
 import Loading from "../General/Loading";
-import TablePagination from "@mui/material/TablePagination";
 
-interface LeaderboardUser {
+interface User {
     username: string;
+    email: string;
+    image: string;
     totalPoints: number;
     averagePoints: number;
     tournamentsPlayed: number;
 }
 
-type Props = {};
+interface GroupLeaderboard {
+    groupName: string;
+    users: User[];
+}
 
-const AllTimeLeaderboard = (props: Props) => {
-    const [pointsSort, setPointsSort] = useState(true);
+type Props = {
+    groupId: number;
+};
+
+const AllTimeGroupLeaderboard = (props: Props) => {
+    const [pointsSort, setPointsSort] = useState(true); //pointsSort - jedan vrijedi za sve prikazane ljestvice
 
     function setPointsTrue() {
         setPointsSort(true);
@@ -33,55 +41,43 @@ const AllTimeLeaderboard = (props: Props) => {
         setPointsSort(false);
     }
 
-    const [users, setUsers] = useState<LeaderboardUser[]>([]);
+    const [groupLeaderboard, setGroupLeaderboard] =
+        useState<GroupLeaderboard>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchLeaderboard = async () => {
+        async function fetchGroupLeaderboard(groupId: number) {
             try {
-                const response = await fetch("/api/leaderboards/all-time");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch leaderboard");
+                const res = await fetch(
+                    `/api/leaderboards/all-timeGroup/${groupId}`
+                );
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch group leaderboards");
                 }
-                const data = await response.json();
-                console.log(data.users);
-                setUsers(data.users);
+
+                const data = await res.json();
+                setGroupLeaderboard(data);
             } catch (error) {
-                console.error("Error fetching leaderboard:", error);
+                console.error(error);
             } finally {
                 setLoading(false);
             }
-        };
-        fetchLeaderboard();
+        }
+        fetchGroupLeaderboard(props.groupId);
     }, []);
-
-    const [page, setPage] = useState<number>(0);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-
-    const handleChangePage = (
-        event: React.MouseEvent<HTMLButtonElement> | null,
-        newPage: number
-    ): void => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ): void => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0); // reset to first page
-    };
-
-    const paginatedUsers = users.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-    );
 
     if (loading) return <Loading></Loading>;
 
+    if (!groupLeaderboard) return null;
+
     return (
-        <Box sx={{ p: 3 }}>
-            <SecondaryBox>All-time leaderboard</SecondaryBox>
+        <Box
+            sx={{
+                p: 3,
+            }}
+        >
+            <SecondaryBox>{groupLeaderboard.groupName}</SecondaryBox>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -154,7 +150,7 @@ const AllTimeLeaderboard = (props: Props) => {
                     </TableHead>
                     <TableBody>
                         {!pointsSort
-                            ? paginatedUsers
+                            ? groupLeaderboard.users
                                   .slice() // create a shallow copy so you don't mutate the original
                                   .sort((a, b) => b.totalPoints - a.totalPoints) // sort descending
                                   .map((playerInfo, index) => (
@@ -172,9 +168,11 @@ const AllTimeLeaderboard = (props: Props) => {
                                           }}
                                       >
                                           <TableCell
-                                              sx={{ textAlign: "center" }}
+                                              sx={{
+                                                  textAlign: "center",
+                                              }}
                                           >
-                                              {page * rowsPerPage + index + 1}.
+                                              {index + 1}.
                                           </TableCell>
                                           <TableCell
                                               sx={{
@@ -199,7 +197,7 @@ const AllTimeLeaderboard = (props: Props) => {
                                           </TableCell>
                                       </TableRow>
                                   ))
-                            : paginatedUsers
+                            : groupLeaderboard.users
                                   .slice() // create a shallow copy so you don't mutate the original
                                   .sort(
                                       (a, b) =>
@@ -220,9 +218,11 @@ const AllTimeLeaderboard = (props: Props) => {
                                           }}
                                       >
                                           <TableCell
-                                              sx={{ textAlign: "center" }}
+                                              sx={{
+                                                  textAlign: "center",
+                                              }}
                                           >
-                                              {page * rowsPerPage + index + 1}.
+                                              {index + 1}.
                                           </TableCell>
                                           <TableCell
                                               sx={{
@@ -250,17 +250,8 @@ const AllTimeLeaderboard = (props: Props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={users.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
         </Box>
     );
 };
 
-export default AllTimeLeaderboard;
+export default AllTimeGroupLeaderboard;

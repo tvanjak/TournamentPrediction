@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client";
 
-export async function POST(req: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: { groupId: string } }
+) {
   try {
-    const body = await req.json();
-    const { groupIds } = body;
+    const groupId = parseInt(params.groupId);
 
-    if (!Array.isArray(groupIds) || groupIds.length === 0) {
-      return new NextResponse("groupIds must be a non-empty array", { status: 400 });
+    if (isNaN(groupId)) {
+      return new NextResponse("Invalid or missing groupId", { status: 400 });
     }
 
-    const groups = await prisma.user_groups.findMany({
+    const group = await prisma.user_groups.findUnique({
       where: {
-        id: {
-          in: groupIds,
-        },
+        id: groupId,
       },
       include: {
         user_group_members: {
@@ -39,24 +39,26 @@ export async function POST(req: Request) {
       },
     });
 
-    const formattedGroups = groups.map((group) => ({
+    if (!group) {
+      return new NextResponse("Group not found", { status: 404 });
+    }
+
+    const formattedGroup = {
       groupName: group.name,
       users: group.user_group_members
         .filter((member) => member.users !== null)
         .map((member) => ({
           username: member.users?.username,
-          email: member.users?.email,
-          image: member.users?.image,
           totalPoints: member.users?.all_time_leaderboard?.total_points ?? 0,
           averagePoints: member.users?.all_time_leaderboard?.average_points ?? 0,
           tournamentsPlayed: member.users?.all_time_leaderboard?.tournaments_played ?? 0,
         }))
         .sort((a, b) => b.totalPoints - a.totalPoints),
-    }));
+    };
 
-    return NextResponse.json(formattedGroups);
+    return NextResponse.json(formattedGroup);
   } catch (error) {
-    console.error("[POST_GROUP_LEADERBOARDS_ERROR]", error);
+    console.error("[GET_GROUP_LEADERBOARD_ERROR]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
