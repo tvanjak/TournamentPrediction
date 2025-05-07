@@ -8,10 +8,13 @@ interface Tournament {
     name: string;
 }
 
-type Props = {};
+type Props = {
+    onLoaded: () => void;
+};
 
 const UpcomingTournaments = (props: Props) => {
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getUpcomingTournaments = async () => {
@@ -24,12 +27,15 @@ const UpcomingTournaments = (props: Props) => {
                 setTournaments(data.tournaments);
             } catch (error) {
                 console.log("Error fetching upcoming tournaments: ", error);
+            } finally {
+                setLoading(false);
+                props.onLoaded();
             }
         };
         getUpcomingTournaments();
     }, []);
 
-    //if (loading) return <Loading />;
+    if (loading) return null;
 
     return (
         <Box

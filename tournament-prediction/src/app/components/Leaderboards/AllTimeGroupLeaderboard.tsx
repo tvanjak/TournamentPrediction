@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
-import Loading from "../General/Loading";
 
 interface User {
     username: string;
@@ -29,6 +28,7 @@ interface GroupLeaderboard {
 
 type Props = {
     groupId: number;
+    onLoaded: () => void;
 };
 
 const AllTimeGroupLeaderboard = (props: Props) => {
@@ -62,12 +62,13 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                 console.error(error);
             } finally {
                 setLoading(false);
+                props.onLoaded();
             }
         }
         fetchGroupLeaderboard(props.groupId);
     }, []);
 
-    if (loading) return <Loading></Loading>;
+    if (loading) return null;
 
     if (!groupLeaderboard) return null;
 

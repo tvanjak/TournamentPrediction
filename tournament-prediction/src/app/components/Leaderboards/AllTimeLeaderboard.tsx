@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
-import Loading from "../General/Loading";
 import TablePagination from "@mui/material/TablePagination";
 
 interface LeaderboardUser {
@@ -21,7 +20,9 @@ interface LeaderboardUser {
     tournamentsPlayed: number;
 }
 
-type Props = {};
+type Props = {
+    onLoaded: () => void;
+};
 
 const AllTimeLeaderboard = (props: Props) => {
     const [pointsSort, setPointsSort] = useState(true);
@@ -50,6 +51,7 @@ const AllTimeLeaderboard = (props: Props) => {
                 console.error("Error fetching leaderboard:", error);
             } finally {
                 setLoading(false);
+                props.onLoaded();
             }
         };
         fetchLeaderboard();
@@ -77,10 +79,10 @@ const AllTimeLeaderboard = (props: Props) => {
         page * rowsPerPage + rowsPerPage
     );
 
-    if (loading) return <Loading></Loading>;
+    if (loading) return null;
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 1 }}>
             <SecondaryBox>All-time leaderboard</SecondaryBox>
             <TableContainer>
                 <Table>
