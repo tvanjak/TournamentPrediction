@@ -57,18 +57,22 @@ model elimination_games {
 }
 
 model elimination_games_predictions {
-  id                  Int                @id @default(autoincrement())
-  prediction_id       Int?
-  game_id             Int?
-  predicted_winner_id Int
-  points_awarded      Int?
-  round_id            Int?
-  created_at          DateTime?          @default(now()) @db.Timestamp(6)
-  modified_at         DateTime?          @default(now()) @db.Timestamp(6)
-  elimination_games   elimination_games? @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  teams               teams              @relation(fields: [predicted_winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  predictions         predictions?       @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  rounds              rounds?            @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                                                  Int                @id @default(autoincrement())
+  prediction_id                                       Int?
+  game_id                                             Int?
+  predicted_winner_id                                 Int
+  points_awarded                                      Int?
+  round_id                                            Int?
+  created_at                                          DateTime?          @default(now()) @db.Timestamp(6)
+  modified_at                                         DateTime?          @default(now()) @db.Timestamp(6)
+  team1_id                                            Int
+  team2_id                                            Int
+  elimination_games                                   elimination_games? @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams                                               teams              @relation(fields: [predicted_winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  predictions                                         predictions?       @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  rounds                                              rounds?            @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teams_elimination_games_predictions_team1_idToteams teams              @relation("elimination_games_predictions_team1_idToteams", fields: [team1_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_1")
+  teams_elimination_games_predictions_team2_idToteams teams              @relation("elimination_games_predictions_team2_idToteams", fields: [team2_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_2")
 }
 
 model elimination_matchups {
@@ -178,6 +182,7 @@ model rounds {
   teamguessed_points            Int
   created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
   modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
+  outcomeguessed_points         Int?
   elimination_games             elimination_games[]
   elimination_games_predictions elimination_games_predictions[]
 }
@@ -194,20 +199,22 @@ model sports {
 }
 
 model teams {
-  id                                                   Int                             @id @default(autoincrement())
-  country_id                                           Int?                            @unique
-  created_at                                           DateTime?                       @default(now()) @db.Timestamp(6)
-  modified_at                                          DateTime?                       @default(now()) @db.Timestamp(6)
-  additional_group_rankings                            additional_group_rankings[]
-  elimination_games_elimination_games_team1_idToteams  elimination_games[]             @relation("elimination_games_team1_idToteams")
-  elimination_games_elimination_games_team2_idToteams  elimination_games[]             @relation("elimination_games_team2_idToteams")
-  elimination_games_elimination_games_winner_idToteams elimination_games[]             @relation("elimination_games_winner_idToteams")
-  elimination_games_predictions                        elimination_games_predictions[]
-  group_games_group_games_team1_idToteams              group_games[]                   @relation("group_games_team1_idToteams")
-  group_games_group_games_team2_idToteams              group_games[]                   @relation("group_games_team2_idToteams")
-  group_rankings                                       group_rankings[]
-  group_rankings_predictions                           group_rankings_predictions[]
-  countries                                            countries?                      @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                                                                          Int                             @id @default(autoincrement())
+  country_id                                                                  Int?                            @unique
+  created_at                                                                  DateTime?                       @default(now()) @db.Timestamp(6)
+  modified_at                                                                 DateTime?                       @default(now()) @db.Timestamp(6)
+  additional_group_rankings                                                   additional_group_rankings[]
+  elimination_games_elimination_games_team1_idToteams                         elimination_games[]             @relation("elimination_games_team1_idToteams")
+  elimination_games_elimination_games_team2_idToteams                         elimination_games[]             @relation("elimination_games_team2_idToteams")
+  elimination_games_elimination_games_winner_idToteams                        elimination_games[]             @relation("elimination_games_winner_idToteams")
+  elimination_games_predictions                                               elimination_games_predictions[]
+  elimination_games_predictions_elimination_games_predictions_team1_idToteams elimination_games_predictions[] @relation("elimination_games_predictions_team1_idToteams")
+  elimination_games_predictions_elimination_games_predictions_team2_idToteams elimination_games_predictions[] @relation("elimination_games_predictions_team2_idToteams")
+  group_games_group_games_team1_idToteams                                     group_games[]                   @relation("group_games_team1_idToteams")
+  group_games_group_games_team2_idToteams                                     group_games[]                   @relation("group_games_team2_idToteams")
+  group_rankings                                                              group_rankings[]
+  group_rankings_predictions                                                  group_rankings_predictions[]
+  countries                                                                   countries?                      @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model tournament_leaderboards {
@@ -265,24 +272,20 @@ model user_groups {
 }
 
 model users {
-  id          Int       @id @default(autoincrement())
-  username    String?   @unique @db.VarChar(50)
-  email       String    @unique @db.VarChar(100)
-  is_admin    Boolean?  @default(false)
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  modified_at DateTime? @default(now()) @db.Timestamp(6)
-
-  //name                  String?   // Google name
-  image String? // Google profile image URL
-
+  id                      Int                       @id @default(autoincrement())
+  username                String?                   @unique @db.VarChar(50)
+  email                   String                    @unique @db.VarChar(100)
+  is_admin                Boolean?                  @default(false)
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  modified_at             DateTime?                 @default(now()) @db.Timestamp(6)
+  image                   String?
+  accounts                Account[]
+  sessions                Session[]
   all_time_leaderboard    all_time_leaderboard?
   predictions             predictions[]
   tournament_leaderboards tournament_leaderboards[]
   user_group_members      user_group_members[]
   user_groups             user_groups[]
-
-  accounts Account[]
-  sessions Session[]
 }
 
 model Account {
@@ -291,15 +294,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }

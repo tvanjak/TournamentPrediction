@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const ongoingTournaments = await prisma.tournaments.findMany({
       where: {
-        status: "UPCOMING",
+        status: "ONGOING",
       },
       select: {
         id: true,

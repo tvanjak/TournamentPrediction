@@ -1,6 +1,6 @@
 "use client";
 import { ThemeProvider } from "@emotion/react";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Header/Navbar";
 import { SessionProvider } from "next-auth/react";
 import theme from "./styles/theme";
 

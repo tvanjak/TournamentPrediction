@@ -1,16 +1,91 @@
 "use client";
 
 import { Avatar, Box, Container, Typography } from "@mui/material";
-import React from "react";
-import AllTimeLeaderboard from "../components/AllTimeLeaderboard";
+import React, { useEffect, useState } from "react";
 import theme from "../styles/theme";
 import { useSession } from "next-auth/react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import GroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
+import Loading from "../components/General/Loading";
+import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
+import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
+import PrimaryBox from "../components/General/PrimaryBox";
 
 type Props = {};
 
 const ProfilePage = (props: Props) => {
     const { data: session, status } = useSession();
+    const [totalPoints, setTotalPoints] = useState<number>();
+    const [averagePoints, setAveragePoints] = useState<number>();
+    const [groupIds, setGroupIds] = useState<number[]>();
+    const [userId, setUserId] = useState<number>();
+
+    useEffect(() => {
+        const fetchUserId = async () => {
+            try {
+                const response = await fetch(
+                    `/api/users/getIdByEmail?email=${session?.user.email}`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user ID");
+                }
+                const data = await response.json();
+                setUserId(data.userId);
+            } catch (error) {
+                console.error("Error fetching user ID: ", error);
+            }
+        };
+        if (session?.user.email) fetchUserId();
+    }, [session?.user.email]);
+
+    useEffect(() => {
+        const fetchTotalPoints = async () => {
+            try {
+                const response = await fetch(
+                    `/api/users/${userId}/totalPoints`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch total points");
+                }
+                const data = await response.json();
+                setTotalPoints(data.totalPoints);
+            } catch (error) {
+                console.error("Error fetching total points: ", error);
+            }
+        };
+        const fetchAveragePoints = async () => {
+            try {
+                const response = await fetch(
+                    `/api/users/${userId}/averagePoints`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch average points");
+                }
+                const data = await response.json();
+                setAveragePoints(data.averagePoints);
+            } catch (error) {
+                console.error("Error fetching average points: ", error);
+            }
+        };
+        const fetchGroupIds = async () => {
+            try {
+                const response = await fetch(`/api/users/${userId}/groupIds`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch group IDs");
+                }
+                const data = await response.json();
+                setGroupIds(data.groupIds);
+            } catch (error) {
+                console.log("Error fetching group IDs: ", error);
+            }
+        };
+        if (userId) {
+            console.log("User ID: ", userId);
+            fetchTotalPoints();
+            fetchAveragePoints();
+            fetchGroupIds();
+        }
+    }, [userId]);
 
     if (session)
         return (
@@ -28,6 +103,7 @@ const ProfilePage = (props: Props) => {
                         display: "flex",
                         justifyContent: "start",
                         alignItems: "center",
+                        mb: 2,
                     }}
                 >
                     <Box sx={{ p: 2 }}>
@@ -36,7 +112,7 @@ const ProfilePage = (props: Props) => {
                             <Avatar
                                 alt="User Profile"
                                 src={session.user.image}
-                                sx={{ width: 80, height: 80 }}
+                                sx={{ width: 50, height: 50 }}
                             />
                         )}
                         {!session.user.image && (
@@ -44,10 +120,35 @@ const ProfilePage = (props: Props) => {
                         )}
                     </Box>
                     <Box>
-                        <Typography>• {session.user.name}</Typography>
+                        <Typography>• Username: {session.user.name}</Typography>
+                        <Typography>• Total points: {totalPoints}</Typography>
+                        <Typography>
+                            • Average points: {averagePoints}
+                        </Typography>
                     </Box>
                 </Box>
-                <AllTimeLeaderboard></AllTimeLeaderboard>
+                <PrimaryBox>All-time Group Leaderboards</PrimaryBox>
+                {groupIds ? (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-evenly",
+                        }}
+                    >
+                        {groupIds.map((groupId, index) => (
+                            <GroupLeaderboard
+                                groupId={groupId}
+                                key={index}
+                            ></GroupLeaderboard>
+                        ))}
+                    </Box>
+                ) : (
+                    <Loading></Loading>
+                )}
+                <TournamentGroupLeaderboard
+                    tournamentId={1}
+                    groupId={1}
+                ></TournamentGroupLeaderboard>
             </Container>
         );
 };
