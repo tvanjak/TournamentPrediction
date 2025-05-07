@@ -4,7 +4,7 @@ import { Avatar, Box, Container, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import theme from "../styles/theme";
 import { useSession } from "next-auth/react";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+//import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import GroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
 import Loading from "../components/General/Loading";
 import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
@@ -115,9 +115,9 @@ const ProfilePage = (props: Props) => {
                                 sx={{ width: 50, height: 50 }}
                             />
                         )}
-                        {!session.user.image && (
+                        {/*{!session.user.image && (
                             <AccountCircleIcon fontSize="large" />
-                        )}
+                        )}*/}
                     </Box>
                     <Box>
                         <Typography>• Username: {session.user.name}</Typography>
@@ -135,12 +135,13 @@ const ProfilePage = (props: Props) => {
                             justifyContent: "space-evenly",
                         }}
                     >
-                        {groupIds.map((groupId, index) => (
+                        {/*{groupIds.map((groupId, index) => (
                             <GroupLeaderboard
                                 groupId={groupId}
                                 key={index}
+                                onLoaded= 
                             ></GroupLeaderboard>
-                        ))}
+                        ))}*/}
                     </Box>
                 ) : (
                     <Loading></Loading>

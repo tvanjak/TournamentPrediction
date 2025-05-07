@@ -8,6 +8,7 @@ import UpcomingTournaments from "../components/HomePage/UpcomingTournaments";
 import Loading from "../components/General/Loading";
 import AllTimeGroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
 import SecondaryBox from "../components/General/SecondaryBox";
+import Link from "next/link";
 
 type Props = {};
 

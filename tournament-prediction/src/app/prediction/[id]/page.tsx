@@ -2,8 +2,8 @@ import React from "react";
 
 type Props = {};
 
-const PredictionPage = (props: Props) => {
-    return <div>PredictionPage</div>;
+const prediction = (props: Props) => {
+    return <div>prediction</div>;
 };
 
-export default PredictionPage;
+export default prediction;
