@@ -66,7 +66,7 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                     </Typography>
 
                     {games.map((game) => (
-                        <Paper key={game.id} sx={{ mb: 2, px: 2, py: 1 }}>
+                        <Paper key={game.id} sx={{ m: 2 }}>
                             <Box
                                 display="flex"
                                 justifyContent="space-between"
@@ -76,6 +76,7 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                 <Box sx={{ width: "50%" }}>
                                     <Typography
                                         sx={{
+                                            px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
                                             height: "100%",
@@ -89,21 +90,64 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                 <Box
                                     sx={{
                                         width: "50%",
-                                        height: "100%",
-                                        alignContent: "center",
                                         textAlign: "right",
                                     }}
                                 >
                                     <Typography
                                         sx={{
+                                            px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
+                                            height: "100%",
+                                            alignContent: "center",
                                         }}
                                     >
                                         {game.team2?.countries?.name ??
                                             "Team 2"}
                                     </Typography>
                                 </Box>
+                                {/* <Box
+                                    sx={{
+                                        width: "50%",
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body1"
+                                        sx={{
+                                            p: 1,
+                                            borderRadius: 1,
+                                            whiteSpace: "normal",
+                                            wordBreak: "break-word",
+                                            height: "100%",
+                                            alignContent: "center",
+                                        }}
+                                        textAlign="center"
+                                    >
+                                        {game.team1?.countries?.name ??
+                                            "Team 1"}
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        width: "50%",
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body1"
+                                        sx={{
+                                            p: 1,
+                                            borderRadius: 1,
+                                            whiteSpace: "normal",
+                                            wordBreak: "break-word",
+                                            height: "100%",
+                                            alignContent: "center",
+                                        }}
+                                        textAlign="center"
+                                    >
+                                        {game.team2?.countries?.name ??
+                                            "Team 2"}
+                                    </Typography>
+                                </Box>*/}
                             </Box>
                             <Typography variant="subtitle1" textAlign="center">
                                 {game.result ?? "N/A"}
@@ -156,16 +200,19 @@ const EliminationGame = ({
     return (
         <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
             {eliminationGames.map((round, index) => (
-                <Box key={index} mb={3}>
+                <Box
+                    key={index}
+                    mb={3}
+                    display="flex" // these three lines for vertical centering of elimination titles
+                    flexDirection="column"
+                    alignItems="center"
+                >
                     <Typography variant="h6" gutterBottom>
                         {round.name}
                     </Typography>
-                    <Box sx={{ display: "flex" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                         {round.games.map((game) => (
-                            <Paper
-                                key={game.id}
-                                sx={{ m: 2, p: 2, minWidth: 200 }}
-                            >
+                            <Paper key={game.id} sx={{ m: 2, minWidth: 300 }}>
                                 <Box
                                     display="flex"
                                     justifyContent="space-between"
@@ -173,25 +220,27 @@ const EliminationGame = ({
                                 >
                                     <Box
                                         sx={{
-                                            //borderRadius: 2,
-                                            //p: 1,
                                             width: "50%",
-                                            //backgroundColor:
-                                            //    game.team1?.countries?.name ===
-                                            //    game.team_winner?.countries
-                                            //        ?.name
-                                            //        ? "lightgreen"
-                                            //        : "lightcoral",
                                         }}
                                     >
                                         <Typography
                                             variant="body1"
                                             sx={{
+                                                p: 1,
+                                                borderRadius: 1,
+                                                backgroundColor:
+                                                    game.team1?.countries
+                                                        ?.name ===
+                                                    game.team_winner?.countries
+                                                        ?.name
+                                                        ? "lightgreen"
+                                                        : "lightcoral",
                                                 whiteSpace: "normal",
                                                 wordBreak: "break-word",
                                                 height: "100%",
                                                 alignContent: "center",
                                             }}
+                                            textAlign="center"
                                         >
                                             {game.team1?.countries?.name ??
                                                 "Team 1"}
@@ -199,26 +248,27 @@ const EliminationGame = ({
                                     </Box>
                                     <Box
                                         sx={{
-                                            //borderRadius: 2,
-                                            //p: 1,
                                             width: "50%",
-                                            //backgroundColor:
-                                            //    game.team1?.countries?.name ===
-                                            //    game.team_winner?.countries
-                                            //        ?.name
-                                            //        ? "lightgreen"
-                                            //        : "lightcoral",
                                         }}
                                     >
                                         <Typography
                                             variant="body1"
                                             sx={{
+                                                p: 1,
+                                                borderRadius: 1,
                                                 whiteSpace: "normal",
                                                 wordBreak: "break-word",
                                                 height: "100%",
                                                 alignContent: "center",
+                                                backgroundColor:
+                                                    game.team2?.countries
+                                                        ?.name ===
+                                                    game.team_winner?.countries
+                                                        ?.name
+                                                        ? "lightgreen"
+                                                        : "lightcoral",
                                             }}
-                                            textAlign="right"
+                                            textAlign="center"
                                         >
                                             {game.team2?.countries?.name ??
                                                 "Team 2"}
