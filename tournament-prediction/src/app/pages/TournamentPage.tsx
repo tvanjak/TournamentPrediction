@@ -239,8 +239,8 @@ const EliminationGame = ({
                                                 wordBreak: "break-word",
                                                 height: "100%",
                                                 alignContent: "center",
+                                                textAlign: "center",
                                             }}
-                                            textAlign="center"
                                         >
                                             {game.team1?.countries?.name ??
                                                 "Team 1"}
@@ -267,8 +267,8 @@ const EliminationGame = ({
                                                         ?.name
                                                         ? "lightgreen"
                                                         : "lightcoral",
+                                                textAlign: "center",
                                             }}
-                                            textAlign="center"
                                         >
                                             {game.team2?.countries?.name ??
                                                 "Team 2"}

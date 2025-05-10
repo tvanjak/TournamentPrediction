@@ -171,42 +171,54 @@ const EliminationGamesPrediction = ({
                                     justifyContent="space-between"
                                     height="50px"
                                 >
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            p: 1,
-                                            textAlign: "center",
-                                            width: "50%",
-                                            backgroundColor:
-                                                game.predicted_winner_id &&
-                                                typeof game.team1 !==
-                                                    "string" &&
-                                                game.team1?.id ===
-                                                    game.predicted_winner_id
-                                                    ? "lightgreen"
-                                                    : "lightcoral",
-                                        }}
-                                    >
-                                        {getTeamName(game.team1)}
-                                    </Typography>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            p: 1,
-                                            textAlign: "center",
-                                            width: "50%",
-                                            backgroundColor:
-                                                game.predicted_winner_id &&
-                                                typeof game.team2 !==
-                                                    "string" &&
-                                                game.team2?.id ===
-                                                    game.predicted_winner_id
-                                                    ? "lightgreen"
-                                                    : "lightcoral",
-                                        }}
-                                    >
-                                        {getTeamName(game.team2)}
-                                    </Typography>
+                                    <Box sx={{ width: "50%" }}>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                p: 1,
+                                                borderRadius: 1,
+                                                textAlign: "center",
+                                                whiteSpace: "normal",
+                                                wordBreak: "break-word",
+                                                height: "100%",
+                                                alignContent: "center",
+                                                backgroundColor:
+                                                    game.predicted_winner_id &&
+                                                    typeof game.team1 !==
+                                                        "string" &&
+                                                    game.team1?.id ===
+                                                        game.predicted_winner_id
+                                                        ? "lightgreen"
+                                                        : "lightcoral",
+                                            }}
+                                        >
+                                            {getTeamName(game.team1)}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ width: "50%" }}>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                p: 1,
+                                                borderRadius: 1,
+                                                textAlign: "center",
+                                                whiteSpace: "normal",
+                                                wordBreak: "break-word",
+                                                height: "100%",
+                                                alignContent: "center",
+                                                backgroundColor:
+                                                    game.predicted_winner_id &&
+                                                    typeof game.team2 !==
+                                                        "string" &&
+                                                    game.team2?.id ===
+                                                        game.predicted_winner_id
+                                                        ? "lightgreen"
+                                                        : "lightcoral",
+                                            }}
+                                        >
+                                            {getTeamName(game.team2)}
+                                        </Typography>
+                                    </Box>
                                 </Box>
                             </Paper>
                         ))}
@@ -275,8 +287,8 @@ const PredictionPage = ({ tournamentId }: { tournamentId: string }) => {
                 const elimRes = await fetch(
                     `/api/predictions/${tournamentId}/elimination-games`
                 );
-                console.log("elimRes: ", elimRes);
                 const elimData = await elimRes.json();
+                console.log("elimData: ", elimData);
 
                 setEliminationGames(elimData);
             } catch (err) {
