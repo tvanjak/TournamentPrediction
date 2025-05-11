@@ -16,12 +16,20 @@ export async function GET(
     const predictions = await prisma.elimination_games_predictions.findMany({
       where: { prediction_id: predictionId },
       include: {
-        elimination_games: {
-          include: {
-            rounds: true,
-            team1: { include: { countries: { select: { name: true } } } },
-            team2: { include: { countries: { select: { name: true } } } },
-          },
+        //elimination_games: {
+        //  include: {
+        //    rounds: true,
+        //    team1: { include: { countries: { select: { name: true } } } },
+        //    team2: { include: { countries: { select: { name: true } } } },
+        //    team_winner: { include: { countries: { select: { name: true } } } },
+        //  },
+        //},
+        rounds: true,
+        team1: {
+          include: {countries: { select: { name: true}}}
+        },
+        team2: {
+          include: {countries: { select: { name: true}}}
         },
         team_winner: {
           include: { countries: { select: { name: true } } },
@@ -30,19 +38,22 @@ export async function GET(
     });
 
     const groupedByRound = predictions.reduce((acc, prediction) => {
-      const game = prediction.elimination_games;
-      const roundName = game?.rounds?.name ?? "Unknown";
+      const roundName = prediction?.rounds?.name ?? "Unknown";
 
       if (!acc[roundName]) acc[roundName] = [];
 
       acc[roundName].push({
-        id: game?.id,
-        team1: game?.team1,
-        team2: game?.team2,
-        rounds: game?.rounds,
+        id: prediction?.id,
+        team1: prediction?.team1,
+        team2: prediction?.team2,
+        rounds: prediction?.rounds,
         predicted_winner_id: prediction.predicted_winner_id,
         predicted_winner: prediction.team_winner,
-        result: game?.status ?? null,
+        /*actual_game: {
+          team1: prediction.elimination_games?.team1,
+          team2: prediction.elimination_games?.team2,
+          winner: prediction.elimination_games?.team_winner,
+        },*/
       });
 
       return acc;

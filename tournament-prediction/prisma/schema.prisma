@@ -21,13 +21,13 @@ model additional_group_rankings {
 
 model all_time_leaderboard {
   id                 Int       @id @default(autoincrement())
-  user_id            Int?      @unique
-  total_points       Int?      @default(0)
-  average_points     Float?    @default(0)
-  tournaments_played Int?      @default(0)
+  user_id            Int       @unique
+  total_points       Int       @default(0)
+  average_points     Float     @default(0)
+  tournaments_played Int       @default(0)
   created_at         DateTime? @default(now()) @db.Timestamp(6)
   modified_at        DateTime? @default(now()) @db.Timestamp(6)
-  users              users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users              users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model countries {
@@ -39,109 +39,107 @@ model countries {
 }
 
 model elimination_games {
-  id                            Int                             @id @default(autoincrement())
-  tournament_id                 Int?
-  team1_id                      Int?
-  team2_id                      Int?
-  winner_id                     Int?
-  status                        status_enum?                    @default(pending)
-  round_id                      Int?
-  created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
-  modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
-  rounds                        rounds?                         @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  team1                         teams?                          @relation("elimination_team1", fields: [team1_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  team2                         teams?                          @relation("elimination_team2", fields: [team2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tournaments                   tournaments?                    @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  team_winner                   teams?                          @relation("elimination_winner", fields: [winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  elimination_games_predictions elimination_games_predictions[]
+  id            Int          @id @default(autoincrement())
+  tournament_id Int
+  team1_id      Int
+  team2_id      Int
+  winner_id     Int?
+  status        status_enum? @default(pending)
+  round_id      Int
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
+  rounds        rounds       @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  team1         teams        @relation("elimination_team1", fields: [team1_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  team2         teams        @relation("elimination_team2", fields: [team2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments   tournaments  @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  team_winner   teams?       @relation("elimination_winner", fields: [winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model elimination_games_predictions {
-  id                  Int                @id @default(autoincrement())
-  prediction_id       Int?
-  game_id             Int?
-  predicted_winner_id Int
+  id                  Int         @id @default(autoincrement())
+  prediction_id       Int
+  predicted_winner_id Int?
   points_awarded      Int?
-  round_id            Int?
-  created_at          DateTime?          @default(now()) @db.Timestamp(6)
-  modified_at         DateTime?          @default(now()) @db.Timestamp(6)
+  round_id            Int
+  created_at          DateTime?   @default(now()) @db.Timestamp(6)
+  modified_at         DateTime?   @default(now()) @db.Timestamp(6)
   team1_id            Int
   team2_id            Int
-  elimination_games   elimination_games? @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  team_winner         teams              @relation(fields: [predicted_winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  predictions         predictions?       @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  rounds              rounds?            @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  team1               teams              @relation("elimination_predictions_team1", fields: [team1_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_1")
-  team2               teams              @relation("elimination_predictions_team2", fields: [team2_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_2")
+  game_id             Int?
+  team_winner         teams?      @relation(fields: [predicted_winner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  predictions         predictions @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  rounds              rounds      @relation(fields: [round_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  team1               teams       @relation("elimination_predictions_team1", fields: [team1_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_1")
+  team2               teams       @relation("elimination_predictions_team2", fields: [team2_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_2")
 }
 
 model elimination_matchups {
-  id            Int          @id @default(autoincrement())
-  tournament_id Int?
-  team1_id      String?      @db.VarChar(2)
-  team2_id      String[]     @db.VarChar(2)
-  created_at    DateTime?    @default(now()) @db.Timestamp(6)
-  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
-  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id            Int         @id @default(autoincrement())
+  tournament_id Int
+  team1_id      String      @db.VarChar(2)
+  team2_id      String[]    @db.VarChar(2)
+  created_at    DateTime?   @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?   @default(now()) @db.Timestamp(6)
+  tournaments   tournaments @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model group_games {
   id                      Int                       @id @default(autoincrement())
-  tournament_id           Int?
-  group_id                Int?
-  team1_id                Int?
-  team2_id                Int?
+  tournament_id           Int
+  group_id                Int
+  team1_id                Int
+  team2_id                Int
   result                  result_enum?
   status                  status_enum?              @default(pending)
   created_at              DateTime?                 @default(now()) @db.Timestamp(6)
   modified_at             DateTime?                 @default(now()) @db.Timestamp(6)
-  groups                  groups?                   @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  team1                   teams?                    @relation("group_team1", fields: [team1_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  team2                   teams?                    @relation("group_team2", fields: [team2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tournaments             tournaments?              @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  groups                  groups                    @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  team1                   teams                     @relation("group_team1", fields: [team1_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  team2                   teams                     @relation("group_team2", fields: [team2_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments             tournaments               @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   group_games_predictions group_games_predictions[]
 }
 
 model group_games_predictions {
   id               Int          @id @default(autoincrement())
-  prediction_id    Int?
-  game_id          Int?
+  prediction_id    Int
+  game_id          Int
   predicted_result result_enum?
   points_awarded   Int?
   created_at       DateTime?    @default(now()) @db.Timestamp(6)
   modified_at      DateTime?    @default(now()) @db.Timestamp(6)
-  group_games      group_games? @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  predictions      predictions? @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  group_games      group_games  @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  predictions      predictions  @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model group_rankings {
-  id            Int          @id @default(autoincrement())
-  tournament_id Int?
-  group_id      Int?
-  team_id       Int?
+  id            Int         @id @default(autoincrement())
+  tournament_id Int
+  group_id      Int
+  team_id       Int
   points        Int
   rank          Int
-  created_at    DateTime?    @default(now()) @db.Timestamp(6)
-  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
-  groups        groups?      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  teams         teams?       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  created_at    DateTime?   @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?   @default(now()) @db.Timestamp(6)
+  groups        groups      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams         teams       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments   tournaments @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([tournament_id, group_id, team_id])
 }
 
 model group_rankings_predictions {
-  id            Int          @id @default(autoincrement())
-  prediction_id Int?
-  group_id      Int?
-  team_id       Int?
+  id            Int         @id @default(autoincrement())
+  prediction_id Int
+  group_id      Int
+  team_id       Int
   points        Int
   rank          Int
-  created_at    DateTime?    @default(now()) @db.Timestamp(6)
-  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
-  groups        groups?      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  predictions   predictions? @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  teams         teams?       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  created_at    DateTime?   @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?   @default(now()) @db.Timestamp(6)
+  groups        groups      @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  predictions   predictions @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teams         teams       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([prediction_id, group_id, team_id])
 }
@@ -162,16 +160,16 @@ model groups {
 
 model predictions {
   id                            Int                             @id @default(autoincrement())
-  tournament_id                 Int?
-  user_id                       Int?
+  tournament_id                 Int
+  user_id                       Int
   status                        status_enum?                    @default(pending)
   created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
   modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
   elimination_games_predictions elimination_games_predictions[]
   group_games_predictions       group_games_predictions[]
   group_rankings_predictions    group_rankings_predictions[]
-  tournaments                   tournaments?                    @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users                         users?                          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tournaments                   tournaments                     @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                         users                           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([tournament_id, user_id])
 }
@@ -200,7 +198,7 @@ model sports {
 
 model teams {
   id                                                                          Int                             @id @default(autoincrement())
-  country_id                                                                  Int?                            @unique
+  country_id                                                                  Int                             @unique
   created_at                                                                  DateTime?                       @default(now()) @db.Timestamp(6)
   modified_at                                                                 DateTime?                       @default(now()) @db.Timestamp(6)
   additional_group_rankings                                                   additional_group_rankings[]
@@ -214,18 +212,18 @@ model teams {
   group_games_group_games_team2_idToteams                                     group_games[]                   @relation("group_team2")
   group_rankings                                                              group_rankings[]
   group_rankings_predictions                                                  group_rankings_predictions[]
-  countries                                                                   countries?                      @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  countries                                                                   countries                       @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model tournament_leaderboards {
-  id            Int          @id @default(autoincrement())
-  tournament_id Int?
-  user_id       Int?
-  total_points  Int?         @default(0)
-  created_at    DateTime?    @default(now()) @db.Timestamp(6)
-  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
-  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users         users?       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id            Int         @id @default(autoincrement())
+  tournament_id Int
+  user_id       Int
+  total_points  Int?        @default(0)
+  created_at    DateTime?   @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?   @default(now()) @db.Timestamp(6)
+  tournaments   tournaments @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([tournament_id, user_id])
 }
@@ -250,13 +248,13 @@ model tournaments {
 }
 
 model user_group_members {
-  id            Int          @id @default(autoincrement())
-  user_group_id Int?
-  user_id       Int?
-  created_at    DateTime?    @default(now()) @db.Timestamp(6)
-  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
-  user_groups   user_groups? @relation(fields: [user_group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users         users?       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id            Int         @id @default(autoincrement())
+  user_group_id Int
+  user_id       Int
+  created_at    DateTime?   @default(now()) @db.Timestamp(6)
+  modified_at   DateTime?   @default(now()) @db.Timestamp(6)
+  user_groups   user_groups @relation(fields: [user_group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_group_id, user_id])
 }
@@ -264,11 +262,11 @@ model user_group_members {
 model user_groups {
   id                 Int                  @id @default(autoincrement())
   name               String               @db.VarChar(100)
-  created_by         Int?
+  created_by         Int
   created_at         DateTime?            @default(now()) @db.Timestamp(6)
   modified_at        DateTime?            @default(now()) @db.Timestamp(6)
   user_group_members user_group_members[]
-  users              users?               @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  users              users                @relation(fields: [created_by], references: [id], onDelete: SetNull, onUpdate: NoAction)
 }
 
 model users {
