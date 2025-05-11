@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import PrimaryBox from "../components/General/PrimaryBox";
+import theme from "../styles/theme";
 
 // Types
 interface Team {
@@ -47,7 +48,7 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
             {groups.map(({ groupName, games, rankings }) => (
                 <Box
                     key={groupName}
-                    minWidth={300}
+                    width={300}
                     sx={{
                         borderLeft: "2px solid black",
                         paddingLeft: 2,
@@ -75,12 +76,14 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                             >
                                 <Box sx={{ width: "50%" }}>
                                     <Typography
+                                        variant="body2"
                                         sx={{
                                             px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
                                             height: "100%",
                                             alignContent: "center",
+                                            color: theme.palette.textBlack.main,
                                         }}
                                     >
                                         {game.team1?.countries?.name ??
@@ -94,12 +97,14 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                     }}
                                 >
                                     <Typography
+                                        variant="body2"
                                         sx={{
                                             px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
                                             height: "100%",
                                             alignContent: "center",
+                                            color: theme.palette.textBlack.main,
                                         }}
                                     >
                                         {game.team2?.countries?.name ??
@@ -149,9 +154,25 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                     </Typography>
                                 </Box>*/}
                             </Box>
-                            <Typography variant="subtitle1" textAlign="center">
-                                {game.result ?? "N/A"}
-                            </Typography>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    p: 1,
+                                }}
+                            >
+                                <Typography
+                                    variant="subtitle1"
+                                    textAlign="center"
+                                    sx={{
+                                        width: "50%",
+                                        border: "1px solid black",
+                                        borderRadius: 1,
+                                    }}
+                                >
+                                    {game.result ?? "N/A"}
+                                </Typography>
+                            </Box>
                         </Paper>
                     ))}
 
@@ -212,7 +233,7 @@ const EliminationGame = ({
                     </Typography>
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                         {round.games.map((game) => (
-                            <Paper key={game.id} sx={{ m: 2, minWidth: 300 }}>
+                            <Paper key={game.id} sx={{ m: 2, width: 300 }}>
                                 <Box
                                     display="flex"
                                     justifyContent="space-between"

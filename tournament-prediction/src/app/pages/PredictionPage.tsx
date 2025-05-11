@@ -14,6 +14,7 @@ import AccentBox from "../components/General/AccentBox";
 import { useSession } from "next-auth/react";
 import { ResultEnum } from "@/types/enums"; // adjust the import path accordingly
 import Loading from "../components/General/Loading";
+import theme from "../styles/theme";
 
 // Types
 //type ResultEnum = "homeWin" | "draw" | "awayWin";
@@ -57,10 +58,21 @@ const GroupGamesPrediction = ({
             {groups.map(({ groupName, games, rankings }) => (
                 <Box
                     key={groupName}
-                    minWidth={300}
-                    sx={{ borderLeft: "2px solid black", pl: 2 }}
+                    width={300}
+                    sx={{
+                        borderLeft: "2px solid black",
+                        paddingLeft: 2,
+                        borderRadius: 0.5,
+                    }}
                 >
-                    <Typography variant="h5" gutterBottom>
+                    <Typography
+                        variant="h5"
+                        gutterBottom
+                        sx={{
+                            borderBottom: "1px solid black",
+                            borderRadius: 0.5,
+                        }}
+                    >
                         {groupName}
                     </Typography>
 
@@ -71,15 +83,42 @@ const GroupGamesPrediction = ({
                                 justifyContent="space-between"
                                 height="50px"
                             >
-                                <Typography sx={{ px: 2 }}>
-                                    {game.team1?.countries?.name ?? "Team 1"}
-                                </Typography>
-                                <Typography sx={{ px: 2 }}>
-                                    {game.team2?.countries?.name ?? "Team 2"}
-                                </Typography>
+                                <Box sx={{ width: "50%" }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            px: 2,
+                                            whiteSpace: "normal",
+                                            wordBreak: "break-word",
+                                            height: "100%",
+                                            alignContent: "center",
+                                            color: theme.palette.textBlack.main,
+                                        }}
+                                    >
+                                        {game.team1?.countries?.name ??
+                                            "Team 1"}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ width: "50%", textAlign: "right" }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            px: 2,
+                                            whiteSpace: "normal",
+                                            wordBreak: "break-word",
+                                            height: "100%",
+                                            alignContent: "center",
+                                            color: theme.palette.textBlack.main,
+                                        }}
+                                    >
+                                        {game.team2?.countries?.name ??
+                                            "Team 2"}
+                                    </Typography>
+                                </Box>
                             </Box>
                             <Box display="flex" justifyContent="center" p={1}>
                                 <Select
+                                    sx={{ fontSize: 15 }}
                                     value={game.result ?? ""}
                                     onChange={(
                                         e: SelectChangeEvent<ResultEnum>
@@ -183,7 +222,7 @@ const EliminationGamesPrediction = ({
                     </Typography>
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                         {round.games.map((game) => (
-                            <Paper key={game.id} sx={{ m: 2, minWidth: 300 }}>
+                            <Paper key={game.id} sx={{ m: 2, width: 300 }}>
                                 <Box
                                     display="flex"
                                     justifyContent="space-between"
@@ -191,8 +230,10 @@ const EliminationGamesPrediction = ({
                                 >
                                     <Box sx={{ width: "50%" }}>
                                         <Typography
-                                            variant="body1"
+                                            variant="body2"
                                             sx={{
+                                                color: theme.palette.textBlack
+                                                    .main,
                                                 p: 1,
                                                 borderRadius: 1,
                                                 textAlign: "center",
@@ -215,8 +256,10 @@ const EliminationGamesPrediction = ({
                                     </Box>
                                     <Box sx={{ width: "50%" }}>
                                         <Typography
-                                            variant="body1"
+                                            variant="body2"
                                             sx={{
+                                                color: theme.palette.textBlack
+                                                    .main,
                                                 p: 1,
                                                 borderRadius: 1,
                                                 textAlign: "center",
