@@ -404,47 +404,67 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         if (tournamentId && userId) fetchPredictionId();
     }, [tournamentId, userId, session?.user.email]);
 
-    if (loading) {
-        return <Loading />;
-    }
-
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                p: 3,
-            }}
-        >
-            <AccentBox>{tournamentName} – Prediction</AccentBox>
-
-            <Box mb={4}>
-                <Typography variant="h4" gutterBottom>
-                    Group Stage
-                </Typography>
-                <GroupGamesPrediction
-                    groups={groupGames}
-                    onResultChange={handleGroupResultChange}
-                />
-            </Box>
-
-            <Box mt={4}>
-                <Typography variant="h4" gutterBottom>
-                    Elimination Stage
-                </Typography>
-                <EliminationGamesPrediction
-                    eliminationGames={eliminationGames}
-                />
-            </Box>
-
-            <Button
-                variant="contained"
-                onClick={handleSavePrediction}
-                sx={{ position: "absolute", top: 100, right: 50 }}
+        <Box sx={{ position: "relative" }}>
+            {loading && (
+                <Box
+                    sx={{
+                        position: "fixed",
+                        top: "80px", // height of your navbar
+                        left: 0,
+                        width: "100vw",
+                        height: "calc(100vh - 80px)", // remaining height
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        zIndex: 10,
+                        transition: "opacity 0.3s ease-in-out",
+                    }}
+                >
+                    <Loading />
+                </Box>
+            )}
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    p: 3,
+                    opacity: loading ? 0 : 1,
+                    transition: "opacity 0.3s ease-in-out",
+                    pointerEvents: loading ? "none" : "auto",
+                }}
             >
-                Save Prediction
-            </Button>
+                <AccentBox>{tournamentName} – Prediction</AccentBox>
+
+                <Box mb={4}>
+                    <Typography variant="h4" gutterBottom>
+                        Group Stage
+                    </Typography>
+                    <GroupGamesPrediction
+                        groups={groupGames}
+                        onResultChange={handleGroupResultChange}
+                    />
+                </Box>
+
+                <Box mt={4}>
+                    <Typography variant="h4" gutterBottom>
+                        Elimination Stage
+                    </Typography>
+                    <EliminationGamesPrediction
+                        eliminationGames={eliminationGames}
+                    />
+                </Box>
+
+                <Button
+                    variant="contained"
+                    onClick={handleSavePrediction}
+                    sx={{ position: "absolute", top: 100, right: 50 }}
+                >
+                    Save Prediction
+                </Button>
+            </Box>
         </Box>
     );
 };

@@ -87,17 +87,17 @@ const HomePage = (props: Props) => {
             {!allLoaded && (
                 <Box
                     sx={{
-                        position: "absolute",
-                        top: 0,
+                        position: "fixed",
+                        top: "80px", // height of your navbar
                         left: 0,
-                        mt: 10,
-                        width: "100%",
-                        height: "100%",
+                        width: "100vw",
+                        height: "calc(100vh - 80px)", // remaining height
                         display: "flex",
-                        justifyContent: "center",
                         alignItems: "center",
-                        backgroundColor: "rgba(255,255,255,0.8)",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
                         zIndex: 10,
+                        transition: "opacity 0.3s ease-in-out",
                     }}
                 >
                     <Loading />
@@ -105,7 +105,13 @@ const HomePage = (props: Props) => {
             )}
 
             {/* Actual Page Content */}
-            <>
+            <Box
+                sx={{
+                    opacity: allLoaded ? 1 : 0,
+                    pointerEvents: allLoaded ? "auto" : "none",
+                    transition: "opacity 0.3s ease-in-out",
+                }}
+            >
                 <Box
                     sx={{
                         display: "flex",
@@ -138,7 +144,7 @@ const HomePage = (props: Props) => {
                         </Box>
                     </>
                 )}
-            </>
+            </Box>
         </Container>
     );
 };

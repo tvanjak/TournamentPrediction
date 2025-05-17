@@ -306,8 +306,8 @@ const EliminationGame = ({
                     </Box>
                 </Box>
             ))}
-            <Box mb={3}>
-                <Typography variant="h4">Champion: Argentina</Typography>
+            <Box mt={4} mb={6}>
+                <Typography variant="h3">Champion: Argentina</Typography>
             </Box>
         </Box>
     );
@@ -390,71 +390,97 @@ const TournamentPage = ({ tournamentId }: Props) => {
         if (userId && tournamentId) fetchTournamentData();
     }, [tournamentId, session?.user.email, userId]);
 
-    if (loading) {
-        return <Loading />;
-    }
-
     return (
         <Box
             sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                p: 3,
+                position: "relative",
+                minHeight: loading ? "100vh" : "auto",
+                overflow: "hidden",
             }}
         >
-            <AccentBox>{tournamentName}</AccentBox>
-
-            <Box mb={4}>
-                <Typography variant="h4" gutterBottom>
-                    Group Stage
-                </Typography>
-                <GroupGames groups={groupGames} />
-            </Box>
-
-            <Box mt={4}>
-                <Typography variant="h4" gutterBottom>
-                    Elimination Stage
-                </Typography>
-                <EliminationGame eliminationGames={eliminationGames} />
-            </Box>
-
+            {loading && (
+                <Box
+                    sx={{
+                        position: "fixed",
+                        top: "80px", // height of your navbar
+                        left: 0,
+                        width: "100vw",
+                        height: "calc(100vh - 80px)", // remaining height
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        zIndex: 10,
+                        transition: "opacity 0.3s ease-in-out",
+                    }}
+                >
+                    <Loading />
+                </Box>
+            )}
             <Box
-                mt={4}
                 sx={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                    p: 3,
+                    opacity: loading ? 0 : 1,
+                    transition: "opacity 0.3s ease-in-out",
+                    pointerEvents: loading ? "none" : "auto",
                 }}
             >
-                <AccentBox>Tournament Leaderboards</AccentBox>
+                <AccentBox>{tournamentName}</AccentBox>
+
+                <Box mb={4}>
+                    <Typography variant="h4" gutterBottom>
+                        Group Stage
+                    </Typography>
+                    <GroupGames groups={groupGames} />
+                </Box>
+
+                <Box mt={4}>
+                    <Typography variant="h4" gutterBottom>
+                        Elimination Stage
+                    </Typography>
+                    <EliminationGame eliminationGames={eliminationGames} />
+                </Box>
+
                 <Box
+                    mt={4}
                     sx={{
                         display: "flex",
-                        justifyContent: "space-around",
-                        alignItems: "top",
+                        flexDirection: "column",
+                        alignItems: "center",
                     }}
                 >
-                    <TournamentLeaderboard
-                        tournamentId={tournamentId}
-                    ></TournamentLeaderboard>
-                    {groupIds && (
-                        <Box
-                            sx={{
-                                display: "flex",
-                                justifyContent: "space-evenly",
-                                flexWrap: "wrap",
-                            }}
-                        >
-                            {groupIds.map((groupId, index) => (
-                                <TournamentGroupLeaderboard
-                                    groupId={groupId}
-                                    tournamentId={Number(tournamentId)}
-                                    key={index}
-                                ></TournamentGroupLeaderboard>
-                            ))}
-                        </Box>
-                    )}
+                    <AccentBox>Tournament Leaderboards</AccentBox>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-around",
+                            alignItems: "top",
+                        }}
+                    >
+                        <TournamentLeaderboard
+                            tournamentId={tournamentId}
+                        ></TournamentLeaderboard>
+                        {groupIds && (
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "space-evenly",
+                                    flexWrap: "wrap",
+                                }}
+                            >
+                                {groupIds.map((groupId, index) => (
+                                    <TournamentGroupLeaderboard
+                                        groupId={groupId}
+                                        tournamentId={Number(tournamentId)}
+                                        key={index}
+                                    ></TournamentGroupLeaderboard>
+                                ))}
+                            </Box>
+                        )}
+                    </Box>
                 </Box>
             </Box>
         </Box>
