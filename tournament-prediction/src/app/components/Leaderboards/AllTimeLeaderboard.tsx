@@ -152,6 +152,11 @@ const AllTimeLeaderboard = (props: Props) => {
                                     Total Points
                                 </Typography>
                             </TableCell>
+                            <TableCell sx={{ textAlign: "center" }}>
+                                <Typography sx={{ fontStyle: "italic" }}>
+                                    Tournaments played
+                                </Typography>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -198,6 +203,13 @@ const AllTimeLeaderboard = (props: Props) => {
                                               }}
                                           >
                                               {playerInfo.totalPoints}
+                                          </TableCell>
+                                          <TableCell
+                                              sx={{
+                                                  textAlign: "center",
+                                              }}
+                                          >
+                                              {playerInfo.tournamentsPlayed}
                                           </TableCell>
                                       </TableRow>
                                   ))
@@ -246,6 +258,13 @@ const AllTimeLeaderboard = (props: Props) => {
                                               }}
                                           >
                                               {playerInfo.totalPoints}
+                                          </TableCell>
+                                          <TableCell
+                                              sx={{
+                                                  textAlign: "center",
+                                              }}
+                                          >
+                                              {playerInfo.tournamentsPlayed}
                                           </TableCell>
                                       </TableRow>
                                   ))}

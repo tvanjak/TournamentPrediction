@@ -39,7 +39,7 @@ const theme = createTheme({
     },
     typography: {
         //fontove treba popravit
-        fontFamily: '"Roboto", sans-serif', // Font for the whole theme
+        fontFamily: "Rubik, Arial, sans-serif", // Font for the whole theme
         h1: {
             fontWeight: 600,
             color: "#333333",

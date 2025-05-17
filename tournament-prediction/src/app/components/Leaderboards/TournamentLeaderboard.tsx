@@ -25,7 +25,7 @@ interface TournamentLeaderboardInterface {
 }
 
 type Props = {
-    tournamentId: string;
+    tournamentId: number;
 };
 
 const TournamentLeaderboard = (props: Props) => {
@@ -65,6 +65,9 @@ const TournamentLeaderboard = (props: Props) => {
         fetchTournamentLeaderboard();
     }, [props.tournamentId]);
 
+    const [page, setPage] = useState<number>(0);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+
     useEffect(() => {
         if (leaderboard && leaderboard.users) {
             const temp = leaderboard?.users.slice(
@@ -73,10 +76,7 @@ const TournamentLeaderboard = (props: Props) => {
             );
             setPaginatedUsers(temp);
         }
-    }, [leaderboard]);
-
-    const [page, setPage] = useState<number>(0);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+    }, [leaderboard, page]);
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -92,13 +92,14 @@ const TournamentLeaderboard = (props: Props) => {
         setPage(0); // reset to first page
     };
 
-    if (loading) return <Loading></Loading>;
+    if (loading) return null;
 
     if (!leaderboard || !paginatedUsers) return null;
 
     return (
         <Box sx={{ p: 3 }}>
-            <SecondaryBox>{leaderboard.tournamentName}</SecondaryBox>
+            {/*<SecondaryBox>{leaderboard.tournamentName}</SecondaryBox>*/}
+            <SecondaryBox>Full Leaderboard</SecondaryBox>
             <TableContainer>
                 <Table>
                     <TableHead>

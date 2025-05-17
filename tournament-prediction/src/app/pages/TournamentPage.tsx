@@ -10,6 +10,11 @@ import {
 import AccentBox from "../components/General/AccentBox";
 import PrimaryBox from "../components/General/PrimaryBox";
 import theme from "../styles/theme";
+import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
+import SecondaryBox from "../components/General/SecondaryBox";
+import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
+import { useSession } from "next-auth/react";
+import Loading from "../components/General/Loading";
 
 // Types
 interface Team {
@@ -309,7 +314,7 @@ const EliminationGame = ({
 };
 
 interface Props {
-    tournamentId: string;
+    tournamentId: number;
 }
 
 // Main Page Component
@@ -321,7 +326,37 @@ const TournamentPage = ({ tournamentId }: Props) => {
     >([]);
     const [tournamentName, setTournamentName] = useState<string>();
 
+    const { data: session } = useSession();
+    const [userId, setUserId] = useState();
+    const [groupIds, setGroupIds] = useState<number[]>();
+
     useEffect(() => {
+        const fetchUserId = async () => {
+            try {
+                const res = await fetch(
+                    `/api/users/getIdByEmail?email=${session?.user.email}`
+                );
+                if (!res.ok) {
+                    throw new Error("Failed to fetch user id with eamil");
+                }
+                const data = await res.json();
+                setUserId(data.userId);
+            } catch (error) {
+                console.log("Error while fetching userId: ", error);
+            }
+        };
+        const fetchGroupIds = async () => {
+            try {
+                const response = await fetch(`/api/users/${userId}/groupIds`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch group IDs");
+                }
+                const data = await response.json();
+                setGroupIds(data.groupIds);
+            } catch (error) {
+                console.log("Error fetching group IDs: ", error);
+            }
+        };
         const fetchTournamentData = async () => {
             try {
                 const groupResponse = await fetch(
@@ -350,20 +385,13 @@ const TournamentPage = ({ tournamentId }: Props) => {
             }
         };
 
-        fetchTournamentData();
-    }, [tournamentId]);
+        if (session?.user.email) fetchUserId();
+        if (userId) fetchGroupIds();
+        if (userId && tournamentId) fetchTournamentData();
+    }, [tournamentId, session?.user.email, userId]);
 
     if (loading) {
-        return (
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100vh"
-            >
-                <CircularProgress />
-            </Box>
-        );
+        return <Loading />;
     }
 
     return (
@@ -389,6 +417,45 @@ const TournamentPage = ({ tournamentId }: Props) => {
                     Elimination Stage
                 </Typography>
                 <EliminationGame eliminationGames={eliminationGames} />
+            </Box>
+
+            <Box
+                mt={4}
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                }}
+            >
+                <AccentBox>Tournament Leaderboards</AccentBox>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-around",
+                        alignItems: "top",
+                    }}
+                >
+                    <TournamentLeaderboard
+                        tournamentId={tournamentId}
+                    ></TournamentLeaderboard>
+                    {groupIds && (
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-evenly",
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            {groupIds.map((groupId, index) => (
+                                <TournamentGroupLeaderboard
+                                    groupId={groupId}
+                                    tournamentId={Number(tournamentId)}
+                                    key={index}
+                                ></TournamentGroupLeaderboard>
+                            ))}
+                        </Box>
+                    )}
+                </Box>
             </Box>
         </Box>
     );
