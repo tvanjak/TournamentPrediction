@@ -393,7 +393,6 @@ const TournamentPage = ({ tournamentId }: Props) => {
     return (
         <Box
             sx={{
-                position: "relative",
                 minHeight: loading ? "100vh" : "auto",
                 overflow: "hidden",
             }}

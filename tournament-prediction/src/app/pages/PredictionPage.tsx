@@ -405,7 +405,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     }, [tournamentId, userId, session?.user.email]);
 
     return (
-        <Box sx={{ position: "relative" }}>
+        <Box>
             {loading && (
                 <Box
                     sx={{
@@ -459,6 +459,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
 
                 <Button
                     variant="contained"
+                    size="large"
                     onClick={handleSavePrediction}
                     sx={{ position: "absolute", top: 100, right: 50 }}
                 >
