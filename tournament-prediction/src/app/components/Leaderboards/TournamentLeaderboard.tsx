@@ -66,7 +66,7 @@ const TournamentLeaderboard = (props: Props) => {
     }, [props.tournamentId]);
 
     const [page, setPage] = useState<number>(0);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
     useEffect(() => {
         if (leaderboard && leaderboard.users) {
@@ -76,7 +76,7 @@ const TournamentLeaderboard = (props: Props) => {
             );
             setPaginatedUsers(temp);
         }
-    }, [leaderboard, page]);
+    }, [leaderboard, page, rowsPerPage]);
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -97,7 +97,7 @@ const TournamentLeaderboard = (props: Props) => {
     if (!leaderboard || !paginatedUsers) return null;
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, width: "450px" }}>
             {/*<SecondaryBox>{leaderboard.tournamentName}</SecondaryBox>*/}
             <SecondaryBox>Full Leaderboard</SecondaryBox>
             <TableContainer>

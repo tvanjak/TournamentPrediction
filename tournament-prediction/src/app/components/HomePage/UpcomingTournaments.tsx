@@ -73,7 +73,7 @@ const UpcomingTournaments = (props: Props) => {
                     ))}
                 </List>
             ) : (
-                <Box>No upcoming tournaments at the moment.</Box>
+                <Box padding={2}>No upcoming tournaments at the moment.</Box>
             )}
         </Box>
     );

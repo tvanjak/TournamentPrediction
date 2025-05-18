@@ -51,7 +51,7 @@ const OngoingTournaments = (props: Props) => {
             {tournaments.length != 0 ? (
                 <List>
                     {tournaments.map((tournament, index) => (
-                        <ListItem key={index}>
+                        <ListItem key={index} sx={{ p: 0 }}>
                             <Box
                                 sx={{
                                     borderRadius: 5,
@@ -73,7 +73,7 @@ const OngoingTournaments = (props: Props) => {
                     ))}
                 </List>
             ) : (
-                <Box>No ongoing tournaments at the moment.</Box>
+                <Box padding={2}>No ongoing tournaments at the moment.</Box>
             )}
         </Box>
     );

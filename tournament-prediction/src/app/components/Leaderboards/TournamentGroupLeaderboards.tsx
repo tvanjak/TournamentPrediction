@@ -82,7 +82,7 @@ const TournamentGroupLeaderboard = (props: Props) => {
             );
             setPaginatedUsers(temp);
         }
-    }, [groupLeaderboard, page]);
+    }, [groupLeaderboard, page, rowsPerPage]);
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -104,7 +104,7 @@ const TournamentGroupLeaderboard = (props: Props) => {
         return null;
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, width: "370px" }}>
             {/*<PrimaryBox>{groupLeaderboard?.tournamentName}</PrimaryBox>*/}
             <SecondaryBox>{groupLeaderboard?.groupName}</SecondaryBox>
             <TableContainer>

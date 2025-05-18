@@ -14,7 +14,6 @@ const PrimaryBox = (props: BoxProps) => {
                 textAlign: "center",
                 padding: 2,
                 mx: 2,
-                my: 1,
                 backgroundColor: theme.palette.primary.main,
                 color: theme.palette.textBlack.main,
                 fontWeight: "550",

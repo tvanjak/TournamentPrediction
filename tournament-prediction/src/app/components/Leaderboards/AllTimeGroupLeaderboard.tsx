@@ -80,7 +80,7 @@ const AllTimeGroupLeaderboard = (props: Props) => {
             );
             setPaginatedUsers(temp);
         }
-    }, [groupLeaderboard, page]);
+    }, [groupLeaderboard, page, rowsPerPage]);
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -104,6 +104,7 @@ const AllTimeGroupLeaderboard = (props: Props) => {
         <Box
             sx={{
                 p: 3,
+                width: "480px",
             }}
         >
             <SecondaryBox>{groupLeaderboard.groupName}</SecondaryBox>

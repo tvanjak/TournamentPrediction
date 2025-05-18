@@ -307,7 +307,7 @@ const EliminationGame = ({
                 </Box>
             ))}
             <Box mt={4} mb={6}>
-                <Typography variant="h3">Champion: Argentina</Typography>
+                <Typography variant="h3">Champion: Croatia</Typography>
             </Box>
         </Box>
     );
@@ -444,41 +444,44 @@ const TournamentPage = ({ tournamentId }: Props) => {
                 </Box>
 
                 <Box
-                    mt={4}
                     sx={{
                         display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
+                        justifyContent: "space-between",
+                        alignItems: "top",
+                        borderTop: "2px solid black",
                     }}
                 >
-                    <AccentBox>Tournament Leaderboards</AccentBox>
+                    <TournamentLeaderboard
+                        tournamentId={tournamentId}
+                    ></TournamentLeaderboard>
                     <Box
                         sx={{
                             display: "flex",
-                            justifyContent: "space-around",
-                            alignItems: "top",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            p: 3,
                         }}
                     >
-                        <TournamentLeaderboard
-                            tournamentId={tournamentId}
-                        ></TournamentLeaderboard>
-                        {groupIds && (
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-evenly",
-                                    flexWrap: "wrap",
-                                }}
-                            >
-                                {groupIds.map((groupId, index) => (
-                                    <TournamentGroupLeaderboard
-                                        groupId={groupId}
-                                        tournamentId={Number(tournamentId)}
-                                        key={index}
-                                    ></TournamentGroupLeaderboard>
-                                ))}
-                            </Box>
-                        )}
+                        <PrimaryBox>Group Leaderboards:</PrimaryBox>
+                        <Box>
+                            {groupIds && (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "space-evenly",
+                                        flexWrap: "wrap",
+                                    }}
+                                >
+                                    {groupIds.map((groupId, index) => (
+                                        <TournamentGroupLeaderboard
+                                            groupId={groupId}
+                                            tournamentId={Number(tournamentId)}
+                                            key={index}
+                                        ></TournamentGroupLeaderboard>
+                                    ))}
+                                </Box>
+                            )}
+                        </Box>
                     </Box>
                 </Box>
             </Box>
