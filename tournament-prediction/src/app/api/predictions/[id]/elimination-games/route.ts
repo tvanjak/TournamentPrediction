@@ -48,19 +48,14 @@ export async function GET(
         team2: prediction?.team2,
         rounds: prediction?.rounds,
         predicted_winner_id: prediction.predicted_winner_id,
-        predicted_winner: prediction.team_winner,
-        /*actual_game: {
-          team1: prediction.elimination_games?.team1,
-          team2: prediction.elimination_games?.team2,
-          winner: prediction.elimination_games?.team_winner,
-        },*/
       });
 
       return acc;
     }, {} as Record<string, any[]>);
 
-    const result = Object.entries(groupedByRound).map(([name, games]) => ({
-      name,
+    const result = Object.entries(groupedByRound).map(([roundName, games]) => ({
+      roundName,
+      roundId: games[0]?.rounds?.id ?? null,  // add this line to pick roundId from first game's rounds relation
       games,
     }));
 

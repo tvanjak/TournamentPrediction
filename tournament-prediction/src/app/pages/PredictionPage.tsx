@@ -225,20 +225,29 @@ const GroupGamesPrediction = ({
     );
 };
 
-interface EliminationGame {
-    id: number;
-    rounds?: { name: string };
-    team1?: Team | string; // allow placeholders like "A1"
-    team2?: Team | string;
-    predicted_winner_id?: number;
-    predicted_winner?: Team;
+interface EliminationGames {
+    roundName: string;
+    roundId: number;
+    games: {
+        id: number;
+        rounds?: { name: string };
+        team1?: Team; // allow placeholders like "A1"
+        team2?: Team;
+        predicted_winner_id?: number;
+    }[];
 }
 
 // Elimination Games with Placeholder Logic
 const EliminationGamesPrediction = ({
     eliminationGames,
+    onResultChange,
 }: {
-    eliminationGames: { name: string; games: EliminationGame[] }[];
+    eliminationGames: EliminationGames[];
+    onResultChange: (
+        gameId: number,
+        newWinner?: Team,
+        previousWinnerId?: number
+    ) => void;
 }) => {
     const getTeamName = (team: Team | string | undefined) => {
         if (!team) return "TBD";
@@ -248,7 +257,7 @@ const EliminationGamesPrediction = ({
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
-            {eliminationGames.map((round, index) => (
+            {eliminationGames.map((rounds, index) => (
                 <Box
                     key={index}
                     mb={3}
@@ -257,10 +266,10 @@ const EliminationGamesPrediction = ({
                     alignItems="center"
                 >
                     <Typography variant="h6" gutterBottom>
-                        {round.name}
+                        {rounds.roundName}
                     </Typography>
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                        {round.games.map((game) => (
+                        {rounds.games.map((game) => (
                             <Box key={game.id} sx={{ m: 2, width: 300 }}>
                                 <Box
                                     display="flex"
@@ -269,6 +278,13 @@ const EliminationGamesPrediction = ({
                                 >
                                     <Box sx={{ width: "50%" }}>
                                         <Typography
+                                            onClick={() =>
+                                                onResultChange(
+                                                    game.id,
+                                                    game.team1,
+                                                    game.predicted_winner_id
+                                                )
+                                            }
                                             variant="body2"
                                             sx={{
                                                 color: theme.palette.textBlack
@@ -288,14 +304,18 @@ const EliminationGamesPrediction = ({
                                                     game.team1?.id ===
                                                         game.predicted_winner_id
                                                         ? "lightgreen"
-                                                        : "lightcoral",
+                                                        : game.predicted_winner_id
+                                                        ? "lightcoral"
+                                                        : "lightgray",
                                                 "&:hover": {
                                                     backgroundColor:
-                                                        game.predicted_winner_id &&
-                                                        typeof game.team1 !==
-                                                            "string" &&
-                                                        game.team1?.id ===
-                                                            game.predicted_winner_id
+                                                        !game.predicted_winner_id
+                                                            ? "#3CB371"
+                                                            : game.predicted_winner_id &&
+                                                              typeof game.team1 !==
+                                                                  "string" &&
+                                                              game.team1?.id ===
+                                                                  game.predicted_winner_id
                                                             ? "#3CB371"
                                                             : "#CD5C5C",
                                                     cursor: "pointer",
@@ -309,6 +329,13 @@ const EliminationGamesPrediction = ({
                                     </Box>
                                     <Box sx={{ width: "50%" }}>
                                         <Typography
+                                            onClick={() =>
+                                                onResultChange(
+                                                    game.id,
+                                                    game.team2,
+                                                    game.predicted_winner_id
+                                                )
+                                            }
                                             variant="body2"
                                             sx={{
                                                 color: theme.palette.textBlack
@@ -328,14 +355,18 @@ const EliminationGamesPrediction = ({
                                                     game.team2?.id ===
                                                         game.predicted_winner_id
                                                         ? "lightgreen"
-                                                        : "lightcoral",
+                                                        : game.predicted_winner_id
+                                                        ? "lightcoral"
+                                                        : "lightgray",
                                                 "&:hover": {
                                                     backgroundColor:
-                                                        game.predicted_winner_id &&
-                                                        typeof game.team2 !==
-                                                            "string" &&
-                                                        game.team2?.id ===
-                                                            game.predicted_winner_id
+                                                        !game.predicted_winner_id
+                                                            ? "#3CB371"
+                                                            : game.predicted_winner_id &&
+                                                              typeof game.team2 !==
+                                                                  "string" &&
+                                                              game.team2?.id ===
+                                                                  game.predicted_winner_id
                                                             ? "#3CB371"
                                                             : "#CD5C5C",
                                                     cursor: "pointer",
@@ -367,7 +398,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
 
     const [groupGames, setGroupGames] = useState<GroupGames[]>([]);
     const [eliminationGames, setEliminationGames] = useState<
-        { name: string; games: EliminationGame[] }[]
+        EliminationGames[]
     >([]);
     const [tournamentName, setTournamentName] = useState<string>();
 
@@ -425,6 +456,192 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 };
             })
         );
+    };
+
+    const handleEliminationResultChange2 = (
+        gameId: number,
+        newWinner?: Team,
+        previousWinnerId?: number
+    ) => {
+        if (newWinner?.id == previousWinnerId) return;
+
+        setEliminationGames((prevRounds) => {
+            let changedRoundIndex = -1;
+
+            // Step 1: Update the selected game and find which round it's in
+            const updatedRounds = prevRounds.map((round) => {
+                const hasTargetGame = round.games.some(
+                    (game) => game.id === gameId
+                );
+                if (hasTargetGame) changedRoundIndex = round.roundId;
+
+                return {
+                    ...round,
+                    games: round.games.map((game) =>
+                        game.id === gameId
+                            ? { ...game, predicted_winner_id: newWinner?.id }
+                            : game
+                    ),
+                };
+            });
+
+            // Step 2: Remove the previous winner ID from all later rounds
+            if (changedRoundIndex >= 0 && previousWinnerId !== undefined) {
+                for (let i = 0; i < updatedRounds.length; i++) {
+                    if (updatedRounds[i].roundId < changedRoundIndex - 1) {
+                        updatedRounds[i] = {
+                            ...updatedRounds[i],
+                            games: updatedRounds[i].games.map((game) => {
+                                if (game.team1?.id == previousWinnerId) {
+                                    game.team1 = undefined;
+                                    game.predicted_winner_id = undefined;
+                                    return {
+                                        ...game,
+                                    };
+                                } else if (game.team2?.id == previousWinnerId) {
+                                    game.team2 = undefined;
+                                    game.predicted_winner_id = undefined;
+                                    return {
+                                        ...game,
+                                    };
+                                } else {
+                                    return { ...game };
+                                }
+                            }),
+                        };
+                    } else if (
+                        updatedRounds[i].roundId ==
+                        changedRoundIndex - 1
+                    ) {
+                        updatedRounds[i] = {
+                            ...updatedRounds[i],
+                            games: updatedRounds[i].games.map((game) => {
+                                if (game.team1?.id == previousWinnerId) {
+                                    game.team1 = newWinner;
+                                    game.predicted_winner_id = undefined;
+                                    return {
+                                        ...game,
+                                    };
+                                } else if (game.team2?.id == previousWinnerId) {
+                                    game.team2 = newWinner;
+                                    game.predicted_winner_id = undefined;
+                                    return {
+                                        ...game,
+                                    };
+                                } else {
+                                    return { ...game };
+                                }
+                            }),
+                        };
+                    }
+                }
+            }
+
+            return updatedRounds;
+        });
+    };
+
+    const handleEliminationResultChange = (
+        gameId: number,
+        newWinner?: Team,
+        previousWinnerId?: number
+    ) => {
+        if (newWinner?.id == previousWinnerId) return;
+
+        setEliminationGames((prevRounds) => {
+            let changedRoundIndex = -1;
+
+            // Step 1: Update the selected game and find which round it's in
+            const updatedRounds = prevRounds.map((round) => {
+                const hasTargetGame = round.games.some(
+                    (game) => game.id === gameId
+                );
+                if (hasTargetGame) changedRoundIndex = round.roundId;
+
+                return {
+                    ...round,
+                    games: round.games.map((game) =>
+                        game.id === gameId
+                            ? { ...game, predicted_winner_id: newWinner?.id }
+                            : game
+                    ),
+                };
+            });
+
+            let winnerIds_array = [previousWinnerId];
+            if (changedRoundIndex >= 0 && previousWinnerId !== undefined) {
+                for (let i = 0; i < updatedRounds.length; i++) {
+                    if (updatedRounds[i].roundId < changedRoundIndex - 1) {
+                        updatedRounds[i] = {
+                            ...updatedRounds[i],
+                            games: updatedRounds[i].games.map((game) => {
+                                if (
+                                    game.team1?.id &&
+                                    winnerIds_array.includes(game.team1?.id)
+                                ) {
+                                    game.team1 = undefined;
+                                    game.predicted_winner_id = undefined;
+                                    if (game.team2?.id != undefined)
+                                        winnerIds_array.push(game.team2.id);
+                                    return {
+                                        ...game,
+                                    };
+                                } else if (
+                                    game.team2?.id &&
+                                    winnerIds_array.includes(game.team2?.id)
+                                ) {
+                                    game.team2 = undefined;
+                                    game.predicted_winner_id = undefined;
+                                    if (game.team1?.id != undefined)
+                                        winnerIds_array.push(game.team1.id);
+                                    return {
+                                        ...game,
+                                    };
+                                } else {
+                                    return { ...game };
+                                }
+                            }),
+                        };
+                    } else if (
+                        updatedRounds[i].roundId ==
+                        changedRoundIndex - 1
+                    ) {
+                        updatedRounds[i] = {
+                            ...updatedRounds[i],
+                            games: updatedRounds[i].games.map((game) => {
+                                console.log("GAME; ", game);
+                                if (game.team1?.id == previousWinnerId) {
+                                    game.team1 = newWinner;
+                                    game.predicted_winner_id = undefined;
+                                    if (game.team2?.id != undefined)
+                                        winnerIds_array.push(game.team2!.id);
+                                    return {
+                                        ...game,
+                                    };
+                                } else if (game.team2?.id == previousWinnerId) {
+                                    game.team2 = newWinner;
+                                    game.predicted_winner_id = undefined;
+                                    if (game.team1?.id != undefined)
+                                        winnerIds_array.push(game.team1!.id);
+                                    return {
+                                        ...game,
+                                    };
+                                } else {
+                                    console.log("livaj");
+                                    if (!game.team1) {
+                                        game.team1 = newWinner;
+                                    } else {
+                                        game.team2 = newWinner;
+                                    }
+                                    return { ...game };
+                                }
+                            }),
+                        };
+                    }
+                }
+            }
+            return updatedRounds;
+        });
     };
 
     const handleSavePrediction = async () => {
@@ -564,6 +781,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     </Typography>
                     <EliminationGamesPrediction
                         eliminationGames={eliminationGames}
+                        onResultChange={handleEliminationResultChange}
                     />
                 </Box>
 
