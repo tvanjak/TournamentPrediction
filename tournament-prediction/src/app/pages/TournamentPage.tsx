@@ -1,12 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-    Box,
-    CircularProgress,
-    Typography,
-    Paper,
-    Container,
-} from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import PrimaryBox from "../components/General/PrimaryBox";
 import theme from "../styles/theme";
@@ -15,33 +9,72 @@ import SecondaryBox from "../components/General/SecondaryBox";
 import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
 import { useSession } from "next-auth/react";
 import Loading from "../components/General/Loading";
+import { ResultEnum } from "@/types/enums";
 
-// Types
 interface Team {
     id: number;
-    name: string;
+    countries?: { name: string };
 }
 
-type GroupData = {
+type GroupGames = {
     groupName: string;
-    games: GroupGame[];
+    games: {
+        id: number;
+        team1?: { countries?: { name: string } };
+        team2?: { countries?: { name: string } };
+        result?: ResultEnum;
+    }[];
     rankings: {
         rank: number;
         points: number;
-        teams: { countries: { name: string } | null } | null;
+        team: Team;
     }[];
 };
 
-interface GroupGame {
-    id: number;
-    groups?: { name: string };
-    team1?: { countries?: { name: string } };
-    team2?: { countries?: { name: string } };
-    result?: string;
-}
-
 // Group Games Section
-const GroupGames = ({ groups }: { groups: GroupData[] }) => {
+const GroupGames = ({ groups }: { groups: GroupGames[] }) => {
+    const getBackgroundColor = (
+        result: ResultEnum | undefined,
+        team: number
+    ): string => {
+        if (team == 0) {
+            switch (result) {
+                case ResultEnum.HomeWin:
+                    return "lightgreen";
+                case ResultEnum.Draw:
+                    return "lightgray";
+                case ResultEnum.AwayWin:
+                    return "lightcoral";
+                default:
+                    return "transparent";
+            }
+        } else {
+            switch (result) {
+                case ResultEnum.HomeWin:
+                    return "lightcoral";
+                case ResultEnum.Draw:
+                    return "lightgray";
+                case ResultEnum.AwayWin:
+                    return "lightgreen";
+                default:
+                    return "transparent";
+            }
+        }
+    };
+
+    const mapResult = (result: ResultEnum | undefined) => {
+        switch (result) {
+            case ResultEnum.HomeWin:
+                return "Home Win";
+            case ResultEnum.Draw:
+                return "Draw";
+            case ResultEnum.AwayWin:
+                return "Away Win";
+            default:
+                return null;
+        }
+    };
+
     return (
         <Box
             display="flex"
@@ -72,7 +105,7 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                     </Typography>
 
                     {games.map((game) => (
-                        <Paper key={game.id} sx={{ m: 2 }}>
+                        <Paper key={game.id} sx={{ m: 2, p: 1 }}>
                             <Box
                                 display="flex"
                                 justifyContent="space-between"
@@ -83,6 +116,12 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                     <Typography
                                         variant="body2"
                                         sx={{
+                                            backgroundColor: getBackgroundColor(
+                                                game.result,
+                                                0
+                                            ),
+                                            borderRadius: 2,
+                                            m: "2px",
                                             px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
@@ -104,6 +143,12 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                     <Typography
                                         variant="body2"
                                         sx={{
+                                            backgroundColor: getBackgroundColor(
+                                                game.result,
+                                                1
+                                            ),
+                                            borderRadius: 2,
+                                            m: "2px",
                                             px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
@@ -116,48 +161,6 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                             "Team 2"}
                                     </Typography>
                                 </Box>
-                                {/* <Box
-                                    sx={{
-                                        width: "50%",
-                                    }}
-                                >
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            p: 1,
-                                            borderRadius: 1,
-                                            whiteSpace: "normal",
-                                            wordBreak: "break-word",
-                                            height: "100%",
-                                            alignContent: "center",
-                                        }}
-                                        textAlign="center"
-                                    >
-                                        {game.team1?.countries?.name ??
-                                            "Team 1"}
-                                    </Typography>
-                                </Box>
-                                <Box
-                                    sx={{
-                                        width: "50%",
-                                    }}
-                                >
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            p: 1,
-                                            borderRadius: 1,
-                                            whiteSpace: "normal",
-                                            wordBreak: "break-word",
-                                            height: "100%",
-                                            alignContent: "center",
-                                        }}
-                                        textAlign="center"
-                                    >
-                                        {game.team2?.countries?.name ??
-                                            "Team 2"}
-                                    </Typography>
-                                </Box>*/}
                             </Box>
                             <Box
                                 sx={{
@@ -175,7 +178,7 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                                         borderRadius: 1,
                                     }}
                                 >
-                                    {game.result ?? "N/A"}
+                                    {mapResult(game.result) ?? "N/A"}
                                 </Typography>
                             </Box>
                         </Paper>
@@ -196,7 +199,7 @@ const GroupGames = ({ groups }: { groups: GroupData[] }) => {
                             {rankings.map((r, i) => (
                                 <tr key={i}>
                                     <td>{r.rank}</td>
-                                    <td>{r.teams?.countries?.name ?? "N/A"}</td>
+                                    <td>{r.team?.countries?.name ?? "N/A"}</td>
                                     <td align="right">{r.points}</td>
                                 </tr>
                             ))}
@@ -238,7 +241,7 @@ const EliminationGame = ({
                     </Typography>
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                         {round.games.map((game) => (
-                            <Paper key={game.id} sx={{ m: 2, width: 300 }}>
+                            <Box key={game.id} sx={{ m: 2, width: 300 }}>
                                 <Box
                                     display="flex"
                                     justifyContent="space-between"
@@ -252,6 +255,7 @@ const EliminationGame = ({
                                         <Typography
                                             variant="body1"
                                             sx={{
+                                                m: "2px",
                                                 p: 1,
                                                 borderRadius: 1,
                                                 backgroundColor:
@@ -280,6 +284,7 @@ const EliminationGame = ({
                                         <Typography
                                             variant="body1"
                                             sx={{
+                                                m: "2px",
                                                 p: 1,
                                                 borderRadius: 1,
                                                 whiteSpace: "normal",
@@ -301,7 +306,7 @@ const EliminationGame = ({
                                         </Typography>
                                     </Box>
                                 </Box>
-                            </Paper>
+                            </Box>
                         ))}
                     </Box>
                 </Box>
@@ -320,7 +325,7 @@ interface Props {
 // Main Page Component
 const TournamentPage = ({ tournamentId }: Props) => {
     const [loading, setLoading] = useState(true);
-    const [groupGames, setGroupGames] = useState<GroupData[]>([]);
+    const [groupGames, setGroupGames] = useState<GroupGames[]>([]);
     const [eliminationGames, setEliminationGames] = useState<
         { name: string; games: EliminationGame[] }[]
     >([]);

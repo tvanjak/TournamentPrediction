@@ -115,7 +115,7 @@ const HomePage = (props: Props) => {
                 <Box
                     sx={{
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: "top",
                         justifyContent: "space-evenly",
                     }}
                 >

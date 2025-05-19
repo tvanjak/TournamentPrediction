@@ -46,7 +46,7 @@ export async function GET(
         id: game?.id,
         team1: game?.team1,
         team2: game?.team2,
-        result: prediction.predicted_result ?? null,
+        predicted_result: prediction.predicted_result ?? null,
       });
     }
 
@@ -57,7 +57,7 @@ export async function GET(
       groupedRankingsMap[groupName].push({
         rank: r.rank,
         points: r.points ?? 0,
-        teams: r.teams,
+        team: r.teams,
       });
     }
 

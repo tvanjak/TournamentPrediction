@@ -47,7 +47,11 @@ export async function GET(
     for (const r of rankings) {
       const groupName = r.groups?.name ?? "Unknown";
       if (!groupedRankingsMap[groupName]) groupedRankingsMap[groupName] = [];
-      groupedRankingsMap[groupName].push(r);
+      groupedRankingsMap[groupName].push({
+        rank: r.rank,
+        points: r.points,
+        team: r.teams,
+      });
     }
 
     // Create ordered array of groups

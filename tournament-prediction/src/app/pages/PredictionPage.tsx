@@ -12,30 +12,28 @@ import {
 } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import { useSession } from "next-auth/react";
-import { ResultEnum } from "@/types/enums"; // adjust the import path accordingly
+import { ResultEnum } from "@/types/enums";
 import Loading from "../components/General/Loading";
 import theme from "../styles/theme";
-
-// Types
-//type ResultEnum = "homeWin" | "draw" | "awayWin";
+import CustomTooltip from "../components/General/CustomTooltip";
 
 interface Team {
     id: number;
     countries?: { name: string };
 }
 
-type GroupData = {
+type GroupGames = {
     groupName: string;
     games: {
         id: number;
         team1?: Team;
         team2?: Team;
-        result?: ResultEnum;
+        predicted_result?: ResultEnum;
     }[];
     rankings: {
         rank: number;
         points: number;
-        teams: { countries: { name: string } } | null;
+        team: Team;
     }[];
 };
 
@@ -44,9 +42,38 @@ const GroupGamesPrediction = ({
     groups,
     onResultChange,
 }: {
-    groups: GroupData[];
+    groups: GroupGames[];
     onResultChange: (gameId: number, result: ResultEnum) => void;
 }) => {
+    const getBackgroundColor = (
+        result: ResultEnum | undefined,
+        team: number
+    ): string => {
+        if (team == 0) {
+            switch (result) {
+                case ResultEnum.HomeWin:
+                    return "lightgreen";
+                case ResultEnum.Draw:
+                    return "lightgray";
+                case ResultEnum.AwayWin:
+                    return "lightcoral";
+                default:
+                    return "transparent";
+            }
+        } else {
+            switch (result) {
+                case ResultEnum.HomeWin:
+                    return "lightcoral";
+                case ResultEnum.Draw:
+                    return "lightgray";
+                case ResultEnum.AwayWin:
+                    return "lightgreen";
+                default:
+                    return "transparent";
+            }
+        }
+    };
+
     return (
         <Box
             display="flex"
@@ -77,7 +104,7 @@ const GroupGamesPrediction = ({
                     </Typography>
 
                     {games.map((game) => (
-                        <Paper key={game.id} sx={{ m: 2 }}>
+                        <Paper key={game.id} sx={{ m: 2, p: 1 }}>
                             <Box
                                 display="flex"
                                 justifyContent="space-between"
@@ -87,6 +114,12 @@ const GroupGamesPrediction = ({
                                     <Typography
                                         variant="body2"
                                         sx={{
+                                            backgroundColor: getBackgroundColor(
+                                                game.predicted_result,
+                                                0
+                                            ),
+                                            borderRadius: 2,
+                                            m: "2px",
                                             px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
@@ -103,6 +136,12 @@ const GroupGamesPrediction = ({
                                     <Typography
                                         variant="body2"
                                         sx={{
+                                            backgroundColor: getBackgroundColor(
+                                                game.predicted_result,
+                                                1
+                                            ),
+                                            borderRadius: 2,
+                                            m: "2px",
                                             px: 2,
                                             whiteSpace: "normal",
                                             wordBreak: "break-word",
@@ -119,7 +158,7 @@ const GroupGamesPrediction = ({
                             <Box display="flex" justifyContent="center" p={1}>
                                 <Select
                                     sx={{ fontSize: 15 }}
-                                    value={game.result ?? ""}
+                                    value={game.predicted_result ?? ""}
                                     onChange={(
                                         e: SelectChangeEvent<ResultEnum>
                                     ) =>
@@ -174,7 +213,7 @@ const GroupGamesPrediction = ({
                             {rankings.map((r, i) => (
                                 <tr key={i}>
                                     <td>{r.rank}.</td>
-                                    <td>{r.teams?.countries?.name ?? "N/A"}</td>
+                                    <td>{r.team?.countries?.name ?? "N/A"}</td>
                                     <td align="right">{r.points}</td>
                                 </tr>
                             ))}
@@ -222,7 +261,7 @@ const EliminationGamesPrediction = ({
                     </Typography>
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                         {round.games.map((game) => (
-                            <Paper key={game.id} sx={{ m: 2, width: 300 }}>
+                            <Box key={game.id} sx={{ m: 2, width: 300 }}>
                                 <Box
                                     display="flex"
                                     justifyContent="space-between"
@@ -234,6 +273,7 @@ const EliminationGamesPrediction = ({
                                             sx={{
                                                 color: theme.palette.textBlack
                                                     .main,
+                                                m: "2px",
                                                 p: 1,
                                                 borderRadius: 1,
                                                 textAlign: "center",
@@ -249,6 +289,19 @@ const EliminationGamesPrediction = ({
                                                         game.predicted_winner_id
                                                         ? "lightgreen"
                                                         : "lightcoral",
+                                                "&:hover": {
+                                                    backgroundColor:
+                                                        game.predicted_winner_id &&
+                                                        typeof game.team1 !==
+                                                            "string" &&
+                                                        game.team1?.id ===
+                                                            game.predicted_winner_id
+                                                            ? "#3CB371"
+                                                            : "#CD5C5C",
+                                                    cursor: "pointer",
+                                                },
+                                                transition:
+                                                    "background-color 0.3s ease",
                                             }}
                                         >
                                             {getTeamName(game.team1)}
@@ -260,6 +313,7 @@ const EliminationGamesPrediction = ({
                                             sx={{
                                                 color: theme.palette.textBlack
                                                     .main,
+                                                m: "2px",
                                                 p: 1,
                                                 borderRadius: 1,
                                                 textAlign: "center",
@@ -275,13 +329,26 @@ const EliminationGamesPrediction = ({
                                                         game.predicted_winner_id
                                                         ? "lightgreen"
                                                         : "lightcoral",
+                                                "&:hover": {
+                                                    backgroundColor:
+                                                        game.predicted_winner_id &&
+                                                        typeof game.team2 !==
+                                                            "string" &&
+                                                        game.team2?.id ===
+                                                            game.predicted_winner_id
+                                                            ? "#3CB371"
+                                                            : "#CD5C5C",
+                                                    cursor: "pointer",
+                                                },
+                                                transition:
+                                                    "background-color 0.3s ease",
                                             }}
                                         >
                                             {getTeamName(game.team2)}
                                         </Typography>
                                     </Box>
                                 </Box>
-                            </Paper>
+                            </Box>
                         ))}
                     </Box>
                 </Box>
@@ -290,7 +357,6 @@ const EliminationGamesPrediction = ({
     );
 };
 
-// Main Page
 const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const { data: session } = useSession();
     const [userId, setUserId] = useState(session?.user.email);
@@ -298,7 +364,8 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const [predictionId, setPredictionId] = useState<number>();
 
     const [loading, setLoading] = useState(true);
-    const [groupGames, setGroupGames] = useState<GroupData[]>([]);
+
+    const [groupGames, setGroupGames] = useState<GroupGames[]>([]);
     const [eliminationGames, setEliminationGames] = useState<
         { name: string; games: EliminationGame[] }[]
     >([]);
@@ -306,14 +373,57 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
 
     const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
         setGroupGames((prevGroups) =>
-            prevGroups.map((group) => ({
-                ...group,
-                games: group.games.map((game) =>
+            prevGroups.map((group) => {
+                // Update games
+                const updatedGames = group.games.map((game) =>
                     game.id === gameId
                         ? { ...game, predicted_result: value }
                         : game
-                ),
-            }))
+                );
+
+                // Calculate new points per team
+                const pointsMap: Record<
+                    number,
+                    { team: Team; points: number }
+                > = {};
+
+                for (const game of updatedGames) {
+                    const { team1, team2, predicted_result } = game;
+
+                    if (!team1 || !team2 || !predicted_result) continue;
+
+                    // Initialize teams
+                    if (!pointsMap[team1.id])
+                        pointsMap[team1.id] = { team: team1, points: 0 };
+                    if (!pointsMap[team2.id])
+                        pointsMap[team2.id] = { team: team2, points: 0 };
+
+                    // Apply scoring rules-------------------------------------------------------------------------- RIGHT NOW JUST FOR FOOTBALL
+                    if (predicted_result === ResultEnum.HomeWin) {
+                        pointsMap[team1.id].points += 3;
+                    } else if (predicted_result === ResultEnum.AwayWin) {
+                        pointsMap[team2.id].points += 3;
+                    } else if (predicted_result === ResultEnum.Draw) {
+                        pointsMap[team1.id].points += 1;
+                        pointsMap[team2.id].points += 1;
+                    }
+                }
+
+                // Convert to rankings array and sort
+                const rankings = Object.values(pointsMap)
+                    .sort((a, b) => b.points - a.points)
+                    .map((entry, index) => ({
+                        rank: index + 1,
+                        points: entry.points,
+                        team: entry.team,
+                    }));
+
+                return {
+                    ...group,
+                    games: updatedGames,
+                    rankings,
+                };
+            })
         );
     };
 
@@ -457,14 +567,16 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     />
                 </Box>
 
-                <Button
-                    variant="contained"
-                    size="large"
-                    onClick={handleSavePrediction}
-                    sx={{ position: "absolute", top: 100, right: 50 }}
-                >
-                    Save Prediction
-                </Button>
+                <CustomTooltip title="Update prediction">
+                    <Button
+                        variant="contained"
+                        size="large"
+                        onClick={handleSavePrediction}
+                        sx={{ position: "absolute", top: 100, right: 50 }}
+                    >
+                        Save Prediction
+                    </Button>
+                </CustomTooltip>
             </Box>
         </Box>
     );
