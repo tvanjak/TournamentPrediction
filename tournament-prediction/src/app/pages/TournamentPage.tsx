@@ -259,12 +259,15 @@ const EliminationGame = ({
                                                 p: 1,
                                                 borderRadius: 1,
                                                 backgroundColor:
+                                                    game.team_winner &&
                                                     game.team1?.countries
                                                         ?.name ===
-                                                    game.team_winner?.countries
-                                                        ?.name
+                                                        game.team_winner
+                                                            ?.countries?.name
                                                         ? "lightgreen"
-                                                        : "lightcoral",
+                                                        : game.team_winner
+                                                        ? "lightcoral"
+                                                        : "lightgray",
                                                 whiteSpace: "normal",
                                                 wordBreak: "break-word",
                                                 height: "100%",
@@ -292,12 +295,15 @@ const EliminationGame = ({
                                                 height: "100%",
                                                 alignContent: "center",
                                                 backgroundColor:
+                                                    game.team_winner &&
                                                     game.team2?.countries
                                                         ?.name ===
-                                                    game.team_winner?.countries
-                                                        ?.name
+                                                        game.team_winner
+                                                            ?.countries?.name
                                                         ? "lightgreen"
-                                                        : "lightcoral",
+                                                        : game.team_winner
+                                                        ? "lightcoral"
+                                                        : "lightgray",
                                                 textAlign: "center",
                                             }}
                                         >
@@ -311,9 +317,6 @@ const EliminationGame = ({
                     </Box>
                 </Box>
             ))}
-            <Box mt={4} mb={6}>
-                <Typography variant="h3">Champion: Croatia</Typography>
-            </Box>
         </Box>
     );
 };
@@ -330,6 +333,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
         { name: string; games: EliminationGame[] }[]
     >([]);
     const [tournamentName, setTournamentName] = useState<string>();
+    const [champion, setChampion] = useState<Team>();
 
     const { data: session } = useSession();
     const [userId, setUserId] = useState();
@@ -377,18 +381,28 @@ const TournamentPage = ({ tournamentId }: Props) => {
                     `/api/tournaments/${tournamentId}/info`
                 );
                 const nameData = await nameResponse.json();
-                console.log(groupData);
-                console.log(eliminationData);
-                console.log(nameData);
+                const championResponse = await fetch(
+                    `/api/tournaments/${tournamentId}/champion`
+                );
+                const championData = await championResponse.json();
+                console.log("Group: ", groupData);
+                console.log("Elimination: ", eliminationData);
+                console.log("Name:", nameData);
+                console.log("Champion: ", championData);
                 setGroupGames(groupData);
                 setEliminationGames(eliminationData);
                 setTournamentName(nameData.name);
+                setChampion(championData);
             } catch (error) {
                 console.error("Error fetching tournament data:", error);
             } finally {
                 setLoading(false);
             }
         };
+        console.log("In useEffect.");
+        console.log("group games: ", groupGames);
+        console.log("elimination games: ", eliminationGames);
+        console.log("tournament name: ", tournamentName);
 
         if (session?.user.email) fetchUserId();
         if (userId) fetchGroupIds();
@@ -448,6 +462,12 @@ const TournamentPage = ({ tournamentId }: Props) => {
                     <EliminationGame eliminationGames={eliminationGames} />
                 </Box>
 
+                <Box mt={4} mb={6}>
+                    <Typography variant="h3">
+                        Champion: {champion?.countries?.name || "N/A"}
+                    </Typography>
+                </Box>
+
                 <Box
                     sx={{
                         display: "flex",
@@ -467,26 +487,32 @@ const TournamentPage = ({ tournamentId }: Props) => {
                             p: 3,
                         }}
                     >
-                        <PrimaryBox>Group Leaderboards:</PrimaryBox>
-                        <Box>
-                            {groupIds && (
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "space-evenly",
-                                        flexWrap: "wrap",
-                                    }}
-                                >
-                                    {groupIds.map((groupId, index) => (
-                                        <TournamentGroupLeaderboard
-                                            groupId={groupId}
-                                            tournamentId={Number(tournamentId)}
-                                            key={index}
-                                        ></TournamentGroupLeaderboard>
-                                    ))}
+                        {groupIds?.length != 0 && (
+                            <>
+                                <PrimaryBox>Group Leaderboards:</PrimaryBox>
+                                <Box>
+                                    {groupIds && (
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "space-evenly",
+                                                flexWrap: "wrap",
+                                            }}
+                                        >
+                                            {groupIds.map((groupId, index) => (
+                                                <TournamentGroupLeaderboard
+                                                    groupId={groupId}
+                                                    tournamentId={Number(
+                                                        tournamentId
+                                                    )}
+                                                    key={index}
+                                                ></TournamentGroupLeaderboard>
+                                            ))}
+                                        </Box>
+                                    )}
                                 </Box>
-                            )}
-                        </Box>
+                            </>
+                        )}
                     </Box>
                 </Box>
             </Box>

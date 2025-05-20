@@ -245,6 +245,7 @@ const EliminationGamesPrediction = ({
     eliminationGames: EliminationGames[];
     onResultChange: (
         gameId: number,
+        roundId: number,
         newWinner?: Team,
         previousWinnerId?: number
     ) => void;
@@ -281,6 +282,7 @@ const EliminationGamesPrediction = ({
                                             onClick={() =>
                                                 onResultChange(
                                                     game.id,
+                                                    rounds.roundId,
                                                     game.team1,
                                                     game.predicted_winner_id
                                                 )
@@ -332,6 +334,7 @@ const EliminationGamesPrediction = ({
                                             onClick={() =>
                                                 onResultChange(
                                                     game.id,
+                                                    rounds.roundId,
                                                     game.team2,
                                                     game.predicted_winner_id
                                                 )
@@ -401,6 +404,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         EliminationGames[]
     >([]);
     const [tournamentName, setTournamentName] = useState<string>();
+    const [champion, setChampion] = useState<Team>();
 
     const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
         setGroupGames((prevGroups) =>
@@ -458,91 +462,9 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         );
     };
 
-    const handleEliminationResultChange2 = (
-        gameId: number,
-        newWinner?: Team,
-        previousWinnerId?: number
-    ) => {
-        if (newWinner?.id == previousWinnerId) return;
-
-        setEliminationGames((prevRounds) => {
-            let changedRoundIndex = -1;
-
-            // Step 1: Update the selected game and find which round it's in
-            const updatedRounds = prevRounds.map((round) => {
-                const hasTargetGame = round.games.some(
-                    (game) => game.id === gameId
-                );
-                if (hasTargetGame) changedRoundIndex = round.roundId;
-
-                return {
-                    ...round,
-                    games: round.games.map((game) =>
-                        game.id === gameId
-                            ? { ...game, predicted_winner_id: newWinner?.id }
-                            : game
-                    ),
-                };
-            });
-
-            // Step 2: Remove the previous winner ID from all later rounds
-            if (changedRoundIndex >= 0 && previousWinnerId !== undefined) {
-                for (let i = 0; i < updatedRounds.length; i++) {
-                    if (updatedRounds[i].roundId < changedRoundIndex - 1) {
-                        updatedRounds[i] = {
-                            ...updatedRounds[i],
-                            games: updatedRounds[i].games.map((game) => {
-                                if (game.team1?.id == previousWinnerId) {
-                                    game.team1 = undefined;
-                                    game.predicted_winner_id = undefined;
-                                    return {
-                                        ...game,
-                                    };
-                                } else if (game.team2?.id == previousWinnerId) {
-                                    game.team2 = undefined;
-                                    game.predicted_winner_id = undefined;
-                                    return {
-                                        ...game,
-                                    };
-                                } else {
-                                    return { ...game };
-                                }
-                            }),
-                        };
-                    } else if (
-                        updatedRounds[i].roundId ==
-                        changedRoundIndex - 1
-                    ) {
-                        updatedRounds[i] = {
-                            ...updatedRounds[i],
-                            games: updatedRounds[i].games.map((game) => {
-                                if (game.team1?.id == previousWinnerId) {
-                                    game.team1 = newWinner;
-                                    game.predicted_winner_id = undefined;
-                                    return {
-                                        ...game,
-                                    };
-                                } else if (game.team2?.id == previousWinnerId) {
-                                    game.team2 = newWinner;
-                                    game.predicted_winner_id = undefined;
-                                    return {
-                                        ...game,
-                                    };
-                                } else {
-                                    return { ...game };
-                                }
-                            }),
-                        };
-                    }
-                }
-            }
-
-            return updatedRounds;
-        });
-    };
-
     const handleEliminationResultChange = (
         gameId: number,
+        roundId: number,
         newWinner?: Team,
         previousWinnerId?: number
     ) => {
@@ -569,9 +491,42 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
             });
 
             let winnerIds_array = [previousWinnerId];
-            if (changedRoundIndex >= 0 && previousWinnerId !== undefined) {
+            if (changedRoundIndex >= 0) {
                 for (let i = 0; i < updatedRounds.length; i++) {
-                    if (updatedRounds[i].roundId < changedRoundIndex - 1) {
+                    if (updatedRounds[i].roundId == changedRoundIndex - 1) {
+                        updatedRounds[i] = {
+                            ...updatedRounds[i],
+                            games: updatedRounds[i].games.map((game) => {
+                                if (game.team1?.id == previousWinnerId) {
+                                    game.team1 = newWinner;
+                                    game.predicted_winner_id = undefined;
+                                    if (game.team2?.id != undefined)
+                                        winnerIds_array.push(game.team2!.id);
+                                    return {
+                                        ...game,
+                                    };
+                                } else if (game.team2?.id == previousWinnerId) {
+                                    game.team2 = newWinner;
+                                    game.predicted_winner_id = undefined;
+                                    if (game.team1?.id != undefined)
+                                        winnerIds_array.push(game.team1!.id);
+                                    return {
+                                        ...game,
+                                    };
+                                } else {
+                                    if (!game.team1) {
+                                        game.team1 = newWinner;
+                                    } else if (!game.team2) {
+                                        game.team2 = newWinner;
+                                    }
+                                    return { ...game };
+                                }
+                            }),
+                        };
+                    } else if (
+                        updatedRounds[i].roundId <
+                        changedRoundIndex - 1
+                    ) {
                         updatedRounds[i] = {
                             ...updatedRounds[i],
                             games: updatedRounds[i].games.map((game) => {
@@ -602,43 +557,12 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                                 }
                             }),
                         };
-                    } else if (
-                        updatedRounds[i].roundId ==
-                        changedRoundIndex - 1
-                    ) {
-                        updatedRounds[i] = {
-                            ...updatedRounds[i],
-                            games: updatedRounds[i].games.map((game) => {
-                                console.log("GAME; ", game);
-                                if (game.team1?.id == previousWinnerId) {
-                                    game.team1 = newWinner;
-                                    game.predicted_winner_id = undefined;
-                                    if (game.team2?.id != undefined)
-                                        winnerIds_array.push(game.team2!.id);
-                                    return {
-                                        ...game,
-                                    };
-                                } else if (game.team2?.id == previousWinnerId) {
-                                    game.team2 = newWinner;
-                                    game.predicted_winner_id = undefined;
-                                    if (game.team1?.id != undefined)
-                                        winnerIds_array.push(game.team1!.id);
-                                    return {
-                                        ...game,
-                                    };
-                                } else {
-                                    console.log("livaj");
-                                    if (!game.team1) {
-                                        game.team1 = newWinner;
-                                    } else {
-                                        game.team2 = newWinner;
-                                    }
-                                    return { ...game };
-                                }
-                            }),
-                        };
                     }
                 }
+            }
+
+            if (roundId == 1) {
+                setChampion(newWinner);
             }
             return updatedRounds;
         });
@@ -680,6 +604,12 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 );
                 const nameData = await nameRes.json();
                 setTournamentName(nameData.name);
+
+                const championResponse = await fetch(
+                    `/api/predictions/${tournamentId}/champion`
+                );
+                const championData = await championResponse.json();
+                setChampion(championData);
             } catch (err) {
                 console.error("Failed to load prediction:", err);
             } finally {
@@ -783,6 +713,12 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                         eliminationGames={eliminationGames}
                         onResultChange={handleEliminationResultChange}
                     />
+                </Box>
+
+                <Box mt={4} mb={6}>
+                    <Typography variant="h3">
+                        Champion: {champion?.countries?.name || "N/A"}
+                    </Typography>
                 </Box>
 
                 <CustomTooltip title="Update prediction">
