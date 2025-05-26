@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import { useSession } from "next-auth/react";
-import { ResultEnum } from "@/types/enums";
+import { ResultEnum, StatusEnum, TournamentStatus } from "@/types/enums";
 import Loading from "../components/General/Loading";
 import theme from "../styles/theme";
 import CustomTooltip from "../components/General/CustomTooltip";
@@ -29,6 +29,8 @@ type GroupGames = {
         team1?: Team;
         team2?: Team;
         predicted_result?: ResultEnum;
+        points_awarded: number;
+        status: StatusEnum;
     }[];
     rankings: {
         rank: number;
@@ -39,9 +41,13 @@ type GroupGames = {
 
 // GroupGamesPrediction Section
 const GroupGamesPrediction = ({
+    groupGamesLock,
+    tournamentStatus,
     groups,
     onResultChange,
 }: {
+    groupGamesLock: boolean;
+    tournamentStatus: TournamentStatus;
     groups: GroupGames[];
     onResultChange: (gameId: number, result: ResultEnum) => void;
 }) => {
@@ -104,7 +110,34 @@ const GroupGamesPrediction = ({
                     </Typography>
 
                     {games.map((game) => (
-                        <Paper key={game.id} sx={{ m: 2, p: 1 }}>
+                        <Paper
+                            key={game.id}
+                            sx={{
+                                height: 100,
+                                m: 2,
+                                p: 1,
+                                borderLeft:
+                                    game.status === StatusEnum.Finished
+                                        ? game.points_awarded !== 0
+                                            ? "6px solid lightgreen"
+                                            : "6px solid lightcoral"
+                                        : "6px solid lightgray",
+                                borderRadius: 1,
+                                //boxShadow:
+                                //    game.status === StatusEnum.Finished
+                                //        ? game.points_awarded !== 0
+                                //            ? "0 0 5px lightgreen"
+                                //            : "0 0 5px lightcoral"
+                                //        : "transparent",
+                                //border:
+                                //    game.status == StatusEnum.Finished
+                                //        ? game.points_awarded != 0
+                                //            ? "1px solid lightgreen"
+                                //            : "1px solid lightcoral"
+                                //        : "transparent",
+                                //transition: "all 0.3s ease-in-out", // Smooth appearance
+                            }}
+                        >
                             <Box
                                 display="flex"
                                 justifyContent="space-between"
@@ -156,44 +189,81 @@ const GroupGamesPrediction = ({
                                 </Box>
                             </Box>
                             <Box display="flex" justifyContent="center" p={1}>
-                                <Select
-                                    sx={{ fontSize: 15 }}
-                                    value={game.predicted_result ?? ""}
-                                    onChange={(
-                                        e: SelectChangeEvent<ResultEnum>
-                                    ) =>
-                                        onResultChange(
-                                            game.id,
-                                            e.target.value as ResultEnum
-                                        )
-                                    }
-                                    displayEmpty
-                                    size="small"
-                                    fullWidth
-                                    renderValue={(selected) => {
-                                        switch (selected) {
-                                            case ResultEnum.HomeWin:
-                                                return "Home Win";
-                                            case ResultEnum.Draw:
-                                                return "Draw";
-                                            case ResultEnum.AwayWin:
-                                                return "Away Win";
-                                            default:
-                                                return "Select result";
+                                {tournamentStatus ==
+                                    TournamentStatus.Upcoming &&
+                                !groupGamesLock ? (
+                                    <Select
+                                        sx={{ fontSize: 15 }}
+                                        value={game.predicted_result ?? ""}
+                                        onChange={(
+                                            e: SelectChangeEvent<ResultEnum>
+                                        ) =>
+                                            onResultChange(
+                                                game.id,
+                                                e.target.value as ResultEnum
+                                            )
                                         }
-                                    }}
-                                >
-                                    <MenuItem value="">Select result</MenuItem>
-                                    <MenuItem value={ResultEnum.HomeWin}>
-                                        Home Win
-                                    </MenuItem>
-                                    <MenuItem value={ResultEnum.Draw}>
-                                        Draw
-                                    </MenuItem>
-                                    <MenuItem value={ResultEnum.AwayWin}>
-                                        Away Win
-                                    </MenuItem>
-                                </Select>
+                                        displayEmpty
+                                        size="small"
+                                        fullWidth
+                                        renderValue={(selected) => {
+                                            switch (selected) {
+                                                case ResultEnum.HomeWin:
+                                                    return "Home Win";
+                                                case ResultEnum.Draw:
+                                                    return "Draw";
+                                                case ResultEnum.AwayWin:
+                                                    return "Away Win";
+                                                default:
+                                                    return "Select result";
+                                            }
+                                        }}
+                                    >
+                                        <MenuItem value="">
+                                            Select result
+                                        </MenuItem>
+                                        <MenuItem value={ResultEnum.HomeWin}>
+                                            Home Win
+                                        </MenuItem>
+                                        <MenuItem value={ResultEnum.Draw}>
+                                            Draw
+                                        </MenuItem>
+                                        <MenuItem value={ResultEnum.AwayWin}>
+                                            Away Win
+                                        </MenuItem>
+                                    </Select>
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            width: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            mt: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{
+                                                border: "1px solid black",
+                                                borderRadius: 1,
+                                                px: 1,
+                                                mx: 1,
+                                            }}
+                                        >
+                                            {game.predicted_result ?? "N/A"}
+                                        </Typography>
+                                        <Typography
+                                            variant="subtitle1"
+                                            textAlign="center"
+                                        >
+                                            Points:{" "}
+                                            {game.points_awarded != undefined
+                                                ? game.points_awarded
+                                                : "N/A"}
+                                        </Typography>
+                                    </Box>
+                                )}
                             </Box>
                         </Paper>
                     ))}
@@ -231,17 +301,21 @@ interface EliminationGames {
     games: {
         id: number;
         rounds?: { name: string };
-        team1?: Team; // allow placeholders like "A1"
+        team1?: Team; // allow placeholders like "A1"???
         team2?: Team;
         predicted_winner_id?: number;
+        points_awarded: number;
+        status: StatusEnum;
     }[];
 }
 
 // Elimination Games with Placeholder Logic
 const EliminationGamesPrediction = ({
+    tournamentStatus,
     eliminationGames,
     onResultChange,
 }: {
+    tournamentStatus: TournamentStatus;
     eliminationGames: EliminationGames[];
     onResultChange: (
         gameId: number,
@@ -272,116 +346,210 @@ const EliminationGamesPrediction = ({
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                         {rounds.games.map((game) => (
                             <Box key={game.id} sx={{ m: 2, width: 300 }}>
-                                <Box
-                                    display="flex"
-                                    justifyContent="space-between"
-                                    height="50px"
-                                >
-                                    <Box sx={{ width: "50%" }}>
-                                        <Typography
-                                            onClick={() =>
-                                                onResultChange(
-                                                    game.id,
-                                                    rounds.roundId,
-                                                    game.team1,
-                                                    game.predicted_winner_id
-                                                )
-                                            }
-                                            variant="body2"
-                                            sx={{
-                                                color: theme.palette.textBlack
-                                                    .main,
-                                                m: "2px",
-                                                p: 1,
-                                                borderRadius: 1,
-                                                textAlign: "center",
-                                                whiteSpace: "normal",
-                                                wordBreak: "break-word",
-                                                height: "100%",
-                                                alignContent: "center",
-                                                backgroundColor:
-                                                    game.predicted_winner_id &&
-                                                    typeof game.team1 !==
-                                                        "string" &&
-                                                    game.team1?.id ===
+                                {tournamentStatus ==
+                                TournamentStatus.Upcoming ? (
+                                    <Box
+                                        display="flex"
+                                        justifyContent="space-between"
+                                        height="50px"
+                                    >
+                                        <Box sx={{ width: "50%" }}>
+                                            <Typography
+                                                onClick={() =>
+                                                    onResultChange(
+                                                        game.id,
+                                                        rounds.roundId,
+                                                        game.team1,
                                                         game.predicted_winner_id
-                                                        ? "lightgreen"
-                                                        : game.predicted_winner_id
-                                                        ? "lightcoral"
-                                                        : "lightgray",
-                                                "&:hover": {
+                                                    )
+                                                }
+                                                variant="body2"
+                                                sx={{
+                                                    color: theme.palette
+                                                        .textBlack.main,
+                                                    m: "2px",
+                                                    p: 1,
+                                                    borderRadius: 1,
+                                                    textAlign: "center",
+                                                    whiteSpace: "normal",
+                                                    wordBreak: "break-word",
+                                                    height: "100%",
+                                                    alignContent: "center",
                                                     backgroundColor:
-                                                        !game.predicted_winner_id
-                                                            ? "#3CB371"
-                                                            : game.predicted_winner_id &&
-                                                              typeof game.team1 !==
-                                                                  "string" &&
-                                                              game.team1?.id ===
-                                                                  game.predicted_winner_id
-                                                            ? "#3CB371"
-                                                            : "#CD5C5C",
-                                                    cursor: "pointer",
-                                                },
-                                                transition:
-                                                    "background-color 0.3s ease",
+                                                        game.predicted_winner_id &&
+                                                        typeof game.team1 !==
+                                                            "string" &&
+                                                        game.team1?.id ===
+                                                            game.predicted_winner_id
+                                                            ? "lightgreen"
+                                                            : game.predicted_winner_id
+                                                            ? "lightcoral"
+                                                            : "lightgray",
+                                                    "&:hover": {
+                                                        backgroundColor:
+                                                            !game.predicted_winner_id
+                                                                ? "#3CB371"
+                                                                : game.predicted_winner_id &&
+                                                                  typeof game.team1 !==
+                                                                      "string" &&
+                                                                  game.team1
+                                                                      ?.id ===
+                                                                      game.predicted_winner_id
+                                                                ? "#3CB371"
+                                                                : "#CD5C5C",
+                                                        cursor: "pointer",
+                                                    },
+                                                    transition:
+                                                        "background-color 0.3s ease",
+                                                }}
+                                            >
+                                                {getTeamName(game.team1)}
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{ width: "50%" }}>
+                                            <Typography
+                                                onClick={() =>
+                                                    onResultChange(
+                                                        game.id,
+                                                        rounds.roundId,
+                                                        game.team2,
+                                                        game.predicted_winner_id
+                                                    )
+                                                }
+                                                variant="body2"
+                                                sx={{
+                                                    color: theme.palette
+                                                        .textBlack.main,
+                                                    m: "2px",
+                                                    p: 1,
+                                                    borderRadius: 1,
+                                                    textAlign: "center",
+                                                    whiteSpace: "normal",
+                                                    wordBreak: "break-word",
+                                                    height: "100%",
+                                                    alignContent: "center",
+                                                    backgroundColor:
+                                                        game.predicted_winner_id &&
+                                                        typeof game.team2 !==
+                                                            "string" &&
+                                                        game.team2?.id ===
+                                                            game.predicted_winner_id
+                                                            ? "lightgreen"
+                                                            : game.predicted_winner_id
+                                                            ? "lightcoral"
+                                                            : "lightgray",
+                                                    "&:hover": {
+                                                        backgroundColor:
+                                                            !game.predicted_winner_id
+                                                                ? "#3CB371"
+                                                                : game.predicted_winner_id &&
+                                                                  typeof game.team2 !==
+                                                                      "string" &&
+                                                                  game.team2
+                                                                      ?.id ===
+                                                                      game.predicted_winner_id
+                                                                ? "#3CB371"
+                                                                : "#CD5C5C",
+                                                        cursor: "pointer",
+                                                    },
+                                                    transition:
+                                                        "background-color 0.3s ease",
+                                                }}
+                                            >
+                                                {getTeamName(game.team2)}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "space-between",
+                                            height: "100px",
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                height: "50px",
                                             }}
                                         >
-                                            {getTeamName(game.team1)}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ width: "50%" }}>
+                                            <Box
+                                                sx={{
+                                                    width: "50%",
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="body1"
+                                                    sx={{
+                                                        m: "2px",
+                                                        p: 1,
+                                                        borderRadius: 1,
+                                                        backgroundColor:
+                                                            game.predicted_winner_id &&
+                                                            game.team1?.id ===
+                                                                game.predicted_winner_id
+                                                                ? "lightgreen"
+                                                                : game.predicted_winner_id
+                                                                ? "lightcoral"
+                                                                : "lightgray",
+                                                        whiteSpace: "normal",
+                                                        wordBreak: "break-word",
+                                                        height: "100%",
+                                                        alignContent: "center",
+                                                        textAlign: "center",
+                                                    }}
+                                                >
+                                                    {game.team1?.countries
+                                                        ?.name ?? "Team 1"}
+                                                </Typography>
+                                            </Box>
+                                            <Box
+                                                sx={{
+                                                    width: "50%",
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="body1"
+                                                    sx={{
+                                                        m: "2px",
+                                                        p: 1,
+                                                        borderRadius: 1,
+                                                        whiteSpace: "normal",
+                                                        wordBreak: "break-word",
+                                                        height: "100%",
+                                                        alignContent: "center",
+                                                        backgroundColor:
+                                                            game.predicted_winner_id &&
+                                                            game.team2?.id ===
+                                                                game.predicted_winner_id
+                                                                ? "lightgreen"
+                                                                : game.predicted_winner_id
+                                                                ? "lightcoral"
+                                                                : "lightgray",
+                                                        textAlign: "center",
+                                                    }}
+                                                >
+                                                    {game.team2?.countries
+                                                        ?.name ?? "Team 2"}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                         <Typography
-                                            onClick={() =>
-                                                onResultChange(
-                                                    game.id,
-                                                    rounds.roundId,
-                                                    game.team2,
-                                                    game.predicted_winner_id
-                                                )
-                                            }
-                                            variant="body2"
                                             sx={{
-                                                color: theme.palette.textBlack
-                                                    .main,
-                                                m: "2px",
-                                                p: 1,
-                                                borderRadius: 1,
                                                 textAlign: "center",
-                                                whiteSpace: "normal",
-                                                wordBreak: "break-word",
-                                                height: "100%",
-                                                alignContent: "center",
-                                                backgroundColor:
-                                                    game.predicted_winner_id &&
-                                                    typeof game.team2 !==
-                                                        "string" &&
-                                                    game.team2?.id ===
-                                                        game.predicted_winner_id
-                                                        ? "lightgreen"
-                                                        : game.predicted_winner_id
-                                                        ? "lightcoral"
-                                                        : "lightgray",
-                                                "&:hover": {
-                                                    backgroundColor:
-                                                        !game.predicted_winner_id
-                                                            ? "#3CB371"
-                                                            : game.predicted_winner_id &&
-                                                              typeof game.team2 !==
-                                                                  "string" &&
-                                                              game.team2?.id ===
-                                                                  game.predicted_winner_id
-                                                            ? "#3CB371"
-                                                            : "#CD5C5C",
-                                                    cursor: "pointer",
-                                                },
-                                                transition:
-                                                    "background-color 0.3s ease",
+                                                fontStyle: "italic",
                                             }}
                                         >
-                                            {getTeamName(game.team2)}
+                                            Points awarded:{" "}
+                                            {game.points_awarded != undefined
+                                                ? game.points_awarded
+                                                : "N/A"}
                                         </Typography>
                                     </Box>
-                                </Box>
+                                )}
                             </Box>
                         ))}
                     </Box>
@@ -400,11 +568,15 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const [loading, setLoading] = useState(true);
 
     const [groupGames, setGroupGames] = useState<GroupGames[]>([]);
+    const [groupGamesLock, setGroupGamesLock] = useState<boolean>(false);
     const [eliminationGames, setEliminationGames] = useState<
         EliminationGames[]
     >([]);
     const [tournamentName, setTournamentName] = useState<string>();
-    const [champion, setChampion] = useState<Team>();
+    const [tournamentStatus, setTournamentStatus] = useState<TournamentStatus>(
+        TournamentStatus.Upcoming
+    );
+    const [champion, setChampion] = useState<Team | null>();
 
     const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
         setGroupGames((prevGroups) =>
@@ -494,10 +666,21 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
             if (changedRoundIndex >= 0) {
                 for (let i = 0; i < updatedRounds.length; i++) {
                     if (updatedRounds[i].roundId == changedRoundIndex - 1) {
+                        console.log(
+                            "Here is the final I guess: ",
+                            updatedRounds[i].games
+                        );
                         updatedRounds[i] = {
                             ...updatedRounds[i],
                             games: updatedRounds[i].games.map((game) => {
-                                if (game.team1?.id == previousWinnerId) {
+                                console.log(
+                                    "Passing through final?",
+                                    updatedRounds[i].games
+                                );
+                                if (
+                                    game.team1?.id == previousWinnerId &&
+                                    previousWinnerId
+                                ) {
                                     game.team1 = newWinner;
                                     game.predicted_winner_id = undefined;
                                     if (game.team2?.id != undefined)
@@ -505,7 +688,10 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                                     return {
                                         ...game,
                                     };
-                                } else if (game.team2?.id == previousWinnerId) {
+                                } else if (
+                                    game.team2?.id == previousWinnerId &&
+                                    previousWinnerId
+                                ) {
                                     game.team2 = newWinner;
                                     game.predicted_winner_id = undefined;
                                     if (game.team1?.id != undefined)
@@ -516,8 +702,18 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                                 } else {
                                     if (!game.team1) {
                                         game.team1 = newWinner;
+                                        console.log(
+                                            "I just changed something in THIRD ELSE FIRST IF: ",
+                                            updatedRounds[i].games
+                                        );
+                                        return { ...game };
                                     } else if (!game.team2) {
                                         game.team2 = newWinner;
+                                        console.log(
+                                            "I just changed something in THIRD ELSE SECOND IF: ",
+                                            updatedRounds[i].games
+                                        );
+                                        return { ...game };
                                     }
                                     return { ...game };
                                 }
@@ -561,9 +757,17 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 }
             }
 
+            for (let i = 0; i < updatedRounds.length; i++) {
+                if (updatedRounds[i].roundId == 1) {
+                    if (!updatedRounds[i].games[0].predicted_winner_id) {
+                        setChampion(null);
+                    }
+                }
+            }
             if (roundId == 1) {
                 setChampion(newWinner);
             }
+
             return updatedRounds;
         });
     };
@@ -580,6 +784,17 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
             console.error("Failed to save prediction:", err);
             alert("Failed to save prediction");
         }
+    };
+
+    const handleLockGroupPhase = async () => {
+        setGroupGamesLock(true);
+
+        //pomocu elimination_matchups izradi elimination games
+    };
+
+    const handleUnlockGroupPhase = async () => {
+        setGroupGamesLock(false);
+        //...
     };
 
     useEffect(() => {
@@ -602,8 +817,9 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 const nameRes = await fetch(
                     `/api/tournaments/${tournamentId}/info`
                 );
-                const nameData = await nameRes.json();
-                setTournamentName(nameData.name);
+                const infoData = await nameRes.json();
+                setTournamentName(infoData.name);
+                setTournamentStatus(infoData.status);
 
                 const championResponse = await fetch(
                     `/api/predictions/${tournamentId}/champion`
@@ -696,10 +912,54 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 <AccentBox>{tournamentName} – Prediction</AccentBox>
 
                 <Box mb={4}>
-                    <Typography variant="h4" gutterBottom>
-                        Group Stage
-                    </Typography>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "start",
+                            alignItems: "center",
+                            mb: 2,
+                        }}
+                    >
+                        <Typography variant="h4">Group Stage</Typography>
+                        {!groupGamesLock ? (
+                            <CustomTooltip title="Confirm group predictions">
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={handleLockGroupPhase}
+                                    sx={{
+                                        //position: "absolute",
+                                        //top: 180,
+                                        //right: 100,
+                                        ml: 2,
+                                        backgroundColor: "white",
+                                    }}
+                                >
+                                    Lock Group Phase
+                                </Button>
+                            </CustomTooltip>
+                        ) : (
+                            <CustomTooltip title="Revise group predictions">
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={handleUnlockGroupPhase}
+                                    sx={{
+                                        //position: "absolute",
+                                        //top: 180,
+                                        //right: 100,
+                                        ml: 2,
+                                        backgroundColor: "white",
+                                    }}
+                                >
+                                    Unlock Group Phase
+                                </Button>
+                            </CustomTooltip>
+                        )}
+                    </Box>
                     <GroupGamesPrediction
+                        groupGamesLock={groupGamesLock}
+                        tournamentStatus={tournamentStatus}
                         groups={groupGames}
                         onResultChange={handleGroupResultChange}
                     />
@@ -710,27 +970,30 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                         Elimination Stage
                     </Typography>
                     <EliminationGamesPrediction
+                        tournamentStatus={tournamentStatus}
                         eliminationGames={eliminationGames}
                         onResultChange={handleEliminationResultChange}
                     />
                 </Box>
 
-                <Box mt={4} mb={6}>
-                    <Typography variant="h3">
-                        Champion: {champion?.countries?.name || "N/A"}
+                <Box mt={2} mb={6}>
+                    <Typography variant="h3" color="Goldenrod">
+                        🏆Champion: {champion?.countries?.name || "N/A"}
                     </Typography>
                 </Box>
 
-                <CustomTooltip title="Update prediction">
-                    <Button
-                        variant="contained"
-                        size="large"
-                        onClick={handleSavePrediction}
-                        sx={{ position: "absolute", top: 100, right: 50 }}
-                    >
-                        Save Prediction
-                    </Button>
-                </CustomTooltip>
+                {tournamentStatus == TournamentStatus.Ongoing && (
+                    <CustomTooltip title="Update prediction">
+                        <Button
+                            variant="contained"
+                            size="large"
+                            onClick={handleSavePrediction}
+                            sx={{ position: "absolute", top: 100, right: 50 }}
+                        >
+                            Save Prediction
+                        </Button>
+                    </CustomTooltip>
+                )}
             </Box>
         </Box>
     );

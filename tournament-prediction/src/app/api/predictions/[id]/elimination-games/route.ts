@@ -15,15 +15,10 @@ export async function GET(
   try {
     const predictions = await prisma.elimination_games_predictions.findMany({
       where: { prediction_id: predictionId },
-      include: {
-        //elimination_games: {
-        //  include: {
-        //    rounds: true,
-        //    team1: { include: { countries: { select: { name: true } } } },
-        //    team2: { include: { countries: { select: { name: true } } } },
-        //    team_winner: { include: { countries: { select: { name: true } } } },
-        //  },
-        //},
+      select: {
+        id: true,
+        predicted_winner_id: true,
+        points_awarded: true,
         rounds: true,
         team1: {
           include: {countries: { select: { name: true}}}
@@ -34,8 +29,22 @@ export async function GET(
         team_winner: {
           include: { countries: { select: { name: true } } },
         },
+        elimination_games: {
+          select: {
+            status: true,
+          }
+        }
       },
     });
+    
+        //elimination_games: {
+        //  include: {
+        //    rounds: true,
+        //    team1: { include: { countries: { select: { name: true } } } },
+        //    team2: { include: { countries: { select: { name: true } } } },
+        //    team_winner: { include: { countries: { select: { name: true } } } },
+        //  },
+        //},
 
     const groupedByRound = predictions.reduce((acc, prediction) => {
       const roundName = prediction?.rounds?.name ?? "Unknown";
@@ -48,6 +57,8 @@ export async function GET(
         team2: prediction?.team2,
         rounds: prediction?.rounds,
         predicted_winner_id: prediction.predicted_winner_id,
+        points_awarded: prediction.points_awarded,
+        status: prediction.elimination_games?.status
       });
 
       return acc;

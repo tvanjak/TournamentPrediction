@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client"
-import { status_enum } from "@/types/enums";
+import { StatusEnum } from "@/types/enums";
 
 export async function POST(req: Request) {
     try {

@@ -4,8 +4,14 @@ export enum ResultEnum {
   AwayWin = "awayWin",
 }
 
-export enum status_enum {
+export enum StatusEnum {
   Pending = "pending",
   Finished = "finished",
+}
+
+export enum TournamentStatus {
+  Upcoming = "UPCOMING",
+  Ongoing = "ONGOING",
+  Completed = "COMPLETED"
 }
 

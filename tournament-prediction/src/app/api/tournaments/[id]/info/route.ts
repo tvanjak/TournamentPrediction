@@ -14,6 +14,7 @@ export async function GET(req: Request, {params} : {params: {id:string}}) {
                 id: tournamentId
             },
             select : {
+                status: true,
                 name: true,
             },
         });

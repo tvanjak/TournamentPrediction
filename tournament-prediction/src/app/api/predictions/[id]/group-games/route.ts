@@ -14,16 +14,40 @@ export async function GET(
   try {
     const predictions = await prisma.group_games_predictions.findMany({
       where: { prediction_id: predictionId },
-      include: {
+      select: {
+        id: true,
+        predicted_result: true,
+        points_awarded: true,
         group_games: {
-          include: {
+          select: {
+            id: true,
+            status: true,
             groups: true,
-            team1: { include: { countries: { select: { name: true } } } },
-            team2: { include: { countries: { select: { name: true } } } },
+            team1: {
+              select: {
+                id: true,
+                countries: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+            team2: {
+              select: {
+                id: true,
+                countries: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
+
 
     const rankings = await prisma.group_rankings_predictions.findMany({
       where: { prediction_id: predictionId },
@@ -47,6 +71,8 @@ export async function GET(
         team1: game?.team1,
         team2: game?.team2,
         predicted_result: prediction.predicted_result ?? null,
+        status: game.status,
+        points_awarded: prediction.points_awarded
       });
     }
 
