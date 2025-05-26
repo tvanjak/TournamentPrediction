@@ -18,7 +18,6 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        // ✅ Use `rubik.className` instead of incorrect `rubik.clRssName`
         <html lang="en" className={rubik.className}>
             <body>
                 <ThemeProvider theme={theme}>

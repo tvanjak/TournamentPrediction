@@ -9,7 +9,7 @@ export async function GET(req: Request, {params} : {params: {id:string}}) {
       }
     
       try {
-        const tournamentName = await prisma.tournaments.findUnique({
+        const tournamentInfo = await prisma.tournaments.findUnique({
             where : {
                 id: tournamentId
             },
@@ -19,9 +19,9 @@ export async function GET(req: Request, {params} : {params: {id:string}}) {
             },
         });
 
-        return NextResponse.json(tournamentName);
+        return NextResponse.json(tournamentInfo);
       } catch(error) {
-        console.error("[TOURNMENT_NAME_ERROR", error);
+        console.error("[TOURNMENT_INFO_ERROR", error);
         return new NextResponse("Internal Server Error", {status: 500});
       }
 }

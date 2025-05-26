@@ -9,7 +9,7 @@ export enum StatusEnum {
   Finished = "finished",
 }
 
-export enum TournamentStatus {
+export enum TournamentStatusEnum {
   Upcoming = "UPCOMING",
   Ongoing = "ONGOING",
   Completed = "COMPLETED"

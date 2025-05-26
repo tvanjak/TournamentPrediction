@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import { useSession } from "next-auth/react";
-import { ResultEnum, StatusEnum, TournamentStatus } from "@/types/enums";
+import { ResultEnum, StatusEnum, TournamentStatusEnum } from "@/types/enums";
 import Loading from "../components/General/Loading";
 import theme from "../styles/theme";
 import CustomTooltip from "../components/General/CustomTooltip";
@@ -47,7 +47,7 @@ const GroupGamesPrediction = ({
     onResultChange,
 }: {
     groupGamesLock: boolean;
-    tournamentStatus: TournamentStatus;
+    tournamentStatus: TournamentStatusEnum;
     groups: GroupGames[];
     onResultChange: (gameId: number, result: ResultEnum) => void;
 }) => {
@@ -190,8 +190,60 @@ const GroupGamesPrediction = ({
                             </Box>
                             <Box display="flex" justifyContent="center" p={1}>
                                 {tournamentStatus ==
-                                    TournamentStatus.Upcoming &&
-                                !groupGamesLock ? (
+                                TournamentStatusEnum.Ongoing ? (
+                                    <Box
+                                        sx={{
+                                            width: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            mt: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{
+                                                border: "1px solid black",
+                                                borderRadius: 1,
+                                                px: 1,
+                                                mx: 1,
+                                            }}
+                                        >
+                                            {game.predicted_result ?? "N/A"}
+                                        </Typography>
+                                        <Typography
+                                            variant="subtitle1"
+                                            textAlign="center"
+                                        >
+                                            Points:{" "}
+                                            {game.points_awarded != undefined
+                                                ? game.points_awarded
+                                                : "N/A"}
+                                        </Typography>
+                                    </Box>
+                                ) : groupGamesLock ? (
+                                    <Box
+                                        sx={{
+                                            width: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            mt: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{
+                                                border: "1px solid black",
+                                                borderRadius: 1,
+                                                px: 1,
+                                                mx: 1,
+                                            }}
+                                        >
+                                            {game.predicted_result ?? "N/A"}
+                                        </Typography>
+                                    </Box>
+                                ) : (
                                     <Select
                                         sx={{ fontSize: 15 }}
                                         value={game.predicted_result ?? ""}
@@ -232,37 +284,6 @@ const GroupGamesPrediction = ({
                                             Away Win
                                         </MenuItem>
                                     </Select>
-                                ) : (
-                                    <Box
-                                        sx={{
-                                            width: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            mt: 1,
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                border: "1px solid black",
-                                                borderRadius: 1,
-                                                px: 1,
-                                                mx: 1,
-                                            }}
-                                        >
-                                            {game.predicted_result ?? "N/A"}
-                                        </Typography>
-                                        <Typography
-                                            variant="subtitle1"
-                                            textAlign="center"
-                                        >
-                                            Points:{" "}
-                                            {game.points_awarded != undefined
-                                                ? game.points_awarded
-                                                : "N/A"}
-                                        </Typography>
-                                    </Box>
                                 )}
                             </Box>
                         </Paper>
@@ -304,7 +325,7 @@ interface EliminationGames {
         team1?: Team; // allow placeholders like "A1"???
         team2?: Team;
         predicted_winner_id?: number;
-        points_awarded: number;
+        points_awarded?: number;
         status: StatusEnum;
     }[];
 }
@@ -315,7 +336,7 @@ const EliminationGamesPrediction = ({
     eliminationGames,
     onResultChange,
 }: {
-    tournamentStatus: TournamentStatus;
+    tournamentStatus: TournamentStatusEnum;
     eliminationGames: EliminationGames[];
     onResultChange: (
         gameId: number,
@@ -347,7 +368,7 @@ const EliminationGamesPrediction = ({
                         {rounds.games.map((game) => (
                             <Box key={game.id} sx={{ m: 2, width: 300 }}>
                                 {tournamentStatus ==
-                                TournamentStatus.Upcoming ? (
+                                TournamentStatusEnum.Upcoming ? (
                                     <Box
                                         display="flex"
                                         justifyContent="space-between"
@@ -559,6 +580,22 @@ const EliminationGamesPrediction = ({
     );
 };
 
+interface Matchup {
+    round_id: number;
+    team1: string;
+    team2: string;
+    rounds: { id: number; name: string };
+}
+
+interface EliminationGame {
+    id: number;
+    team1?: Team;
+    team2?: Team;
+    predicted_winner_id?: number;
+    points_awarded: number;
+    status: "pending" | "finished" | string; // Adjust based on your enum
+}
+
 const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const { data: session } = useSession();
     const [userId, setUserId] = useState(session?.user.email);
@@ -573,9 +610,8 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         EliminationGames[]
     >([]);
     const [tournamentName, setTournamentName] = useState<string>();
-    const [tournamentStatus, setTournamentStatus] = useState<TournamentStatus>(
-        TournamentStatus.Upcoming
-    );
+    const [tournamentStatus, setTournamentStatus] =
+        useState<TournamentStatusEnum>(TournamentStatusEnum.Upcoming);
     const [champion, setChampion] = useState<Team | null>();
 
     const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
@@ -666,49 +702,53 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
             if (changedRoundIndex >= 0) {
                 for (let i = 0; i < updatedRounds.length; i++) {
                     if (updatedRounds[i].roundId == changedRoundIndex - 1) {
-                        console.log(
-                            "Here is the final I guess: ",
-                            updatedRounds[i].games
-                        );
+                        // MIJENJAMO ELIMINACIJSKU FAZU NEPOSREDNO NAKON
+                        let ChangedTeam = false;
+                        console.log("Elimination games: ", eliminationGames);
                         updatedRounds[i] = {
                             ...updatedRounds[i],
                             games: updatedRounds[i].games.map((game) => {
-                                console.log(
-                                    "Passing through final?",
-                                    updatedRounds[i].games
-                                );
                                 if (
+                                    // MIJENJAMO UTAKMICU U KOJOJ JE team1 BIO PRIJAŠNJI POBJEDNIK UPRAVO PROMIJENJENE UTAKMICE
                                     game.team1?.id == previousWinnerId &&
                                     previousWinnerId
                                 ) {
-                                    game.team1 = newWinner;
-                                    game.predicted_winner_id = undefined;
+                                    game.team1 = newWinner; //ažuriraj novi tim u ovoj utakmici
+                                    ChangedTeam = true;
+                                    game.predicted_winner_id = undefined; //nemamo više definiranog pobjednika
                                     if (game.team2?.id != undefined)
-                                        winnerIds_array.push(game.team2!.id);
+                                        winnerIds_array.push(game.team2!.id); //ako je definiran, dodajemo drugi tim u array za propagaciju promjena
                                     return {
                                         ...game,
                                     };
                                 } else if (
+                                    // MIJENJAMO UTAKMICU U KOJOJ JE team2 BIO PRIJAŠNJI POBJEDNIK UPRAVO PROMIJENJENE UTAKMICE
                                     game.team2?.id == previousWinnerId &&
                                     previousWinnerId
                                 ) {
-                                    game.team2 = newWinner;
-                                    game.predicted_winner_id = undefined;
+                                    game.team2 = newWinner; //ažuriraj novi tim u ovoj utakmici
+                                    ChangedTeam = true;
+                                    game.predicted_winner_id = undefined; //nemamo više definiranog pobjednika
                                     if (game.team1?.id != undefined)
-                                        winnerIds_array.push(game.team1!.id);
+                                        winnerIds_array.push(game.team1!.id); //ako je definiran, dodajemo drugi tim u array za propagaciju promjena
                                     return {
                                         ...game,
                                     };
                                 } else {
-                                    if (!game.team1) {
+                                    // MIJENJAMO UTAKMICU U KOJOJ NEMA PRIJAŠNJEG POBJEDNIKA UPRAVO PROMIJENJENE UTAKMICE
+                                    if (!game.team1 && !ChangedTeam) {
+                                        //team1 je undefined, tu stavljamo novog pobjednika
                                         game.team1 = newWinner;
+                                        ChangedTeam = true;
                                         console.log(
                                             "I just changed something in THIRD ELSE FIRST IF: ",
                                             updatedRounds[i].games
                                         );
                                         return { ...game };
-                                    } else if (!game.team2) {
+                                    } else if (!game.team2 && !ChangedTeam) {
+                                        //team2 je undefined, tu stavljamo novog pobjednika
                                         game.team2 = newWinner;
+                                        ChangedTeam = true;
                                         console.log(
                                             "I just changed something in THIRD ELSE SECOND IF: ",
                                             updatedRounds[i].games
@@ -720,13 +760,19 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                             }),
                         };
                     } else if (
+                        // MIJENJAMO ELIMINACIJSKE FAZE OSIM ONE NEPOSREDNO NAKON
                         updatedRounds[i].roundId <
                         changedRoundIndex - 1
                     ) {
                         updatedRounds[i] = {
                             ...updatedRounds[i],
                             games: updatedRounds[i].games.map((game) => {
+                                console.log(
+                                    "Elimination games: ",
+                                    eliminationGames
+                                );
                                 if (
+                                    //NAIŠLI SMO NA UTAKMICU U KOJOJ TREBAMO PROPAGIRATI PROMJENE IZ RANIJE FAZE
                                     game.team1?.id &&
                                     winnerIds_array.includes(game.team1?.id)
                                 ) {
@@ -738,6 +784,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                                         ...game,
                                     };
                                 } else if (
+                                    //NAIŠLI SMO NA UTAKMICU U KOJOJ TREBAMO PROPAGIRATI PROMJENE IZ RANIJE FAZE
                                     game.team2?.id &&
                                     winnerIds_array.includes(game.team2?.id)
                                 ) {
@@ -790,11 +837,108 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         setGroupGamesLock(true);
 
         //pomocu elimination_matchups izradi elimination games
+        const fetchEliminationMatchups = async () => {
+            try {
+                const res = await fetch(
+                    `/api/tournaments/${tournamentId}/elimination-matchups`
+                );
+                if (!res.ok) {
+                    throw new Error("Failed to fetch elimination matchups!");
+                }
+                const data = await res.json();
+                const matchups = data as Matchup[];
+                console.log("MATHCUPS: ", data);
+                console.log("Current eliminationGames: ", eliminationGames);
+
+                //--
+                const teamMap: Record<string, Team | undefined> = {};
+                groupGames.forEach((group) => {
+                    const rankings = group.rankings;
+
+                    if (rankings.length >= 2) {
+                        teamMap[`${group.groupName}1`] = rankings.find(
+                            (r) => r.rank === 1
+                        )?.team;
+                        teamMap[`${group.groupName}2`] = rankings.find(
+                            (r) => r.rank === 2
+                        )?.team;
+                        //teamMap[`${group.groupName}3`] = rankings.find(
+                        //    (r) => r.rank === 3
+                        //)?.team;
+                        //teamMap[`${group.groupName}4`] = rankings.find(
+                        //    (r) => r.rank === 4
+                        //)?.team;
+                    }
+                });
+
+                // EliminationGames structure
+                const newEliminationGames: EliminationGames[] = [];
+                newEliminationGames[0] = {
+                    roundName: matchups[0].rounds.name,
+                    roundId: matchups[0].round_id,
+                    games: [],
+                };
+                matchups.forEach((matchup: Matchup, index: number) => {
+                    newEliminationGames[0].games.push({
+                        id: index + 1,
+                        team1: teamMap[matchup.team1] || undefined,
+                        team2: teamMap[matchup.team2] || undefined,
+                        predicted_winner_id: undefined,
+                        points_awarded: undefined,
+                        status: StatusEnum.Pending,
+                    });
+                });
+
+                const RoundNames: { [key: number]: string } = {
+                    1: "Final",
+                    2: "SemiFinal",
+                    3: "QuarterFinal",
+                    4: "RoundOf16",
+                    5: "RoundOf32",
+                };
+
+                for (let i = matchups[0].round_id - 1; i > 0; i--) {
+                    const numGames = Math.pow(2, i - 1);
+                    const games = Array.from(
+                        { length: numGames },
+                        (_, index) => ({
+                            id:
+                                newEliminationGames[
+                                    matchups[0].round_id - 1 - i
+                                ].games[Math.pow(2, i) - 1].id +
+                                index +
+                                1,
+                            team1: undefined,
+                            team2: undefined,
+                            predicted_winner_id: undefined,
+                            points_awarded: 0,
+                            status: StatusEnum.Pending,
+                            rounds: { name: RoundNames[i] },
+                        })
+                    );
+                    newEliminationGames.push({
+                        roundName: RoundNames[i],
+                        roundId: i,
+                        games: games,
+                    });
+                }
+
+                console.log("NEW elim games: ", newEliminationGames);
+
+                newEliminationGames.sort((a, b) => b.roundId - a.roundId);
+
+                setEliminationGames(newEliminationGames);
+
+                setChampion(null);
+            } catch (error) {
+                console.error("Failed to fetch matchups!", error);
+            }
+        };
+        fetchEliminationMatchups();
     };
 
     const handleUnlockGroupPhase = async () => {
         setGroupGamesLock(false);
-        //...
     };
 
     useEffect(() => {
@@ -866,6 +1010,11 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 }
                 const data = await res.json();
                 setPredictionId(Number(data.predictionId));
+                console.log("GROUP CREATE: ", data.groupCreateData);
+                console.group(
+                    "ELIMINATION CREATE: ",
+                    data.eliminationCreateData
+                );
             } catch (error) {
                 console.log("Error when fetching predictionId: ", error);
             }
@@ -911,7 +1060,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
             >
                 <AccentBox>{tournamentName} – Prediction</AccentBox>
 
-                <Box mb={4}>
+                <Box mb={4} mt={2}>
                     <Box
                         sx={{
                             display: "flex",
@@ -982,7 +1131,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     </Typography>
                 </Box>
 
-                {tournamentStatus == TournamentStatus.Ongoing && (
+                {tournamentStatus == TournamentStatusEnum.Upcoming && (
                     <CustomTooltip title="Update prediction">
                         <Button
                             variant="contained"
