@@ -1,4 +1,3 @@
-// app/api/predictions/[id]/group-games/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client";
 
@@ -60,38 +59,51 @@ export async function GET(
       orderBy: [{ group_id: "asc" }, { rank: "asc" }],
     });
 
-    const groupedGamesMap: Record<string, any[]> = {};
+    const groupedGamesMap: Record<number, any[]> = {};
+    const groupIdToNameMap: Record<number, string> = {};
+
     for (const prediction of predictions) {
       const game = prediction.group_games;
+      const groupId = game?.groups?.id;
       const groupName = game?.groups?.name ?? "Unknown";
-
-      if (!groupedGamesMap[groupName]) groupedGamesMap[groupName] = [];
-      groupedGamesMap[groupName].push({
+    
+      if (groupId == null) continue;
+    
+      if (!groupedGamesMap[groupId]) {
+        groupedGamesMap[groupId] = [];
+        groupIdToNameMap[groupId] = groupName;
+      }
+    
+      groupedGamesMap[groupId].push({
         id: game?.id,
         team1: game?.team1,
         team2: game?.team2,
         predicted_result: prediction.predicted_result ?? null,
         status: game.status,
-        points_awarded: prediction.points_awarded
+        points_awarded: prediction.points_awarded,
       });
     }
 
-    const groupedRankingsMap: Record<string, any[]> = {};
+    const groupedRankingsMap: Record<number, any[]> = {};
+
     for (const r of rankings) {
-      const groupName = r.groups?.name ?? "Unknown";
-      if (!groupedRankingsMap[groupName]) groupedRankingsMap[groupName] = [];
-      groupedRankingsMap[groupName].push({
+      const groupId = r.group_id;
+    
+      if (!groupedRankingsMap[groupId]) groupedRankingsMap[groupId] = [];
+    
+      groupedRankingsMap[groupId].push({
         rank: r.rank,
         points: r.points ?? 0,
         team: r.teams,
       });
     }
 
-    const sortedGroupNames = Object.keys(groupedGamesMap).sort();
-    const data = sortedGroupNames.map((groupName) => ({
-      groupName,
-      games: groupedGamesMap[groupName],
-      rankings: groupedRankingsMap[groupName] ?? [],
+    const sortedGroupIds = Object.keys(groupedGamesMap).map(Number).sort((a, b) => a - b);
+    const data = sortedGroupIds.map((groupId) => ({
+      groupId,
+      groupName: groupIdToNameMap[groupId],
+      games: groupedGamesMap[groupId],
+      rankings: groupedRankingsMap[groupId] ?? [],
     }));
 
     return NextResponse.json(data);

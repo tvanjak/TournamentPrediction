@@ -23,6 +23,7 @@ interface Team {
 }
 
 type GroupGames = {
+    groupId: number;
     groupName: string;
     games: {
         id: number;
@@ -321,6 +322,7 @@ interface EliminationGames {
     roundId: number;
     games: {
         id: number;
+        actual_game_id: number;
         rounds?: { name: string };
         team1?: Team; // allow placeholders like "A1"???
         team2?: Team;
@@ -587,15 +589,6 @@ interface Matchup {
     rounds: { id: number; name: string };
 }
 
-interface EliminationGame {
-    id: number;
-    team1?: Team;
-    team2?: Team;
-    predicted_winner_id?: number;
-    points_awarded: number;
-    status: "pending" | "finished" | string; // Adjust based on your enum
-}
-
 const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const { data: session } = useSession();
     const [userId, setUserId] = useState(session?.user.email);
@@ -821,10 +814,19 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
 
     const handleSavePrediction = async () => {
         try {
-            await fetch(`/api/predictions/${tournamentId}/create`, {
+            console.log("GROUP DATA for save: ", groupGames);
+            console.log("ELIM DATA for save: ", eliminationGames);
+            console.log("CHAMPION: ", champion);
+            await fetch(`/api/predictions/save`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ groupGames, eliminationGames }),
+                body: JSON.stringify({
+                    tournamentId,
+                    userId,
+                    groupGames,
+                    eliminationGames,
+                    champion,
+                }),
             });
             alert("Prediction saved successfully");
         } catch (err) {
@@ -837,7 +839,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         setGroupGamesLock(true);
 
         //pomocu elimination_matchups izradi elimination games
-        const fetchEliminationMatchups = async () => {
+        const constructEliminationPhase = async () => {
             try {
                 const res = await fetch(
                     `/api/tournaments/${tournamentId}/elimination-matchups`
@@ -847,8 +849,6 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 }
                 const data = await res.json();
                 const matchups = data as Matchup[];
-                console.log("MATHCUPS: ", data);
-                console.log("Current eliminationGames: ", eliminationGames);
 
                 //--
                 const teamMap: Record<string, Team | undefined> = {};
@@ -872,69 +872,38 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 });
 
                 // EliminationGames structure
-                const newEliminationGames: EliminationGames[] = [];
-                newEliminationGames[0] = {
-                    roundName: matchups[0].rounds.name,
-                    roundId: matchups[0].round_id,
-                    games: [],
-                };
-                matchups.forEach((matchup: Matchup, index: number) => {
-                    newEliminationGames[0].games.push({
-                        id: index + 1,
-                        team1: teamMap[matchup.team1] || undefined,
-                        team2: teamMap[matchup.team2] || undefined,
-                        predicted_winner_id: undefined,
-                        points_awarded: undefined,
-                        status: StatusEnum.Pending,
-                    });
+                const newEliminationGames = eliminationGames;
+
+                newEliminationGames.forEach((round) => {
+                    if (round.roundId == matchups[0].round_id) {
+                        let matchupCounter = 0;
+                        round.games.forEach((game) => {
+                            game.team1 =
+                                teamMap[matchups[matchupCounter].team1];
+                            game.team2 =
+                                teamMap[matchups[matchupCounter].team2];
+                            (game.predicted_winner_id = undefined),
+                                (game.status = StatusEnum.Pending);
+                            matchupCounter++;
+                        });
+                    } else {
+                        round.games.forEach((game) => {
+                            game.team1 = undefined;
+                            game.team2 = undefined;
+                            game.predicted_winner_id = undefined;
+                        });
+                    }
                 });
 
-                const RoundNames: { [key: number]: string } = {
-                    1: "Final",
-                    2: "SemiFinal",
-                    3: "QuarterFinal",
-                    4: "RoundOf16",
-                    5: "RoundOf32",
-                };
-
-                for (let i = matchups[0].round_id - 1; i > 0; i--) {
-                    const numGames = Math.pow(2, i - 1);
-                    const games = Array.from(
-                        { length: numGames },
-                        (_, index) => ({
-                            id:
-                                newEliminationGames[
-                                    matchups[0].round_id - 1 - i
-                                ].games[Math.pow(2, i) - 1].id +
-                                index +
-                                1,
-                            team1: undefined,
-                            team2: undefined,
-                            predicted_winner_id: undefined,
-                            points_awarded: 0,
-                            status: StatusEnum.Pending,
-                            rounds: { name: RoundNames[i] },
-                        })
-                    );
-                    newEliminationGames.push({
-                        roundName: RoundNames[i],
-                        roundId: i,
-                        games: games,
-                    });
-                }
-
                 console.log("NEW elim games: ", newEliminationGames);
-
                 newEliminationGames.sort((a, b) => b.roundId - a.roundId);
-
                 setEliminationGames(newEliminationGames);
-
                 setChampion(null);
             } catch (error) {
                 console.error("Failed to fetch matchups!", error);
             }
         };
-        fetchEliminationMatchups();
+        constructEliminationPhase();
     };
 
     const handleUnlockGroupPhase = async () => {
@@ -1010,11 +979,8 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 }
                 const data = await res.json();
                 setPredictionId(Number(data.predictionId));
-                console.log("GROUP CREATE: ", data.groupCreateData);
-                console.group(
-                    "ELIMINATION CREATE: ",
-                    data.eliminationCreateData
-                );
+                console.log("CREATED GROUP: ", data.groupGames);
+                console.log("CREATED ELIM: ", data.eliminationGames);
             } catch (error) {
                 console.log("Error when fetching predictionId: ", error);
             }

@@ -198,7 +198,7 @@ const GroupGames = ({ groups }: { groups: GroupGames[] }) => {
                         <tbody>
                             {rankings.map((r, i) => (
                                 <tr key={i}>
-                                    <td>{r.rank}</td>
+                                    <td>{r.rank}.</td>
                                     <td>{r.team?.countries?.name ?? "N/A"}</td>
                                     <td align="right">{r.points}</td>
                                 </tr>

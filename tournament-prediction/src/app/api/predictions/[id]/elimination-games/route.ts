@@ -31,20 +31,12 @@ export async function GET(
         },
         elimination_games: {
           select: {
+            id: true,
             status: true,
           }
         }
       },
     });
-    
-        //elimination_games: {
-        //  include: {
-        //    rounds: true,
-        //    team1: { include: { countries: { select: { name: true } } } },
-        //    team2: { include: { countries: { select: { name: true } } } },
-        //    team_winner: { include: { countries: { select: { name: true } } } },
-        //  },
-        //},
 
     const groupedByRound = predictions.reduce((acc, prediction) => {
       const roundName = prediction?.rounds?.name ?? "Unknown";
@@ -53,6 +45,7 @@ export async function GET(
 
       acc[roundName].push({
         id: prediction?.id,
+        actual_game_id: prediction.elimination_games?.id,
         team1: prediction?.team1,
         team2: prediction?.team2,
         rounds: prediction?.rounds,
