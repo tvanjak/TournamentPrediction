@@ -46,11 +46,13 @@ const GroupGamesPrediction = ({
     tournamentStatus,
     groups,
     onResultChange,
+    adjustRankings,
 }: {
     groupGamesLock: boolean;
     tournamentStatus: TournamentStatusEnum;
     groups: GroupGames[];
     onResultChange: (gameId: number, result: ResultEnum) => void;
+    adjustRankings: (team: Team) => void;
 }) => {
     const getBackgroundColor = (
         result: ResultEnum | undefined,
@@ -302,13 +304,33 @@ const GroupGamesPrediction = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {rankings.map((r, i) => (
-                                <tr key={i}>
-                                    <td>{r.rank}.</td>
-                                    <td>{r.team?.countries?.name ?? "N/A"}</td>
-                                    <td align="right">{r.points}</td>
-                                </tr>
-                            ))}
+                            {[...rankings] // Create a copy so original state isn't mutated
+                                .sort((a, b) => a.rank - b.rank)
+                                .map((r, i) => (
+                                    <tr key={i}>
+                                        <td>{r.rank}.</td>
+                                        <td>
+                                            {r.team?.countries?.name ?? "N/A"}
+                                        </td>
+                                        <td align="right">{r.points}</td>
+                                        {r.rank != 1 &&
+                                            r.rank != 0 &&
+                                            tournamentStatus ===
+                                                TournamentStatusEnum.Upcoming &&
+                                            !groupGamesLock && (
+                                                <td
+                                                    onClick={() =>
+                                                        adjustRankings(r.team)
+                                                    }
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    ⬆️
+                                                </td>
+                                            )}
+                                    </tr>
+                                ))}
                         </tbody>
                     </Box>
                 </Box>
@@ -659,6 +681,41 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     games: updatedGames,
                     rankings,
                 };
+            })
+        );
+    };
+
+    const adjustRankings = (team: Team) => {
+        setGroupGames((prevGroups) =>
+            prevGroups.map((group) => {
+                const changeIndex = group.rankings.findIndex(
+                    (r) => r.team.id === team.id
+                );
+
+                if (changeIndex > 0) {
+                    const newRankings = [...group.rankings];
+
+                    // Swap rank values
+                    const tempRank = newRankings[changeIndex - 1].rank;
+                    newRankings[changeIndex - 1] = {
+                        ...newRankings[changeIndex - 1],
+                        rank: newRankings[changeIndex].rank,
+                    };
+                    newRankings[changeIndex] = {
+                        ...newRankings[changeIndex],
+                        rank: tempRank,
+                    };
+
+                    // Sort the rankings again by updated rank
+                    newRankings.sort((a, b) => a.rank - b.rank);
+
+                    return {
+                        ...group,
+                        rankings: newRankings,
+                    };
+                }
+
+                return group;
             })
         );
     };
@@ -1073,6 +1130,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                         )}
                     </Box>
                     <GroupGamesPrediction
+                        adjustRankings={adjustRankings}
                         groupGamesLock={groupGamesLock}
                         tournamentStatus={tournamentStatus}
                         groups={groupGames}
