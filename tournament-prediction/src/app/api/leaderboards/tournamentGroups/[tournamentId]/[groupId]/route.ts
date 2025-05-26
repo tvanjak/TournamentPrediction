@@ -63,9 +63,9 @@ export async function GET(request: Request, { params }: { params: { tournamentId
       },
     });
 
-    if (leaderboard.length === 0) {
-      console.error(`No users found for tournamentId: ${tournamentId} in groupId: ${groupId}`);
-      return new NextResponse("No participants found for the tournament and group", { status: 404 });
+    if (!leaderboard) {
+      console.error(`Tournament with ID ${tournamentId} not found`);
+      return new NextResponse("Tournament not found", { status: 404 });
     }
 
     const formattedLeaderboard = leaderboard.map((entry) => ({

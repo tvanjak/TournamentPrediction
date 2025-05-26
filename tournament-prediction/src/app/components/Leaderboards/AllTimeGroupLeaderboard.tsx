@@ -6,16 +6,15 @@ import {
     TableCell,
     TableContainer,
     TableHead,
+    TablePagination,
     TableRow,
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
 
-interface User {
+interface LeaderboardUser {
     username: string;
-    email: string;
-    image: string;
     totalPoints: number;
     averagePoints: number;
     tournamentsPlayed: number;
@@ -23,7 +22,7 @@ interface User {
 
 interface GroupLeaderboard {
     groupName: string;
-    users: User[];
+    users: LeaderboardUser[];
 }
 
 type Props = {
@@ -33,6 +32,8 @@ type Props = {
 
 const AllTimeGroupLeaderboard = (props: Props) => {
     const [pointsSort, setPointsSort] = useState(true); //pointsSort - jedan vrijedi za sve prikazane ljestvice
+
+    const [paginatedUsers, setPaginatedUsers] = useState<LeaderboardUser[]>();
 
     function setPointsTrue() {
         setPointsSort(true);
@@ -68,14 +69,42 @@ const AllTimeGroupLeaderboard = (props: Props) => {
         fetchGroupLeaderboard(props.groupId);
     }, []);
 
+    const [page, setPage] = useState<number>(0);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+
+    useEffect(() => {
+        if (groupLeaderboard && groupLeaderboard.users) {
+            const temp = groupLeaderboard?.users.slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage
+            );
+            setPaginatedUsers(temp);
+        }
+    }, [groupLeaderboard, page, rowsPerPage]);
+
+    const handleChangePage = (
+        event: React.MouseEvent<HTMLButtonElement> | null,
+        newPage: number
+    ): void => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ): void => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0); // reset to first page
+    };
+
     if (loading) return null;
 
-    if (!groupLeaderboard) return null;
+    if (!groupLeaderboard || !paginatedUsers) return null;
 
     return (
         <Box
             sx={{
                 p: 3,
+                width: "480px",
             }}
         >
             <SecondaryBox>{groupLeaderboard.groupName}</SecondaryBox>
@@ -147,11 +176,16 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                     Total Points
                                 </Typography>
                             </TableCell>
+                            <TableCell sx={{ textAlign: "center" }}>
+                                <Typography sx={{ fontStyle: "italic" }}>
+                                    Tournaments played
+                                </Typography>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {!pointsSort
-                            ? groupLeaderboard.users
+                            ? paginatedUsers
                                   .slice() // create a shallow copy so you don't mutate the original
                                   .sort((a, b) => b.totalPoints - a.totalPoints) // sort descending
                                   .map((playerInfo, index) => (
@@ -173,7 +207,7 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                                   textAlign: "center",
                                               }}
                                           >
-                                              {index + 1}.
+                                              {page * rowsPerPage + index + 1}.
                                           </TableCell>
                                           <TableCell
                                               sx={{
@@ -196,9 +230,16 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                           >
                                               {playerInfo.totalPoints}
                                           </TableCell>
+                                          <TableCell
+                                              sx={{
+                                                  textAlign: "center",
+                                              }}
+                                          >
+                                              {playerInfo.tournamentsPlayed}
+                                          </TableCell>
                                       </TableRow>
                                   ))
-                            : groupLeaderboard.users
+                            : paginatedUsers
                                   .slice() // create a shallow copy so you don't mutate the original
                                   .sort(
                                       (a, b) =>
@@ -223,7 +264,7 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                                   textAlign: "center",
                                               }}
                                           >
-                                              {index + 1}.
+                                              {page * rowsPerPage + index + 1}.
                                           </TableCell>
                                           <TableCell
                                               sx={{
@@ -246,11 +287,27 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                                           >
                                               {playerInfo.totalPoints}
                                           </TableCell>
+                                          <TableCell
+                                              sx={{
+                                                  textAlign: "center",
+                                              }}
+                                          >
+                                              {playerInfo.tournamentsPlayed}
+                                          </TableCell>
                                       </TableRow>
                                   ))}
                     </TableBody>
                 </Table>
             </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={groupLeaderboard?.users.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
         </Box>
     );
 };

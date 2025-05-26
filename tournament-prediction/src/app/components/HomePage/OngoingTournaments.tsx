@@ -2,6 +2,8 @@ import { Box, List, ListItem, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import theme from "../../styles/theme";
 import PrimaryBox from "../General/PrimaryBox";
+import CustomTooltip from "../General/CustomTooltip";
+import { useRouter } from "next/navigation";
 
 interface Tournament {
     id: number;
@@ -15,6 +17,12 @@ type Props = {
 const OngoingTournaments = (props: Props) => {
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const router = useRouter();
+
+    const handleClick = (id: number) => {
+        router.push(`/tournament/${id}`);
+    };
 
     useEffect(() => {
         const getOngoingTournaments = async () => {
@@ -43,37 +51,38 @@ const OngoingTournaments = (props: Props) => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                width: 400,
+                width: 350,
                 p: 3,
             }}
         >
             <PrimaryBox>Ongoing tournaments:</PrimaryBox>
             {tournaments.length != 0 ? (
-                <List>
+                <Box component="ul" sx={{ pl: 2 }}>
                     {tournaments.map((tournament, index) => (
-                        <ListItem key={index}>
+                        <CustomTooltip key={index} title="View tournament">
                             <Box
+                                onClick={() => handleClick(tournament.id)}
+                                component="li"
                                 sx={{
-                                    borderRadius: 5,
-                                    textAlign: "center",
-                                    padding: 1.5,
-                                    //color: theme.palette.textBlack.main,
-                                    //fontWeight: "600",
+                                    borderRadius: 4,
+                                    textAlign: "left",
+                                    padding: 2,
                                     transition: "background-color 0.3s ease",
                                     "&:hover": {
                                         backgroundColor: "#e0e0e0",
+                                        cursor: "pointer",
                                     },
+                                    fontSize: 18,
+                                    listStyleType: "disc",
                                 }}
                             >
-                                <Typography fontSize={18}>
-                                    • {tournament.name}
-                                </Typography>
+                                {tournament.name}
                             </Box>
-                        </ListItem>
+                        </CustomTooltip>
                     ))}
-                </List>
+                </Box>
             ) : (
-                <Box>No ongoing tournaments at the moment.</Box>
+                <Box padding={2}>No ongoing tournaments at the moment.</Box>
             )}
         </Box>
     );

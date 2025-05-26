@@ -1,9 +1,13 @@
-import React from "react";
+"use client";
+import PredictionPage from "@/app/pages/PredictionPage";
+import { useParams } from "next/navigation";
 
 type Props = {};
 
-const PredictionPage = (props: Props) => {
-    return <div>PredictionPage</div>;
+const prediction = (props: Props) => {
+    const params = useParams();
+    const id = Number(params.id);
+    return <PredictionPage tournamentId={id} />;
 };
 
-export default PredictionPage;
+export default prediction;

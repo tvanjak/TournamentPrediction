@@ -1,9 +1,13 @@
-import React from "react";
+"use client";
+import TournamentPage from "../../pages/TournamentPage";
+import { useParams } from "next/navigation";
 
 type Props = {};
 
-const TournamentPage = (props: Props) => {
-    return <div>TournamentPage</div>;
+const tournament = (props: Props) => {
+    const params = useParams();
+    const id = Number(params.id);
+    return <TournamentPage tournamentId={id} />;
 };
 
-export default TournamentPage;
+export default tournament;

@@ -2,7 +2,7 @@
 //admin zadaje turnir interaktivnim sučeljem"
 {
     "name": "Football World Cup 2026",
-    "sport": "Football",
+    //"sport": "Football",
     "year": 2026,
     "number of teams": 64,
     "number of groups": 12,

@@ -10,7 +10,7 @@ const theme = createTheme({
             main: "#dedcff",
         },
         accent: {
-            main: "#433bff",
+            main: "#433bff", //1EE196
         },
         /*background: {
             default: "#ffffff",
@@ -39,7 +39,7 @@ const theme = createTheme({
     },
     typography: {
         //fontove treba popravit
-        fontFamily: '"Roboto", sans-serif', // Font for the whole theme
+        fontFamily: "Rubik, Arial, sans-serif", // Font for the whole theme
         h1: {
             fontWeight: 600,
             color: "#333333",

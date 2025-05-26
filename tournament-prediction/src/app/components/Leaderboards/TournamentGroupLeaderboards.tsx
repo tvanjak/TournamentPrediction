@@ -6,6 +6,7 @@ import {
     TableCell,
     TableContainer,
     TableHead,
+    TablePagination,
     TableRow,
     Typography,
 } from "@mui/material";
@@ -14,7 +15,7 @@ import SecondaryBox from "../General/SecondaryBox";
 import Loading from "../General/Loading";
 import PrimaryBox from "../General/PrimaryBox";
 
-interface User {
+interface LeaderboardUser {
     username: string;
     totalPoints: number;
 }
@@ -22,7 +23,7 @@ interface User {
 interface GroupLeaderboard {
     groupName: string;
     tournamentName: string;
-    users: User[];
+    users: LeaderboardUser[];
 }
 
 type Props = {
@@ -31,9 +32,20 @@ type Props = {
 };
 
 const TournamentGroupLeaderboard = (props: Props) => {
+    /*const [pointsSort, setPointsSort] = useState(true);
+
+    function setPointsTrue() {
+        setPointsSort(true);
+    }
+    function setPointsFalse() {
+        setPointsSort(false);
+    }*/
+
     const [groupLeaderboard, setGroupLeaderboard] =
         useState<GroupLeaderboard>();
     const [loading, setLoading] = useState(true);
+
+    const [paginatedUsers, setPaginatedUsers] = useState<LeaderboardUser[]>();
 
     useEffect(() => {
         async function fetchGroupLeaderboard(
@@ -59,13 +71,41 @@ const TournamentGroupLeaderboard = (props: Props) => {
         fetchGroupLeaderboard(props.tournamentId, props.groupId);
     }, []);
 
-    if (loading) return <Loading></Loading>;
+    const [page, setPage] = useState<number>(0);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
-    if (!groupLeaderboard || !groupLeaderboard.users) return null;
+    useEffect(() => {
+        if (groupLeaderboard && groupLeaderboard.users) {
+            const temp = groupLeaderboard?.users.slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage
+            );
+            setPaginatedUsers(temp);
+        }
+    }, [groupLeaderboard, page, rowsPerPage]);
+
+    const handleChangePage = (
+        event: React.MouseEvent<HTMLButtonElement> | null,
+        newPage: number
+    ): void => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ): void => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0); // reset to first page
+    };
+
+    if (loading) return null;
+
+    if (!groupLeaderboard || !groupLeaderboard.users || !paginatedUsers)
+        return null;
 
     return (
-        <Box sx={{ p: 3 }}>
-            <PrimaryBox>{groupLeaderboard?.tournamentName}</PrimaryBox>
+        <Box sx={{ p: 3, width: "370px" }}>
+            {/*<PrimaryBox>{groupLeaderboard?.tournamentName}</PrimaryBox>*/}
             <SecondaryBox>{groupLeaderboard?.groupName}</SecondaryBox>
             <TableContainer>
                 <Table>
@@ -107,7 +147,7 @@ const TournamentGroupLeaderboard = (props: Props) => {
                                     }}
                                 >
                                     <TableCell sx={{ textAlign: "center" }}>
-                                        {index + 1}.
+                                        {page * rowsPerPage + index + 1}.
                                     </TableCell>
                                     <TableCell
                                         sx={{
@@ -129,6 +169,15 @@ const TournamentGroupLeaderboard = (props: Props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={groupLeaderboard?.users.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
         </Box>
     );
 };

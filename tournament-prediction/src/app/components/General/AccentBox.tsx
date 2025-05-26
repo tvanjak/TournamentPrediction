@@ -2,20 +2,21 @@
 import { Box, BoxProps } from "@mui/material";
 import theme from "../../styles/theme";
 
-const PrimaryBox = (props: BoxProps) => {
+const AccentBox = (props: BoxProps) => {
     return (
         <Box
             sx={{
-                maxWidth: 250,
-                fontSize: 20,
+                maxWidth: 500,
+                fontSize: 30,
                 border: "1px solid",
                 borderColor: theme.palette.divider,
                 borderRadius: 5,
                 textAlign: "center",
                 padding: 2,
                 mx: 2,
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.textBlack.main,
+                my: 1,
+                backgroundColor: theme.palette.accent.main,
+                color: theme.palette.textWhite.main,
                 fontWeight: "550",
                 transition: "background-color 0.3s ease",
                 "&:hover": {
@@ -28,4 +29,4 @@ const PrimaryBox = (props: BoxProps) => {
     );
 };
 
-export default PrimaryBox;
+export default AccentBox;

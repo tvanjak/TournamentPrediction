@@ -2,7 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Box, Container, Paper, Typography, Button } from "@mui/material";
-import AuthDebug from "@/app/components/auth-debug";
+import AuthDebug from "@/app/components/General/auth-debug";
 
 export default function AuthTemp() {
     const { data: session, status } = useSession();
