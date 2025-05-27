@@ -938,34 +938,37 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     }
                 });
 
-                // EliminationGames structure
-                const newEliminationGames = eliminationGames;
+                const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
-                newEliminationGames.forEach((round) => {
+                const newEliminationGames = deepCopy(eliminationGames);
+
+                newEliminationGames.forEach((round: any) => {
                     if (round.roundId == matchups[0].round_id) {
                         let matchupCounter = 0;
-                        round.games.forEach((game) => {
+                        round.games.forEach((game: any) => {
                             game.team1 =
                                 teamMap[matchups[matchupCounter].team1];
                             game.team2 =
                                 teamMap[matchups[matchupCounter].team2];
-                            (game.predicted_winner_id = undefined),
-                                (game.status = StatusEnum.Pending);
+                            game.predicted_winner_id = undefined;
+                            game.status = StatusEnum.Pending;
                             matchupCounter++;
                         });
                     } else {
-                        round.games.forEach((game) => {
+                        round.games.forEach((game: any) => {
                             game.team1 = undefined;
                             game.team2 = undefined;
                             game.predicted_winner_id = undefined;
+                            game.status = StatusEnum.Pending;
                         });
                     }
                 });
 
-                console.log("NEW elim games: ", newEliminationGames);
-                newEliminationGames.sort((a, b) => b.roundId - a.roundId);
+                console.log("NEW elim games in LOCK: ", newEliminationGames);
+                newEliminationGames.sort(
+                    (a: any, b: any) => b.roundId - a.roundId
+                );
                 setEliminationGames(newEliminationGames);
-                setChampion(null);
             } catch (error) {
                 console.error("Failed to fetch matchups!", error);
             }
@@ -975,6 +978,23 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
 
     const handleUnlockGroupPhase = async () => {
         setGroupGamesLock(false);
+
+        const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
+
+        const newEliminationGames = deepCopy(eliminationGames);
+        newEliminationGames.forEach((round: any) => {
+            round.games.forEach((game: any) => {
+                game.team1 = undefined;
+                game.team2 = undefined;
+                (game.predicted_winner_id = undefined),
+                    (game.status = StatusEnum.Pending);
+            });
+        });
+
+        console.log("NEW elim games in UNLOCK: ", newEliminationGames);
+        newEliminationGames.sort((a: any, b: any) => b.roundId - a.roundId);
+        setEliminationGames(newEliminationGames);
+        setChampion(null);
     };
 
     useEffect(() => {
