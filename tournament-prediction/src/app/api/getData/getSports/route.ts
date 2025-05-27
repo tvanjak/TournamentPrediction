@@ -3,13 +3,16 @@ import prisma from "@/lib/prisma-client"
 
 export async function GET(req: Request) {
     try {
-        const countries = await prisma.countries.findMany({})
-
-        return NextResponse.json({
-            countries
+        const sports = await prisma.sports.findMany({
+            select: {
+                id: true,
+                name: true,
+            }
         })
+
+        return NextResponse.json({sports})
     } catch(error) {
-        console.error("[COUNTRIES_FETCH_ERROR]", error);
+        console.error("[SPORTS_FETCH_ERROR]", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }

@@ -6,3 +6,5 @@ type Props = {};
 const page = (props: Props) => {
     return <AdminPage />;
 };
+
+export default page;

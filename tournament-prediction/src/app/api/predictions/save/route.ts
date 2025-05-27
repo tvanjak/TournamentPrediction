@@ -33,7 +33,7 @@ interface EliminationGames {
         id: number;
         actual_game_id: number;
         rounds?: { name: string };
-        team1?: Team; // allow placeholders like "A1"???
+        team1?: Team;
         team2?: Team;
         predicted_winner_id?: number;
         points_awarded?: number;
