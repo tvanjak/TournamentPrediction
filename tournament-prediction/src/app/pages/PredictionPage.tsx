@@ -304,20 +304,28 @@ const GroupGamesPrediction = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {[...rankings] // Create a copy so original state isn't mutated
+                            {[...rankings] // Copy and sort by rank
                                 .sort((a, b) => a.rank - b.rank)
-                                .map((r, i) => (
-                                    <tr key={i}>
-                                        <td>{r.rank}.</td>
-                                        <td>
-                                            {r.team?.countries?.name ?? "N/A"}
-                                        </td>
-                                        <td align="right">{r.points}</td>
-                                        {r.rank != 1 &&
-                                            r.rank != 0 &&
-                                            tournamentStatus ===
-                                                TournamentStatusEnum.Upcoming &&
-                                            !groupGamesLock && (
+                                .map((r, i, sortedRankings) => {
+                                    const canMoveUp =
+                                        i > 0 &&
+                                        sortedRankings[i].points ===
+                                            sortedRankings[i - 1].points &&
+                                        r.rank !== 1 &&
+                                        r.rank !== 0 &&
+                                        tournamentStatus ===
+                                            TournamentStatusEnum.Upcoming &&
+                                        !groupGamesLock;
+
+                                    return (
+                                        <tr key={i}>
+                                            <td>{r.rank}.</td>
+                                            <td>
+                                                {r.team?.countries?.name ??
+                                                    "N/A"}
+                                            </td>
+                                            <td align="right">{r.points}</td>
+                                            {canMoveUp && (
                                                 <td
                                                     onClick={() =>
                                                         adjustRankings(r.team)
@@ -329,8 +337,9 @@ const GroupGamesPrediction = ({
                                                     ⬆️
                                                 </td>
                                             )}
-                                    </tr>
-                                ))}
+                                        </tr>
+                                    );
+                                })}
                         </tbody>
                     </Box>
                 </Box>
