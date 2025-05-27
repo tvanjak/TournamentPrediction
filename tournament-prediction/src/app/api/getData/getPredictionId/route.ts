@@ -92,7 +92,7 @@ export async function POST(req: Request) {
 
     const predictionId = prediction!.id;
 
-    return NextResponse.json({ success: true, predictionId, groupGames, eliminationGames });
+    return NextResponse.json({ success: true, predictionId });
   } catch (error) {
     console.error("[GET_PREDICTION_ID_ERROR]", error);
     return new NextResponse("Internal Server Error", { status: 500 });

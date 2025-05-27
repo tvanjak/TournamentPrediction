@@ -622,7 +622,7 @@ interface Matchup {
 
 const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const { data: session } = useSession();
-    const [userId, setUserId] = useState(session?.user.email);
+    const [userId, setUserId] = useState<number>();
 
     const [predictionId, setPredictionId] = useState<number>();
 

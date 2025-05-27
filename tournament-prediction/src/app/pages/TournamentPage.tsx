@@ -336,7 +336,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
     const [champion, setChampion] = useState<Team>();
 
     const { data: session } = useSession();
-    const [userId, setUserId] = useState();
+    const [userId, setUserId] = useState<number>();
     const [groupIds, setGroupIds] = useState<number[]>();
 
     useEffect(() => {
