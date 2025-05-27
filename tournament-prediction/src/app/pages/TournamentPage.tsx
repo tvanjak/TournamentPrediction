@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Paper, Button } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import PrimaryBox from "../components/General/PrimaryBox";
 import theme from "../styles/theme";
@@ -10,6 +10,8 @@ import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGro
 import { useSession } from "next-auth/react";
 import Loading from "../components/General/Loading";
 import { ResultEnum } from "@/types/enums";
+import CustomTooltip from "../components/General/CustomTooltip";
+import { useRouter } from "next/navigation";
 
 interface Team {
     id: number;
@@ -409,6 +411,11 @@ const TournamentPage = ({ tournamentId }: Props) => {
         if (userId && tournamentId) fetchTournamentData();
     }, [tournamentId, session?.user.email, userId]);
 
+    const router = useRouter();
+    const handleGoToPrediction = async () => {
+        router.push(`/prediction/${tournamentId}`);
+    };
+
     return (
         <Box
             sx={{
@@ -515,6 +522,16 @@ const TournamentPage = ({ tournamentId }: Props) => {
                         )}
                     </Box>
                 </Box>
+                <CustomTooltip title="Go to your prediction">
+                    <Button
+                        variant="contained"
+                        size="large"
+                        onClick={handleGoToPrediction}
+                        sx={{ position: "absolute", top: 100, right: 50 }}
+                    >
+                        View Prediction
+                    </Button>
+                </CustomTooltip>
             </Box>
         </Box>
     );

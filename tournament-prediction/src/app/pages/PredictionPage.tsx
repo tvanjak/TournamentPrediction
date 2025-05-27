@@ -637,6 +637,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
     const [tournamentStatus, setTournamentStatus] =
         useState<TournamentStatusEnum>(TournamentStatusEnum.Upcoming);
     const [champion, setChampion] = useState<Team | null>();
+    const [championPoints, setChampionPoints] = useState<number>();
 
     const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
         setGroupGames((prevGroups) =>
@@ -1001,10 +1002,11 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 setTournamentStatus(infoData.status);
 
                 const championResponse = await fetch(
-                    `/api/predictions/${tournamentId}/champion`
+                    `/api/predictions/${predictionId}/champion`
                 );
                 const championData = await championResponse.json();
                 setChampion(championData);
+                console.log("CHAMP: ", championData);
             } catch (err) {
                 console.error("Failed to load prediction:", err);
             } finally {
@@ -1045,8 +1047,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                 }
                 const data = await res.json();
                 setPredictionId(Number(data.predictionId));
-                console.log("CREATED GROUP: ", data.groupGames);
-                console.log("CREATED ELIM: ", data.eliminationGames);
+                setChampionPoints(Number(data.championPoints));
             } catch (error) {
                 console.log("Error when fetching predictionId: ", error);
             }
@@ -1102,7 +1103,9 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                         }}
                     >
                         <Typography variant="h4">Group Stage</Typography>
-                        {!groupGamesLock ? (
+                        {tournamentStatus == TournamentStatusEnum.Ongoing ? (
+                            <></>
+                        ) : !groupGamesLock ? (
                             <CustomTooltip title="Confirm group predictions">
                                 <Button
                                     variant="contained"
@@ -1162,6 +1165,20 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     <Typography variant="h3" color="Goldenrod">
                         🏆Champion: {champion?.countries?.name || "N/A"}
                     </Typography>
+                    {tournamentStatus == TournamentStatusEnum.Ongoing && (
+                        <Typography
+                            variant="h5"
+                            sx={{
+                                mt: 1,
+                                textAlign: "center",
+                            }}
+                        >
+                            Points awarded:{" "}
+                            {championPoints != undefined
+                                ? championPoints
+                                : "N/A"}
+                        </Typography>
+                    )}
                 </Box>
 
                 {tournamentStatus == TournamentStatusEnum.Upcoming && (

@@ -2,27 +2,27 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client"
 
 export async function GET(req: Request, {params}: {params: {id: string}}) {
-    const tournamentId = Number(params.id);
+    const predictionId = Number(params.id);
 
-    if (isNaN(tournamentId)) {
+    if (isNaN(predictionId)) {
         return new NextResponse("Invalid tournament ID", {status: 400});
     }
 
     try {
-        const champion = await prisma.predictions.findFirst({
+        const prediction = await prisma.predictions.findFirst({
             where: {
-              tournament_id: tournamentId,
+              id: predictionId,
             },
             include: {
               teams: {
                 include: {
-                  countries: { select: { name: true } }, // Optional: enrich response
+                  countries: { select: { name: true } },
                 },
               },
             },
         });
 
-        if (!champion || !champion.id) {
+        if (!prediction || !prediction.id) {
           return NextResponse.json({
             id: null,
             name: null,
@@ -30,8 +30,8 @@ export async function GET(req: Request, {params}: {params: {id: string}}) {
         }
 
         return NextResponse.json({
-          id: champion.id,
-          countries: champion.teams?.countries,
+          id: prediction.teams?.id,
+          countries: prediction.teams?.countries,
         });
     } catch (error) {
       console.error("[CHAMPION_FETCH_ERROR]", error);
