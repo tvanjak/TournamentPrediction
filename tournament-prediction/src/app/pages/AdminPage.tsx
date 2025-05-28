@@ -10,6 +10,8 @@ import {
 import React, { useEffect, useState } from "react";
 import Loading from "../components/General/Loading";
 import { ResultEnum, StatusEnum } from "@/types/enums";
+import CustomTooltip from "../components/General/CustomTooltip";
+import theme from "../styles/theme";
 
 type Country = {
     id: number;
@@ -118,6 +120,7 @@ const AdminPage = (props: Props) => {
         groupsInput.split(" ").map((g) => {
             setGroups((prevGroups) => [...prevGroups, g]);
         });
+        setInputFilled(true);
     };
 
     const handleGameInput = () => {
@@ -177,6 +180,17 @@ const AdminPage = (props: Props) => {
         };
         setEliminationMatchups((prevMatchups) => [...prevMatchups, newMatchup]);
     };
+
+    const handleTournamentCreate = async () => {};
+
+    // Inside your component's body, before return
+    const groupedGames = groupGames.reduce((acc, game) => {
+        if (!acc[game.group_name]) {
+            acc[game.group_name] = [];
+        }
+        acc[game.group_name].push(game);
+        return acc;
+    }, {} as Record<string, GroupGame[]>);
 
     if (!countries || !rounds || !sports) {
         return <Loading />;
@@ -248,7 +262,7 @@ const AdminPage = (props: Props) => {
                         <TextField
                             placeholder="A B C..."
                             variant="outlined"
-                            value={groups}
+                            value={groupsInput}
                             onChange={(e) => setGroupsInput(e.target.value)}
                         />
                         <Button
@@ -379,7 +393,6 @@ const AdminPage = (props: Props) => {
                 sx={{
                     flex: 1, // takes up remaining space
                     mt: 2,
-                    pb: 20,
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "start",
@@ -387,17 +400,91 @@ const AdminPage = (props: Props) => {
                     backgroundColor: "#f5f5f5", // Optional background
                     borderRadius: 2,
                     p: 2,
+                    gap: 2,
                 }}
             >
-                <Box>
-                    <Typography variant="h5">Group Games:</Typography>
-                    {groupGames.map((game) => (
-                        <Typography>
-                            {game.team1.name} vs {game.team2.name}
-                        </Typography>
-                    ))}
+                <Box sx={{ width: "100%", p: 4, textAlign: "center", mt: 4 }}>
+                    <Typography variant="h4">{name}</Typography>
+                </Box>
+                <Box sx={{ width: "100%", px: 4, textAlign: "center" }}>
+                    <Typography variant="h5" sx={{ pb: 2 }}>
+                        Group Games:
+                    </Typography>
+                    {groupGames.length == 0 ? (
+                        <Box sx={{ height: "200px" }}>
+                            No group games at the moment.
+                        </Box>
+                    ) : (
+                        <Box
+                            sx={{
+                                minHeight: "200px",
+                                display: "flex",
+                                justifyContent: "space-evenly",
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            {Object.entries(groupedGames).map(
+                                ([groupName, games]) => (
+                                    <Box
+                                        key={groupName}
+                                        sx={{ mb: 4, minWidth: "250px" }}
+                                    >
+                                        <Typography variant="h6">
+                                            Group {groupName}
+                                        </Typography>
+                                        {games.map((game, index) => (
+                                            <Box key={index} sx={{ py: 1 }}>
+                                                <Typography>
+                                                    {game.team1.name} vs{" "}
+                                                    {game.team2.name}
+                                                </Typography>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                )
+                            )}
+                        </Box>
+                    )}
+                </Box>
+                <Box sx={{ width: "100%", px: 4, textAlign: "center" }}>
+                    <Typography variant="h5" sx={{ pb: 2 }}>
+                        Elimination Matchups:
+                    </Typography>
+                    {eliminationMatchups.length == 0 ? (
+                        <Box sx={{ height: "200px" }}>
+                            No matchups at this moment.
+                        </Box>
+                    ) : (
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-evenly",
+                                minHeight: "200px",
+                            }}
+                        >
+                            {eliminationMatchups.map((matchup, index) => (
+                                <Typography variant="h6" key={index}>
+                                    {matchup.team1} vs {matchup.team2}
+                                </Typography>
+                            ))}
+                        </Box>
+                    )}
                 </Box>
             </Box>
+            <CustomTooltip title="Confirm tournament creation">
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={handleTournamentCreate}
+                    sx={{
+                        position: "absolute",
+                        top: 100,
+                        right: 50,
+                    }}
+                >
+                    Create Tournament
+                </Button>
+            </CustomTooltip>
         </Box>
     );
 };

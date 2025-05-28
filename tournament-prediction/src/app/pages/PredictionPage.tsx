@@ -895,7 +895,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     champion,
                 }),
             });
-            alert("Prediction saved successfully");
+            //alert("Prediction saved successfully");
         } catch (err) {
             console.error("Failed to save prediction:", err);
             alert("Failed to save prediction");
