@@ -881,9 +881,9 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
 
     const handleSavePrediction = async () => {
         try {
-            console.log("GROUP DATA for save: ", groupGames);
-            console.log("ELIM DATA for save: ", eliminationGames);
-            console.log("CHAMPION: ", champion);
+            //console.log("GROUP DATA for save: ", groupGames);
+            //console.log("ELIM DATA for save: ", eliminationGames);
+            //console.log("CHAMPION: ", champion);
             await fetch(`/api/predictions/save`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

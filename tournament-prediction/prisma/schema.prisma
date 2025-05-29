@@ -242,7 +242,6 @@ model tournaments {
   id                        Int                         @id @default(autoincrement())
   sport_id                  Int?
   name                      String                      @db.VarChar(100)
-  year                      Int
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   modified_at               DateTime?                   @default(now()) @db.Timestamp(6)
   status                    TournamentStatus            @default(ONGOING)

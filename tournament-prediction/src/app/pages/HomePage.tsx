@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { Box, Container } from "@mui/material";
+import { Box, Button, Container } from "@mui/material";
 import AllTimeLeaderboard from "../components/Leaderboards/AllTimeLeaderboard";
 import OngoingTournaments from "../components/HomePage/OngoingTournaments";
 import UpcomingTournaments from "../components/HomePage/UpcomingTournaments";
@@ -9,6 +9,9 @@ import Loading from "../components/General/Loading";
 import AllTimeGroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
 import SecondaryBox from "../components/General/SecondaryBox";
 import Link from "next/link";
+import CustomTooltip from "../components/General/CustomTooltip";
+import { useRouter } from "next/navigation";
+import theme from "../styles/theme";
 
 type Props = {};
 
@@ -16,8 +19,9 @@ const HomePage = (props: Props) => {
     const { data: session, status } = useSession();
     //const [totalPoints, setTotalPoints] = useState<number>();
     //const [averagePoints, setAveragePoints] = useState<number>();
-    const [groupIds, setGroupIds] = useState<number[]>();
+    const [groupIds, setGroupIds] = useState<number[]>([]);
     const [userId, setUserId] = useState<number>();
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -30,6 +34,7 @@ const HomePage = (props: Props) => {
                 }
                 const data = await response.json();
                 setUserId(data.userId);
+                setIsAdmin(data.isAdmin);
             } catch (error) {
                 console.error("Error fetching user ID: ", error);
             }
@@ -57,6 +62,11 @@ const HomePage = (props: Props) => {
             fetchGroupIds();
         }
     }, [userId]);
+
+    const router = useRouter();
+    const handleAdmin = () => {
+        router.push(`/admin`);
+    };
 
     const [loadedCount, setLoadedCount] = useState<number>(0);
     const totalComponents = 3;
@@ -124,7 +134,7 @@ const HomePage = (props: Props) => {
                 </Box>
                 <AllTimeLeaderboard onLoaded={handleLoaded} />
 
-                {groupIds && (
+                {groupIds.length != 0 && (
                     <>
                         <SecondaryBox>All-time Group Leaderboards</SecondaryBox>
                         <Box
@@ -145,6 +155,24 @@ const HomePage = (props: Props) => {
                     </>
                 )}
             </Box>
+            {isAdmin && (
+                <CustomTooltip title="Add new tournament">
+                    <Button
+                        variant="contained"
+                        size="medium"
+                        onClick={handleAdmin}
+                        sx={{
+                            position: "absolute",
+                            top: 22,
+                            right: 100,
+                            backgroundColor: theme.palette.accent.main,
+                            color: theme.palette.textWhite.main,
+                        }}
+                    >
+                        Create Tournament
+                    </Button>
+                </CustomTooltip>
+            )}
         </Container>
     );
 };

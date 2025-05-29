@@ -34,7 +34,7 @@ const OngoingTournaments = (props: Props) => {
                 console.log(data);
                 setTournaments(data.tournaments);
             } catch (error) {
-                console.log("Error fetching upcoming tournaments: ", error);
+                console.log("Error fetching ongoing tournaments: ", error);
             } finally {
                 setLoading(false);
                 props.onLoaded();
