@@ -62,20 +62,38 @@ export async function POST(req: NextRequest) {
       round_id: matchup.round_id,
     }));
 
+    const topRoundId = Math.max(...eliminationMatchups.map((m: any) => m.round_id));
+
+    const eliminationGamesData: any[] = [];
+    let roundSize =  Math.pow(2, topRoundId-1);
+    let currentRoundId = topRoundId;
+
+    while (roundSize >= 1 && currentRoundId >= 1) {
+      for (let i = 0; i < roundSize; i++) {
+        eliminationGamesData.push({
+          tournament_id: tournamentId,
+          round_id: currentRoundId,
+          status: StatusEnum.Pending,
+        });
+      }
+      roundSize = Math.floor(roundSize / 2);
+      currentRoundId -= 1;
+    }
+
     try {
       await prisma.$transaction([
         prisma.group_games.createMany({ data: groupGamesData }),
         prisma.group_rankings.createMany({ data: groupRankingsData }),
         prisma.elimination_matchups.createMany({ data: eliminationMatchupsData }),
+        prisma.elimination_games.createMany({ data: eliminationGamesData }),
       ]);
     } catch (error: any) {
-      console.error("Error in tournament creation:", error.message, error);
+      console.error("Error during game creation:", error.message, error);
       return NextResponse.json(
         { error: error.message || "Server error" },
         { status: 500 }
       );
     }
-
 
     return NextResponse.json({ message: "Tournament created successfully" });
   } catch (error) {

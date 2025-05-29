@@ -12,20 +12,21 @@ export default function Navbar() {
             sx={{ backgroundColor: theme.palette.primary.main }}
         >
             <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h6" component="div">
-                    <Link
-                        href="/"
-                        style={{ color: "inherit", textDecoration: "none" }}
-                    >
-                        TournamentPrediction
-                    </Link>
-                </Typography>
+                <Box width={"300px"}>
+                    <Typography variant="h6" component="div">
+                        <Link
+                            href="/"
+                            style={{ color: "inherit", textDecoration: "none" }}
+                        >
+                            TournamentPrediction
+                        </Link>
+                    </Typography>
+                </Box>
                 <Box
                     sx={{
                         width: "300px",
                         display: "flex",
                         justifyContent: "space-around",
-                        //mr: 15,
                     }}
                 >
                     <Button href="/" color="inherit">
@@ -37,7 +38,7 @@ export default function Navbar() {
                 </Box>
                 <Box
                     sx={{
-                        width: "200px",
+                        width: "300px",
                         display: "flex",
                         justifyContent: "end",
                     }}

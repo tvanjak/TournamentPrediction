@@ -60,15 +60,6 @@ export default function LoginButton() {
                 <Menu
                     id="menu-appbar"
                     anchorEl={anchorEl}
-                    /*anchorOrigin={{
-                        vertical: "top",
-                        horizontal: "right",
-                    }}*/
-                    /*keepMounted
-                    transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right",
-                    }}*/
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
