@@ -32,7 +32,7 @@ export default function Navbar() {
                     <Button href="/" color="inherit">
                         Home
                     </Button>
-                    <Button href="/" color="inherit">
+                    <Button href="/groups" color="inherit">
                         My groups
                     </Button>
                 </Box>

@@ -69,18 +69,12 @@ const HomePage = (props: Props) => {
     };
 
     const [loadedCount, setLoadedCount] = useState<number>(0);
-    const totalComponents = 3;
 
     const handleLoaded = () => {
         setLoadedCount((prev) => prev + 1);
     };
 
-    const expectedLoadedCount = useMemo(() => {
-        return totalComponents + (groupIds?.length || 0);
-    }, [groupIds]);
-
-    const allLoaded =
-        loadedCount >= expectedLoadedCount && groupIds !== undefined;
+    const allLoaded = loadedCount == 3;
 
     return (
         <Container
@@ -130,7 +124,10 @@ const HomePage = (props: Props) => {
                     }}
                 >
                     <OngoingTournaments onLoaded={handleLoaded} />
-                    <UpcomingTournaments onLoaded={handleLoaded} />
+                    <UpcomingTournaments
+                        onLoaded={handleLoaded}
+                        userId={userId || -1}
+                    />
                 </Box>
                 <AllTimeLeaderboard onLoaded={handleLoaded} />
 
@@ -148,7 +145,6 @@ const HomePage = (props: Props) => {
                                 <AllTimeGroupLeaderboard
                                     groupId={groupId}
                                     key={index}
-                                    onLoaded={handleLoaded}
                                 ></AllTimeGroupLeaderboard>
                             ))}
                         </Box>

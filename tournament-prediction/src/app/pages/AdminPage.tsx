@@ -551,25 +551,37 @@ const AdminPage = (props: Props) => {
                                     No matchups at this moment.
                                 </Box>
                             ) : (
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "space-evenly",
-                                        minHeight: "200px",
-                                    }}
-                                >
-                                    {eliminationMatchups.map(
-                                        (matchup, index) => (
-                                            <Typography
-                                                variant="h6"
-                                                key={index}
-                                            >
-                                                {matchup.team1} vs{" "}
-                                                {matchup.team2}
-                                            </Typography>
+                                <>
+                                    <Typography variant="h6">
+                                        (
+                                        {
+                                            rounds[
+                                                eliminationMatchups[0]
+                                                    .round_id - 1
+                                            ].name
+                                        }
                                         )
-                                    )}
-                                </Box>
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "space-evenly",
+                                            minHeight: "200px",
+                                        }}
+                                    >
+                                        {eliminationMatchups.map(
+                                            (matchup, index) => (
+                                                <Typography
+                                                    variant="h6"
+                                                    key={index}
+                                                >
+                                                    {matchup.team1} vs{" "}
+                                                    {matchup.team2}
+                                                </Typography>
+                                            )
+                                        )}
+                                    </Box>
+                                </>
                             )}
                         </Box>
                     </Box>

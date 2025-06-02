@@ -620,9 +620,15 @@ interface Matchup {
     rounds: { id: number; name: string };
 }
 
-const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
+const PredictionPage = ({
+    tournamentId,
+    userId,
+}: {
+    tournamentId: number;
+    userId: number;
+}) => {
     const { data: session } = useSession();
-    const [userId, setUserId] = useState<number>();
+    // const [userId, setUserId] = useState<number>();
 
     const [predictionId, setPredictionId] = useState<number>();
 
@@ -1047,7 +1053,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
                     throw new Error("Failed to fetch user id with eamil");
                 }
                 const data = await res.json();
-                setUserId(data.userId);
+                //setUserId(data.userId);
             } catch (error) {
                 console.log("Error while fetching userId: ", error);
             }
@@ -1075,7 +1081,7 @@ const PredictionPage = ({ tournamentId }: { tournamentId: number }) => {
         console.log(tournamentId);
         console.log(userId);
         console.log(session?.user.email);
-        if (!userId && session?.user.email) fetchUserId();
+        //if (!userId && session?.user.email) fetchUserId();
         if (tournamentId && userId) fetchPredictionId();
     }, [tournamentId, userId, session?.user.email]);
 

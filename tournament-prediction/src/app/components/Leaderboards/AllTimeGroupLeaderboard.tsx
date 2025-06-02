@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
+import Loading from "../General/Loading";
 
 interface LeaderboardUser {
     username: string;
@@ -27,12 +28,11 @@ interface GroupLeaderboard {
 
 type Props = {
     groupId: number;
-    onLoaded: () => void;
+    // onLoaded: () => void;
 };
 
 const AllTimeGroupLeaderboard = (props: Props) => {
-    const [pointsSort, setPointsSort] = useState(true); //pointsSort - jedan vrijedi za sve prikazane ljestvice
-
+    const [pointsSort, setPointsSort] = useState(true);
     const [paginatedUsers, setPaginatedUsers] = useState<LeaderboardUser[]>();
 
     function setPointsTrue() {
@@ -63,14 +63,19 @@ const AllTimeGroupLeaderboard = (props: Props) => {
                 console.error(error);
             } finally {
                 setLoading(false);
-                props.onLoaded();
             }
         }
         fetchGroupLeaderboard(props.groupId);
     }, []);
 
+    // useEffect(() => {
+    //     if (!loading && groupLeaderboard) {
+    //         props.onLoaded(); // Call only when truly ready
+    //     }
+    // }, [loading, groupLeaderboard]);
+
     const [page, setPage] = useState<number>(0);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
     useEffect(() => {
         if (groupLeaderboard && groupLeaderboard.users) {
@@ -93,12 +98,10 @@ const AllTimeGroupLeaderboard = (props: Props) => {
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ): void => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0); // reset to first page
+        setPage(0);
     };
 
-    if (loading) return null;
-
-    if (!groupLeaderboard || !paginatedUsers) return null;
+    if (loading || !groupLeaderboard || !paginatedUsers) return <Loading />;
 
     return (
         <Box
