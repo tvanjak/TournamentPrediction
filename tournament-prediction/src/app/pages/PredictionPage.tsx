@@ -1,21 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-    Box,
-    CircularProgress,
-    Typography,
-    Paper,
-    MenuItem,
-    Select,
-    SelectChangeEvent,
-    Button,
-} from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
-import { useSession } from "next-auth/react";
 import { ResultEnum, StatusEnum, TournamentStatusEnum } from "@/types/enums";
 import Loading from "../components/General/Loading";
 import theme from "../styles/theme";
 import CustomTooltip from "../components/General/CustomTooltip";
+
+import EliminationGamesPrediction from "../components/PredictionPage/EliminationGamesPrediction";
+import GroupGamesPrediction from "../components/PredictionPage/GroupGamesPredictions";
 
 interface Team {
     id: number;
@@ -40,314 +33,6 @@ type GroupGames = {
     }[];
 };
 
-// GroupGamesPrediction Section
-const GroupGamesPrediction = ({
-    groupGamesLock,
-    tournamentStatus,
-    groups,
-    onResultChange,
-    adjustRankings,
-}: {
-    groupGamesLock: boolean;
-    tournamentStatus: TournamentStatusEnum;
-    groups: GroupGames[];
-    onResultChange: (gameId: number, result: ResultEnum) => void;
-    adjustRankings: (team: Team) => void;
-}) => {
-    const getBackgroundColor = (
-        result: ResultEnum | undefined,
-        team: number
-    ): string => {
-        if (team == 0) {
-            switch (result) {
-                case ResultEnum.HomeWin:
-                    return "lightgreen";
-                case ResultEnum.Draw:
-                    return "lightgray";
-                case ResultEnum.AwayWin:
-                    return "lightcoral";
-                default:
-                    return "transparent";
-            }
-        } else {
-            switch (result) {
-                case ResultEnum.HomeWin:
-                    return "lightcoral";
-                case ResultEnum.Draw:
-                    return "lightgray";
-                case ResultEnum.AwayWin:
-                    return "lightgreen";
-                default:
-                    return "transparent";
-            }
-        }
-    };
-
-    return (
-        <Box
-            display="flex"
-            flexDirection="row"
-            gap={4}
-            overflow="auto"
-            flexWrap="wrap"
-        >
-            {groups.map(({ groupName, games, rankings }) => (
-                <Box
-                    key={groupName}
-                    width={300}
-                    sx={{
-                        borderLeft: "2px solid black",
-                        paddingLeft: 2,
-                        borderRadius: 0.5,
-                    }}
-                >
-                    <Typography
-                        variant="h5"
-                        gutterBottom
-                        sx={{
-                            borderBottom: "1px solid black",
-                            borderRadius: 0.5,
-                        }}
-                    >
-                        {groupName}
-                    </Typography>
-
-                    {games.map((game) => (
-                        <Paper
-                            key={game.id}
-                            sx={{
-                                height: 100,
-                                m: 2,
-                                p: 1,
-                                borderLeft:
-                                    game.status === StatusEnum.Finished
-                                        ? game.points_awarded !== 0
-                                            ? "6px solid lightgreen"
-                                            : "6px solid lightcoral"
-                                        : "6px solid lightgray",
-                                borderRadius: 1,
-                                //boxShadow:
-                                //    game.status === StatusEnum.Finished
-                                //        ? game.points_awarded !== 0
-                                //            ? "0 0 5px lightgreen"
-                                //            : "0 0 5px lightcoral"
-                                //        : "transparent",
-                                //border:
-                                //    game.status == StatusEnum.Finished
-                                //        ? game.points_awarded != 0
-                                //            ? "1px solid lightgreen"
-                                //            : "1px solid lightcoral"
-                                //        : "transparent",
-                                //transition: "all 0.3s ease-in-out", // Smooth appearance
-                            }}
-                        >
-                            <Box
-                                display="flex"
-                                justifyContent="space-between"
-                                height="50px"
-                            >
-                                <Box sx={{ width: "50%" }}>
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            backgroundColor: getBackgroundColor(
-                                                game.predicted_result,
-                                                0
-                                            ),
-                                            borderRadius: 2,
-                                            m: "2px",
-                                            px: 2,
-                                            whiteSpace: "normal",
-                                            wordBreak: "break-word",
-                                            height: "100%",
-                                            alignContent: "center",
-                                            color: theme.palette.textBlack.main,
-                                        }}
-                                    >
-                                        {game.team1?.countries?.name ??
-                                            "Team 1"}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ width: "50%", textAlign: "right" }}>
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            backgroundColor: getBackgroundColor(
-                                                game.predicted_result,
-                                                1
-                                            ),
-                                            borderRadius: 2,
-                                            m: "2px",
-                                            px: 2,
-                                            whiteSpace: "normal",
-                                            wordBreak: "break-word",
-                                            height: "100%",
-                                            alignContent: "center",
-                                            color: theme.palette.textBlack.main,
-                                        }}
-                                    >
-                                        {game.team2?.countries?.name ??
-                                            "Team 2"}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <Box display="flex" justifyContent="center" p={1}>
-                                {tournamentStatus ==
-                                TournamentStatusEnum.Ongoing ? (
-                                    <Box
-                                        sx={{
-                                            width: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            mt: 1,
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                border: "1px solid black",
-                                                borderRadius: 1,
-                                                px: 1,
-                                                mx: 1,
-                                            }}
-                                        >
-                                            {game.predicted_result ?? "N/A"}
-                                        </Typography>
-                                        <Typography
-                                            variant="subtitle1"
-                                            textAlign="center"
-                                        >
-                                            Points:{" "}
-                                            {game.points_awarded != undefined
-                                                ? game.points_awarded
-                                                : "N/A"}
-                                        </Typography>
-                                    </Box>
-                                ) : groupGamesLock ? (
-                                    <Box
-                                        sx={{
-                                            width: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            mt: 1,
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                border: "1px solid black",
-                                                borderRadius: 1,
-                                                px: 1,
-                                                mx: 1,
-                                            }}
-                                        >
-                                            {game.predicted_result ?? "N/A"}
-                                        </Typography>
-                                    </Box>
-                                ) : (
-                                    <Select
-                                        sx={{ fontSize: 15 }}
-                                        value={game.predicted_result ?? ""}
-                                        onChange={(
-                                            e: SelectChangeEvent<ResultEnum>
-                                        ) =>
-                                            onResultChange(
-                                                game.id,
-                                                e.target.value as ResultEnum
-                                            )
-                                        }
-                                        displayEmpty
-                                        size="small"
-                                        fullWidth
-                                        renderValue={(selected) => {
-                                            switch (selected) {
-                                                case ResultEnum.HomeWin:
-                                                    return "Home Win";
-                                                case ResultEnum.Draw:
-                                                    return "Draw";
-                                                case ResultEnum.AwayWin:
-                                                    return "Away Win";
-                                                default:
-                                                    return "Select result";
-                                            }
-                                        }}
-                                    >
-                                        <MenuItem value="">
-                                            Select result
-                                        </MenuItem>
-                                        <MenuItem value={ResultEnum.HomeWin}>
-                                            Home Win
-                                        </MenuItem>
-                                        <MenuItem value={ResultEnum.Draw}>
-                                            Draw
-                                        </MenuItem>
-                                        <MenuItem value={ResultEnum.AwayWin}>
-                                            Away Win
-                                        </MenuItem>
-                                    </Select>
-                                )}
-                            </Box>
-                        </Paper>
-                    ))}
-
-                    <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                        Group Ranking
-                    </Typography>
-                    <Box component="table" sx={{ width: "100%", mt: 1 }}>
-                        <thead>
-                            <tr>
-                                <th align="left">#</th>
-                                <th align="left">Team</th>
-                                <th align="right">Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {[...rankings] // Copy and sort by rank
-                                .sort((a, b) => a.rank - b.rank)
-                                .map((r, i, sortedRankings) => {
-                                    const canMoveUp =
-                                        i > 0 &&
-                                        sortedRankings[i].points ===
-                                            sortedRankings[i - 1].points &&
-                                        r.rank !== 1 &&
-                                        r.rank !== 0 &&
-                                        tournamentStatus ===
-                                            TournamentStatusEnum.Upcoming &&
-                                        !groupGamesLock;
-
-                                    return (
-                                        <tr key={i}>
-                                            <td>{r.rank}.</td>
-                                            <td>
-                                                {r.team?.countries?.name ??
-                                                    "N/A"}
-                                            </td>
-                                            <td align="right">{r.points}</td>
-                                            {canMoveUp && (
-                                                <td
-                                                    onClick={() =>
-                                                        adjustRankings(r.team)
-                                                    }
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    ⬆️
-                                                </td>
-                                            )}
-                                        </tr>
-                                    );
-                                })}
-                        </tbody>
-                    </Box>
-                </Box>
-            ))}
-        </Box>
-    );
-};
-
 interface EliminationGames {
     roundName: string;
     roundId: number;
@@ -355,263 +40,13 @@ interface EliminationGames {
         id: number;
         actual_game_id: number;
         rounds?: { name: string };
-        team1?: Team; // allow placeholders like "A1"???
+        team1?: Team;
         team2?: Team;
         predicted_winner_id?: number;
         points_awarded?: number;
         status: StatusEnum;
     }[];
 }
-
-// Elimination Games with Placeholder Logic
-const EliminationGamesPrediction = ({
-    tournamentStatus,
-    eliminationGames,
-    onResultChange,
-}: {
-    tournamentStatus: TournamentStatusEnum;
-    eliminationGames: EliminationGames[];
-    onResultChange: (
-        gameId: number,
-        roundId: number,
-        newWinner?: Team,
-        previousWinnerId?: number
-    ) => void;
-}) => {
-    const getTeamName = (team: Team | string | undefined) => {
-        if (!team) return "TBD";
-        if (typeof team === "string") return team;
-        return team.countries?.name ?? "TBD";
-    };
-
-    return (
-        <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
-            {eliminationGames.map((rounds, index) => (
-                <Box
-                    key={index}
-                    mb={3}
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                >
-                    <Typography variant="h6" gutterBottom>
-                        {rounds.roundName}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                        {rounds.games.map((game) => (
-                            <Box key={game.id} sx={{ m: 2, width: 300 }}>
-                                {tournamentStatus ==
-                                TournamentStatusEnum.Upcoming ? (
-                                    <Box
-                                        display="flex"
-                                        justifyContent="space-between"
-                                        height="50px"
-                                    >
-                                        <Box sx={{ width: "50%" }}>
-                                            <Typography
-                                                onClick={() =>
-                                                    onResultChange(
-                                                        game.id,
-                                                        rounds.roundId,
-                                                        game.team1,
-                                                        game.predicted_winner_id
-                                                    )
-                                                }
-                                                variant="body2"
-                                                sx={{
-                                                    color: theme.palette
-                                                        .textBlack.main,
-                                                    m: "2px",
-                                                    p: 1,
-                                                    borderRadius: 1,
-                                                    textAlign: "center",
-                                                    whiteSpace: "normal",
-                                                    wordBreak: "break-word",
-                                                    height: "100%",
-                                                    alignContent: "center",
-                                                    backgroundColor:
-                                                        game.predicted_winner_id &&
-                                                        typeof game.team1 !==
-                                                            "string" &&
-                                                        game.team1?.id ===
-                                                            game.predicted_winner_id
-                                                            ? "lightgreen"
-                                                            : game.predicted_winner_id
-                                                            ? "lightcoral"
-                                                            : "lightgray",
-                                                    "&:hover": {
-                                                        backgroundColor:
-                                                            !game.predicted_winner_id
-                                                                ? "#3CB371"
-                                                                : game.predicted_winner_id &&
-                                                                  typeof game.team1 !==
-                                                                      "string" &&
-                                                                  game.team1
-                                                                      ?.id ===
-                                                                      game.predicted_winner_id
-                                                                ? "#3CB371"
-                                                                : "#CD5C5C",
-                                                        cursor: "pointer",
-                                                    },
-                                                    transition:
-                                                        "background-color 0.3s ease",
-                                                }}
-                                            >
-                                                {getTeamName(game.team1)}
-                                            </Typography>
-                                        </Box>
-                                        <Box sx={{ width: "50%" }}>
-                                            <Typography
-                                                onClick={() =>
-                                                    onResultChange(
-                                                        game.id,
-                                                        rounds.roundId,
-                                                        game.team2,
-                                                        game.predicted_winner_id
-                                                    )
-                                                }
-                                                variant="body2"
-                                                sx={{
-                                                    color: theme.palette
-                                                        .textBlack.main,
-                                                    m: "2px",
-                                                    p: 1,
-                                                    borderRadius: 1,
-                                                    textAlign: "center",
-                                                    whiteSpace: "normal",
-                                                    wordBreak: "break-word",
-                                                    height: "100%",
-                                                    alignContent: "center",
-                                                    backgroundColor:
-                                                        game.predicted_winner_id &&
-                                                        typeof game.team2 !==
-                                                            "string" &&
-                                                        game.team2?.id ===
-                                                            game.predicted_winner_id
-                                                            ? "lightgreen"
-                                                            : game.predicted_winner_id
-                                                            ? "lightcoral"
-                                                            : "lightgray",
-                                                    "&:hover": {
-                                                        backgroundColor:
-                                                            !game.predicted_winner_id
-                                                                ? "#3CB371"
-                                                                : game.predicted_winner_id &&
-                                                                  typeof game.team2 !==
-                                                                      "string" &&
-                                                                  game.team2
-                                                                      ?.id ===
-                                                                      game.predicted_winner_id
-                                                                ? "#3CB371"
-                                                                : "#CD5C5C",
-                                                        cursor: "pointer",
-                                                    },
-                                                    transition:
-                                                        "background-color 0.3s ease",
-                                                }}
-                                            >
-                                                {getTeamName(game.team2)}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                ) : (
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                            height: "100px",
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                height: "50px",
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    width: "50%",
-                                                }}
-                                            >
-                                                <Typography
-                                                    variant="body1"
-                                                    sx={{
-                                                        m: "2px",
-                                                        p: 1,
-                                                        borderRadius: 1,
-                                                        backgroundColor:
-                                                            game.predicted_winner_id &&
-                                                            game.team1?.id ===
-                                                                game.predicted_winner_id
-                                                                ? "lightgreen"
-                                                                : game.predicted_winner_id
-                                                                ? "lightcoral"
-                                                                : "lightgray",
-                                                        whiteSpace: "normal",
-                                                        wordBreak: "break-word",
-                                                        height: "100%",
-                                                        alignContent: "center",
-                                                        textAlign: "center",
-                                                    }}
-                                                >
-                                                    {game.team1?.countries
-                                                        ?.name ?? "Team 1"}
-                                                </Typography>
-                                            </Box>
-                                            <Box
-                                                sx={{
-                                                    width: "50%",
-                                                }}
-                                            >
-                                                <Typography
-                                                    variant="body1"
-                                                    sx={{
-                                                        m: "2px",
-                                                        p: 1,
-                                                        borderRadius: 1,
-                                                        whiteSpace: "normal",
-                                                        wordBreak: "break-word",
-                                                        height: "100%",
-                                                        alignContent: "center",
-                                                        backgroundColor:
-                                                            game.predicted_winner_id &&
-                                                            game.team2?.id ===
-                                                                game.predicted_winner_id
-                                                                ? "lightgreen"
-                                                                : game.predicted_winner_id
-                                                                ? "lightcoral"
-                                                                : "lightgray",
-                                                        textAlign: "center",
-                                                    }}
-                                                >
-                                                    {game.team2?.countries
-                                                        ?.name ?? "Team 2"}
-                                                </Typography>
-                                            </Box>
-                                        </Box>
-                                        <Typography
-                                            sx={{
-                                                textAlign: "center",
-                                                fontStyle: "italic",
-                                            }}
-                                        >
-                                            Points awarded:{" "}
-                                            {game.points_awarded != undefined
-                                                ? game.points_awarded
-                                                : "N/A"}
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </Box>
-                        ))}
-                    </Box>
-                </Box>
-            ))}
-        </Box>
-    );
-};
 
 interface Matchup {
     round_id: number;
@@ -627,11 +62,7 @@ const PredictionPage = ({
     tournamentId: number;
     userId: number;
 }) => {
-    const { data: session } = useSession();
-    // const [userId, setUserId] = useState<number>();
-
     const [predictionId, setPredictionId] = useState<number>();
-
     const [loading, setLoading] = useState(true);
 
     const [groupGames, setGroupGames] = useState<GroupGames[]>([]);
@@ -644,6 +75,72 @@ const PredictionPage = ({
         useState<TournamentStatusEnum>(TournamentStatusEnum.Upcoming);
     const [champion, setChampion] = useState<Team | null>();
     const [championPoints, setChampionPoints] = useState<number>();
+
+    useEffect(() => {
+        const fetchPredictionData = async () => {
+            try {
+                const groupRes = await fetch(
+                    `/api/predictions/${predictionId}/group-games`
+                );
+                const groupData = await groupRes.json();
+                //console.log("groupData: ", groupData);
+                setGroupGames(groupData);
+
+                const elimRes = await fetch(
+                    `/api/predictions/${predictionId}/elimination-games`
+                );
+                const elimData = await elimRes.json();
+                //console.log("elimData: ", elimData);
+                setEliminationGames(elimData);
+
+                const nameRes = await fetch(
+                    `/api/tournaments/${tournamentId}/info`
+                );
+                const infoData = await nameRes.json();
+                setTournamentName(infoData.name);
+                setTournamentStatus(infoData.status);
+
+                const championResponse = await fetch(
+                    `/api/predictions/${predictionId}/champion`
+                );
+                const championData = await championResponse.json();
+                setChampion(championData);
+                console.log("CHAMP: ", championData);
+            } catch (err) {
+                console.error("Failed to load prediction:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (predictionId && tournamentId) fetchPredictionData();
+    }, [predictionId]);
+
+    useEffect(() => {
+        const fetchPredictionId = async () => {
+            try {
+                const res = await fetch("/api/getData/getPredictionId", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ userId, tournamentId }),
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch prediction ID");
+                }
+                const data = await res.json();
+                setPredictionId(Number(data.predictionId));
+                setChampionPoints(Number(data.championPoints));
+            } catch (error) {
+                console.log("Error when fetching predictionId: ", error);
+            }
+        };
+        console.log(tournamentId);
+        console.log(userId);
+        if (tournamentId && userId) fetchPredictionId();
+    }, [tournamentId, userId]);
 
     const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
         setGroupGames((prevGroups) =>
@@ -1002,88 +499,6 @@ const PredictionPage = ({
         setEliminationGames(newEliminationGames);
         setChampion(null);
     };
-
-    useEffect(() => {
-        const fetchPredictionData = async () => {
-            try {
-                const groupRes = await fetch(
-                    `/api/predictions/${predictionId}/group-games`
-                );
-                const groupData = await groupRes.json();
-                //console.log("groupData: ", groupData);
-                setGroupGames(groupData);
-
-                const elimRes = await fetch(
-                    `/api/predictions/${predictionId}/elimination-games`
-                );
-                const elimData = await elimRes.json();
-                //console.log("elimData: ", elimData);
-                setEliminationGames(elimData);
-
-                const nameRes = await fetch(
-                    `/api/tournaments/${tournamentId}/info`
-                );
-                const infoData = await nameRes.json();
-                setTournamentName(infoData.name);
-                setTournamentStatus(infoData.status);
-
-                const championResponse = await fetch(
-                    `/api/predictions/${predictionId}/champion`
-                );
-                const championData = await championResponse.json();
-                setChampion(championData);
-                console.log("CHAMP: ", championData);
-            } catch (err) {
-                console.error("Failed to load prediction:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (predictionId && tournamentId) fetchPredictionData();
-    }, [predictionId]);
-
-    useEffect(() => {
-        const fetchUserId = async () => {
-            try {
-                const res = await fetch(
-                    `/api/users/getIdByEmail?email=${session?.user.email}`
-                );
-                if (!res.ok) {
-                    throw new Error("Failed to fetch user id with eamil");
-                }
-                const data = await res.json();
-                //setUserId(data.userId);
-            } catch (error) {
-                console.log("Error while fetching userId: ", error);
-            }
-        };
-        const fetchPredictionId = async () => {
-            try {
-                const res = await fetch("/api/getData/getPredictionId", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ userId, tournamentId }),
-                });
-
-                if (!res.ok) {
-                    throw new Error("Failed to fetch prediction ID");
-                }
-                const data = await res.json();
-                setPredictionId(Number(data.predictionId));
-                setChampionPoints(Number(data.championPoints));
-            } catch (error) {
-                console.log("Error when fetching predictionId: ", error);
-            }
-        };
-        console.log(tournamentId);
-        console.log(userId);
-        console.log(session?.user.email);
-        //if (!userId && session?.user.email) fetchUserId();
-        if (tournamentId && userId) fetchPredictionId();
-    }, [tournamentId, userId, session?.user.email]);
 
     return (
         <Box>
