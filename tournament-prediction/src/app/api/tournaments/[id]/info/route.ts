@@ -16,8 +16,16 @@ export async function GET(req: Request, {params} : {params: {id:string}}) {
             select : {
                 status: true,
                 name: true,
+                sports: {
+                  select: {
+                    points_win: true,
+                    points_draw: true,
+                    points_loss: true,
+                  }
+                }
             },
         });
+
 
         return NextResponse.json(tournamentInfo);
       } catch(error) {

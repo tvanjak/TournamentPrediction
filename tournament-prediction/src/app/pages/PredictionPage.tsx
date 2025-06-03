@@ -10,10 +10,10 @@ import CustomTooltip from "../components/General/CustomTooltip";
 import EliminationGamesPrediction from "../components/PredictionPage/EliminationGamesPrediction";
 import GroupGamesPrediction from "../components/PredictionPage/GroupGamesPredictions";
 
-interface Team {
+type Team = {
     id: number;
     countries?: { name: string };
-}
+};
 
 type GroupGames = {
     groupId: number;
@@ -33,7 +33,7 @@ type GroupGames = {
     }[];
 };
 
-interface EliminationGames {
+type EliminationGames = {
     roundName: string;
     roundId: number;
     games: {
@@ -46,14 +46,20 @@ interface EliminationGames {
         points_awarded?: number;
         status: StatusEnum;
     }[];
-}
+};
 
-interface Matchup {
+type Matchup = {
     round_id: number;
     team1: string;
     team2: string;
     rounds: { id: number; name: string };
-}
+};
+
+type PointsSystemType = {
+    points_win: number;
+    points_draw: number;
+    points_loss: number;
+};
 
 const PredictionPage = ({
     tournamentId,
@@ -73,6 +79,7 @@ const PredictionPage = ({
     const [tournamentName, setTournamentName] = useState<string>();
     const [tournamentStatus, setTournamentStatus] =
         useState<TournamentStatusEnum>(TournamentStatusEnum.Upcoming);
+    const [pointsSystem, setPointsSystem] = useState<PointsSystemType>();
     const [champion, setChampion] = useState<Team | null>();
     const [championPoints, setChampionPoints] = useState<number>();
 
@@ -97,8 +104,10 @@ const PredictionPage = ({
                     `/api/tournaments/${tournamentId}/info`
                 );
                 const infoData = await nameRes.json();
+                console.log("INFO: ", infoData);
                 setTournamentName(infoData.name);
                 setTournamentStatus(infoData.status);
+                setPointsSystem(infoData.sports);
 
                 const championResponse = await fetch(
                     `/api/predictions/${predictionId}/champion`
@@ -169,14 +178,14 @@ const PredictionPage = ({
                     if (!pointsMap[team2.id])
                         pointsMap[team2.id] = { team: team2, points: 0 };
 
-                    // Apply scoring rules-------------------------------------------------------------------------- RIGHT NOW JUST FOR FOOTBALL
+                    // Apply scoring rules--------------------------------------------------------------------------
                     if (predicted_result === ResultEnum.HomeWin) {
-                        pointsMap[team1.id].points += 3;
+                        pointsMap[team1.id].points += pointsSystem!.points_win;
                     } else if (predicted_result === ResultEnum.AwayWin) {
-                        pointsMap[team2.id].points += 3;
+                        pointsMap[team2.id].points += pointsSystem!.points_win;
                     } else if (predicted_result === ResultEnum.Draw) {
-                        pointsMap[team1.id].points += 1;
-                        pointsMap[team2.id].points += 1;
+                        pointsMap[team1.id].points += pointsSystem!.points_draw;
+                        pointsMap[team2.id].points += pointsSystem!.points_draw;
                     }
                 }
 
@@ -425,19 +434,29 @@ const PredictionPage = ({
                 groupGames.forEach((group) => {
                     const rankings = group.rankings;
 
-                    if (rankings.length >= 2) {
-                        teamMap[`${group.groupName}1`] = rankings.find(
+                    // if (rankings.length >= 2) {
+                    //     teamMap[`${group.groupName}1`] = rankings.find(
+                    //         (r) => r.rank === 1
+                    //     )?.team;
+                    //     teamMap[`${group.groupName}2`] = rankings.find(
+                    //         (r) => r.rank === 2
+                    //     )?.team;
+                    // }
+                    // if (rankings.length >= 3) {
+                    //     teamMap[`${group.groupName}3`] = rankings.find(
+                    //         (r) => r.rank === 3
+                    //     )?.team;
+                    // }
+                    // if (rankings.length >= 4) {
+                    //     teamMap[`${group.groupName}4`] = rankings.find(
+                    //         (r) => r.rank === 4
+                    //     )?.team;
+                    // }
+
+                    for (let i = 1; i <= rankings.length; i++) {
+                        teamMap[`${group.groupName}${i}`] = rankings.find(
                             (r) => r.rank === 1
                         )?.team;
-                        teamMap[`${group.groupName}2`] = rankings.find(
-                            (r) => r.rank === 2
-                        )?.team;
-                        //teamMap[`${group.groupName}3`] = rankings.find(
-                        //    (r) => r.rank === 3
-                        //)?.team;
-                        //teamMap[`${group.groupName}4`] = rankings.find(
-                        //    (r) => r.rank === 4
-                        //)?.team;
                     }
                 });
 
@@ -544,36 +563,38 @@ const PredictionPage = ({
                         }}
                     >
                         <Typography variant="h4">Group Stage</Typography>
-                        {tournamentStatus == TournamentStatusEnum.Ongoing ? (
-                            <></>
-                        ) : !groupGamesLock ? (
-                            <CustomTooltip title="Confirm group predictions">
-                                <Button
-                                    variant="contained"
-                                    size="large"
-                                    onClick={handleLockGroupPhase}
-                                    sx={{
-                                        ml: 2,
-                                        backgroundColor: "white",
-                                    }}
-                                >
-                                    Lock Group Phase
-                                </Button>
-                            </CustomTooltip>
+                        {tournamentStatus == TournamentStatusEnum.Upcoming ? (
+                            !groupGamesLock ? (
+                                <CustomTooltip title="Confirm group predictions">
+                                    <Button
+                                        variant="contained"
+                                        size="large"
+                                        onClick={handleLockGroupPhase}
+                                        sx={{
+                                            ml: 2,
+                                            backgroundColor: "white",
+                                        }}
+                                    >
+                                        Lock Group Phase
+                                    </Button>
+                                </CustomTooltip>
+                            ) : (
+                                <CustomTooltip title="Revise group predictions">
+                                    <Button
+                                        variant="contained"
+                                        size="large"
+                                        onClick={handleUnlockGroupPhase}
+                                        sx={{
+                                            ml: 2,
+                                            backgroundColor: "white",
+                                        }}
+                                    >
+                                        Unlock Group Phase
+                                    </Button>
+                                </CustomTooltip>
+                            )
                         ) : (
-                            <CustomTooltip title="Revise group predictions">
-                                <Button
-                                    variant="contained"
-                                    size="large"
-                                    onClick={handleUnlockGroupPhase}
-                                    sx={{
-                                        ml: 2,
-                                        backgroundColor: "white",
-                                    }}
-                                >
-                                    Unlock Group Phase
-                                </Button>
-                            </CustomTooltip>
+                            <></>
                         )}
                     </Box>
                     <GroupGamesPrediction

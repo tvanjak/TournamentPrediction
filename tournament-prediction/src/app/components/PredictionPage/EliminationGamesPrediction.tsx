@@ -56,7 +56,13 @@ const EliminationGamesPrediction = ({
                     <Typography variant="h6" gutterBottom>
                         {rounds.roundName}
                     </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                        }}
+                    >
                         {rounds.games.map((game) => (
                             <Box key={game.id} sx={{ m: 2, width: 300 }}>
                                 {tournamentStatus ==
