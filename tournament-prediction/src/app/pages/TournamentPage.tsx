@@ -413,7 +413,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
 
     const router = useRouter();
     const handleGoToPrediction = async () => {
-        router.push(`/prediction/${tournamentId}`);
+        router.push(`/prediction/${tournamentId}/${userId}`);
     };
 
     return (
@@ -471,7 +471,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
 
                 <Box mt={4} mb={6}>
                     <Typography variant="h3">
-                        Champion: {champion?.countries?.name || "N/A"}
+                        🏆Champion: {champion?.countries?.name || "N/A"}
                     </Typography>
                 </Box>
 

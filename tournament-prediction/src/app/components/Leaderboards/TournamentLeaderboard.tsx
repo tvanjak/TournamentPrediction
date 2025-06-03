@@ -99,7 +99,7 @@ const TournamentLeaderboard = (props: Props) => {
     return (
         <Box sx={{ p: 3, width: "450px" }}>
             {/*<SecondaryBox>{leaderboard.tournamentName}</SecondaryBox>*/}
-            <SecondaryBox>Full Leaderboard</SecondaryBox>
+            <SecondaryBox>Tournament Leaderboard</SecondaryBox>
             <TableContainer>
                 <Table>
                     <TableHead>

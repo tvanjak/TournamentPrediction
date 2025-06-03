@@ -18,7 +18,7 @@ export default function Navbar() {
                             href="/"
                             style={{ color: "inherit", textDecoration: "none" }}
                         >
-                            TournamentPrediction
+                            TournamentMania
                         </Link>
                     </Typography>
                 </Box>

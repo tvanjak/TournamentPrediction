@@ -361,6 +361,21 @@ const AdminPage = (props: Props) => {
                             </Typography>
                             <Box sx={{ ml: 3, width: "300px" }}>
                                 <Box>
+                                    <Typography>Group:</Typography>
+                                    <Autocomplete
+                                        options={groups}
+                                        getOptionLabel={(option) => option}
+                                        onChange={(event, value) => setG(value)}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                placeholder="Select Group"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                    />
+                                </Box>
+                                <Box>
                                     <Typography>Home Team:</Typography>
                                     <Autocomplete
                                         options={countries}
@@ -390,21 +405,7 @@ const AdminPage = (props: Props) => {
                                         )}
                                     />
                                 </Box>
-                                <Box>
-                                    <Typography>Group:</Typography>
-                                    <Autocomplete
-                                        options={groups}
-                                        getOptionLabel={(option) => option}
-                                        onChange={(event, value) => setG(value)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                placeholder="Select Group"
-                                                variant="outlined"
-                                            />
-                                        )}
-                                    />
-                                </Box>
+
                                 <Button
                                     variant="contained"
                                     onClick={handleGameInput}

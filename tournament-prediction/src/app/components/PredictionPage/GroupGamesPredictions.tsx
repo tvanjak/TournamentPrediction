@@ -116,26 +116,34 @@ const GroupGamesPrediction = ({
                                 height: 100,
                                 m: 2,
                                 p: 1,
-                                borderLeft:
+                                // borderLeft:
+                                //     game.status === StatusEnum.Finished
+                                //         ? game.points_awarded !== 0
+                                //             ? "6px solid lightgreen"
+                                //             : "6px solid lightcoral"
+                                //         : "6px solid lightgray",
+                                // borderRadius: 1,
+                                //------------------------------------------------
+                                // boxShadow:
+                                //     game.status === StatusEnum.Finished
+                                //         ? game.points_awarded !== 0
+                                //             ? "0 0 5px lightgreen"
+                                //             : "0 0 5px lightcoral"
+                                //         : "transparent",
+                                // border:
+                                //     game.status == StatusEnum.Finished
+                                //         ? game.points_awarded != 0
+                                //             ? "2px solid lightgreen"
+                                //             : "2px solid lightcoral"
+                                //         : "transparent",
+                                // transition: "all 0.3s ease-in-out",
+                                //-----------------------------------------------
+                                backgroundColor:
                                     game.status === StatusEnum.Finished
                                         ? game.points_awarded !== 0
-                                            ? "6px solid lightgreen"
-                                            : "6px solid lightcoral"
-                                        : "6px solid lightgray",
-                                borderRadius: 1,
-                                //boxShadow:
-                                //    game.status === StatusEnum.Finished
-                                //        ? game.points_awarded !== 0
-                                //            ? "0 0 5px lightgreen"
-                                //            : "0 0 5px lightcoral"
-                                //        : "transparent",
-                                //border:
-                                //    game.status == StatusEnum.Finished
-                                //        ? game.points_awarded != 0
-                                //            ? "1px solid lightgreen"
-                                //            : "1px solid lightcoral"
-                                //        : "transparent",
-                                //transition: "all 0.3s ease-in-out", // Smooth appearance
+                                            ? "#CFF1CF"
+                                            : "#FDEEEE"
+                                        : "transparent",
                             }}
                         >
                             <Box
@@ -200,7 +208,7 @@ const GroupGamesPrediction = ({
                                             mt: 1,
                                         }}
                                     >
-                                        <Typography
+                                        {/* <Typography
                                             variant="subtitle1"
                                             sx={{
                                                 border: "1px solid black",
@@ -210,12 +218,12 @@ const GroupGamesPrediction = ({
                                             }}
                                         >
                                             {game.predicted_result ?? "N/A"}
-                                        </Typography>
+                                        </Typography> */}
                                         <Typography
-                                            variant="subtitle1"
+                                            variant="body1"
                                             textAlign="center"
                                         >
-                                            Points:{" "}
+                                            Points earned:{" "}
                                             {game.points_awarded != undefined
                                                 ? game.points_awarded
                                                 : "N/A"}

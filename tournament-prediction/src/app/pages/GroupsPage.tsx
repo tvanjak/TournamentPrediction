@@ -84,7 +84,7 @@ const GroupsPage = () => {
 
     const router = useRouter();
     const viewPrediction = (tournamentId: number, userId: number) => {
-        router.push(`/tournament/${tournamentId}/${userId}`);
+        router.push(`/prediction/${tournamentId}/${userId}`);
     };
 
     const isValidEmail = (email: string) =>

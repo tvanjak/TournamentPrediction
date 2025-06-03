@@ -20,13 +20,13 @@ export default function LoginButton() {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleClose1 = () => {
+    const handleProfile = () => {
         setAnchorEl(null);
         router.push("/profile");
     };
-    const handleClose2 = () => {
+    const handleLogout = () => {
         setAnchorEl(null);
-        signOut();
+        signOut({ callbackUrl: "/" });
     };
 
     if (loading) {
@@ -63,8 +63,8 @@ export default function LoginButton() {
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
-                    <MenuItem onClick={handleClose1}>Profile</MenuItem>
-                    <MenuItem onClick={handleClose2}>Logout</MenuItem>
+                    <MenuItem onClick={handleProfile}>Profile</MenuItem>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
             </div>
         );
