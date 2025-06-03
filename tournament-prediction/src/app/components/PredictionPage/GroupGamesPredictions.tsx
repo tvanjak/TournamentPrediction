@@ -58,22 +58,22 @@ const GroupGamesPrediction = ({
         if (team == 0) {
             switch (result) {
                 case ResultEnum.HomeWin:
-                    return "lightgreen";
+                    return theme.palette.green.main;
                 case ResultEnum.Draw:
-                    return "lightgray";
+                    return theme.palette.lightgray.main;
                 case ResultEnum.AwayWin:
-                    return "lightcoral";
+                    return theme.palette.red.main;
                 default:
                     return "transparent";
             }
         } else {
             switch (result) {
                 case ResultEnum.HomeWin:
-                    return "lightcoral";
+                    return theme.palette.red.main;
                 case ResultEnum.Draw:
-                    return "lightgray";
+                    return theme.palette.lightgray.main;
                 case ResultEnum.AwayWin:
-                    return "lightgreen";
+                    return theme.palette.green.main;
                 default:
                     return "transparent";
             }
@@ -119,30 +119,30 @@ const GroupGamesPrediction = ({
                                 // borderLeft:
                                 //     game.status === StatusEnum.Finished
                                 //         ? game.points_awarded !== 0
-                                //             ? "6px solid lightgreen"
-                                //             : "6px solid lightcoral"
-                                //         : "6px solid lightgray",
+                                //             ? "6px solid theme.palette.green.main"
+                                //             : "6px solid theme.palette.red.main"
+                                //         : "6px solid theme.palette.lightgray.main",
                                 // borderRadius: 1,
                                 //------------------------------------------------
                                 // boxShadow:
                                 //     game.status === StatusEnum.Finished
                                 //         ? game.points_awarded !== 0
-                                //             ? "0 0 5px lightgreen"
-                                //             : "0 0 5px lightcoral"
+                                //             ? "0 0 5px theme.palette.green.main"
+                                //             : "0 0 5px theme.palette.red.main"
                                 //         : "transparent",
                                 // border:
                                 //     game.status == StatusEnum.Finished
                                 //         ? game.points_awarded != 0
-                                //             ? "2px solid lightgreen"
-                                //             : "2px solid lightcoral"
+                                //             ? "2px solid theme.palette.green.main"
+                                //             : "2px solid theme.palette.red.main"
                                 //         : "transparent",
                                 // transition: "all 0.3s ease-in-out",
                                 //-----------------------------------------------
                                 backgroundColor:
                                     game.status === StatusEnum.Finished
                                         ? game.points_awarded !== 0
-                                            ? "#CFF1CF"
-                                            : "#FDEEEE"
+                                            ? theme.palette.lightgreen.main
+                                            : theme.palette.lightred.main
                                         : "transparent",
                             }}
                         >

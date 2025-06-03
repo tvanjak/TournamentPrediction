@@ -12,10 +12,6 @@ const theme = createTheme({
         accent: {
             main: "#433bff", //1EE196
         },
-        /*background: {
-            default: "#ffffff",
-            paper: "#ffffff",
-        },*/
         textBlack: {
             main: "#1C2B36", // Grey for light background
         },
@@ -23,10 +19,19 @@ const theme = createTheme({
             main: "#F1E9DA", // White for dark background
         },
         green: {
-            main: "#D4EDDA", // Success color
+            main: "#90EE90", // lightgreen
+        },
+        lightgreen: {
+            main: "#CFF1CF",
         },
         red: {
-            main: "#d95763", // Failure color
+            main: "#F08080", // lightcoral
+        },
+        lightred: {
+            main: "#FDEEEE",
+        },
+        lightgray: {
+            main: "#D3D3D3",
         },
         secondaryHover: {
             main: "#c8c0f5", // hover over secondary color
@@ -34,8 +39,8 @@ const theme = createTheme({
         /*text: {
             primary: "#333333", // Dark gray for primary text
             secondary: "#555555", // Medium gray for secondary text
-        },
-        */ divider: "#e0e0e0", // Light gray for borders or dividers*/
+        },*/
+        divider: "#e0e0e0", // Light gray for borders or dividers*/
     },
     typography: {
         //fontove treba popravit

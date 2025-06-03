@@ -8,7 +8,10 @@ declare module "@mui/material/styles" {
         textBlack: SimplePaletteColorOptions;
         textWhite: SimplePaletteColorOptions;
         green: SimplePaletteColorOptions;
+        lightgreen: SimplePaletteColorOptions;
         red: SimplePaletteColorOptions;
+        lightred: SimplePaletteColorOptions;
+        lightgray: SimplePaletteColorOptions;
         secondaryHover: SimplePaletteColorOptions;
     }
 
@@ -17,7 +20,10 @@ declare module "@mui/material/styles" {
         textBlack?: SimplePaletteColorOptions;
         textWhite?: SimplePaletteColorOptions;
         green?: SimplePaletteColorOptions;
+        lightgreen?: SimplePaletteColorOptions;
         red?: SimplePaletteColorOptions;
+        lightred?: SimplePaletteColorOptions;
+        lightgray?: SimplePaletteColorOptions;
         secondaryHover?: SimplePaletteColorOptions;
     }
 
