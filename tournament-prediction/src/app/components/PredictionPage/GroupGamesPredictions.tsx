@@ -6,13 +6,9 @@ import {
     MenuItem,
     Select,
     SelectChangeEvent,
-    Button,
 } from "@mui/material";
-import AccentBox from "../General/AccentBox";
 import { ResultEnum, StatusEnum, TournamentStatusEnum } from "@/types/enums";
-import Loading from "../General/Loading";
 import theme from "../../styles/theme";
-import CustomTooltip from "../General/CustomTooltip";
 
 interface Team {
     id: number;
@@ -37,7 +33,6 @@ type GroupGames = {
     }[];
 };
 
-// GroupGamesPrediction Section
 const GroupGamesPrediction = ({
     groupGamesLock,
     tournamentStatus,
@@ -198,7 +193,76 @@ const GroupGamesPrediction = ({
                             </Box>
                             <Box display="flex" justifyContent="center" p={1}>
                                 {tournamentStatus ==
-                                TournamentStatusEnum.Ongoing ? (
+                                TournamentStatusEnum.Upcoming ? (
+                                    groupGamesLock ? (
+                                        <Box
+                                            sx={{
+                                                width: "100%",
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                mt: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="subtitle1"
+                                                sx={{
+                                                    border: "1px solid black",
+                                                    borderRadius: 1,
+                                                    px: 1,
+                                                    mx: 1,
+                                                }}
+                                            >
+                                                {game.predicted_result ?? "N/A"}
+                                            </Typography>
+                                        </Box>
+                                    ) : (
+                                        <Select
+                                            sx={{ fontSize: 15 }}
+                                            value={game.predicted_result ?? ""}
+                                            onChange={(
+                                                e: SelectChangeEvent<ResultEnum>
+                                            ) =>
+                                                onResultChange(
+                                                    game.id,
+                                                    e.target.value as ResultEnum
+                                                )
+                                            }
+                                            displayEmpty
+                                            size="small"
+                                            fullWidth
+                                            renderValue={(selected) => {
+                                                switch (selected) {
+                                                    case ResultEnum.HomeWin:
+                                                        return "Home Win";
+                                                    case ResultEnum.Draw:
+                                                        return "Draw";
+                                                    case ResultEnum.AwayWin:
+                                                        return "Away Win";
+                                                    default:
+                                                        return "Select result";
+                                                }
+                                            }}
+                                        >
+                                            <MenuItem value="">
+                                                Select result
+                                            </MenuItem>
+                                            <MenuItem
+                                                value={ResultEnum.HomeWin}
+                                            >
+                                                Home Win
+                                            </MenuItem>
+                                            <MenuItem value={ResultEnum.Draw}>
+                                                Draw
+                                            </MenuItem>
+                                            <MenuItem
+                                                value={ResultEnum.AwayWin}
+                                            >
+                                                Away Win
+                                            </MenuItem>
+                                        </Select>
+                                    )
+                                ) : (
                                     <Box
                                         sx={{
                                             width: "100%",
@@ -229,69 +293,6 @@ const GroupGamesPrediction = ({
                                                 : "N/A"}
                                         </Typography>
                                     </Box>
-                                ) : groupGamesLock ? (
-                                    <Box
-                                        sx={{
-                                            width: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            mt: 1,
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                border: "1px solid black",
-                                                borderRadius: 1,
-                                                px: 1,
-                                                mx: 1,
-                                            }}
-                                        >
-                                            {game.predicted_result ?? "N/A"}
-                                        </Typography>
-                                    </Box>
-                                ) : (
-                                    <Select
-                                        sx={{ fontSize: 15 }}
-                                        value={game.predicted_result ?? ""}
-                                        onChange={(
-                                            e: SelectChangeEvent<ResultEnum>
-                                        ) =>
-                                            onResultChange(
-                                                game.id,
-                                                e.target.value as ResultEnum
-                                            )
-                                        }
-                                        displayEmpty
-                                        size="small"
-                                        fullWidth
-                                        renderValue={(selected) => {
-                                            switch (selected) {
-                                                case ResultEnum.HomeWin:
-                                                    return "Home Win";
-                                                case ResultEnum.Draw:
-                                                    return "Draw";
-                                                case ResultEnum.AwayWin:
-                                                    return "Away Win";
-                                                default:
-                                                    return "Select result";
-                                            }
-                                        }}
-                                    >
-                                        <MenuItem value="">
-                                            Select result
-                                        </MenuItem>
-                                        <MenuItem value={ResultEnum.HomeWin}>
-                                            Home Win
-                                        </MenuItem>
-                                        <MenuItem value={ResultEnum.Draw}>
-                                            Draw
-                                        </MenuItem>
-                                        <MenuItem value={ResultEnum.AwayWin}>
-                                            Away Win
-                                        </MenuItem>
-                                    </Select>
                                 )}
                             </Box>
                         </Paper>
@@ -309,7 +310,7 @@ const GroupGamesPrediction = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {[...rankings] // Copy and sort by rank
+                            {[...rankings] // copy and sort by rank
                                 .sort((a, b) => a.rank - b.rank)
                                 .map((r, i, sortedRankings) => {
                                     const canMoveUp =

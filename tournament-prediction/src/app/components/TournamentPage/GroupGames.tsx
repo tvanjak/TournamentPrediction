@@ -23,7 +23,6 @@ type GroupGamesType = {
     }[];
 };
 
-// Group Games Section
 const GroupGames = ({ groups }: { groups: GroupGamesType[] }) => {
     const getBackgroundColor = (
         result: ResultEnum | undefined,

@@ -32,20 +32,10 @@ type Props = {
 };
 
 const TournamentGroupLeaderboard = (props: Props) => {
-    /*const [pointsSort, setPointsSort] = useState(true);
-
-    function setPointsTrue() {
-        setPointsSort(true);
-    }
-    function setPointsFalse() {
-        setPointsSort(false);
-    }*/
-
     const [groupLeaderboard, setGroupLeaderboard] =
         useState<GroupLeaderboard>();
-    const [loading, setLoading] = useState(true);
-
     const [paginatedUsers, setPaginatedUsers] = useState<LeaderboardUser[]>();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchGroupLeaderboard(
@@ -98,10 +88,13 @@ const TournamentGroupLeaderboard = (props: Props) => {
         setPage(0); // reset to first page
     };
 
-    if (loading) return null;
-
-    if (!groupLeaderboard || !groupLeaderboard.users || !paginatedUsers)
-        return null;
+    if (
+        loading ||
+        !groupLeaderboard ||
+        !groupLeaderboard.users ||
+        !paginatedUsers
+    )
+        return <Loading />;
 
     return (
         <Box sx={{ p: 3, width: "370px" }}>

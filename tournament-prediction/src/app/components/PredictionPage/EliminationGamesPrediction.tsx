@@ -15,7 +15,7 @@ interface EliminationGames {
         id: number;
         actual_game_id: number;
         rounds?: { name: string };
-        team1?: Team; // allow placeholders like "A1"???
+        team1?: Team;
         team2?: Team;
         predicted_winner_id?: number;
         points_awarded?: number;
@@ -94,10 +94,14 @@ const EliminationGamesPrediction = ({
                                                             "string" &&
                                                         game.team1?.id ===
                                                             game.predicted_winner_id
-                                                            ? "lightgreen"
+                                                            ? theme.palette
+                                                                  .green.main
                                                             : game.predicted_winner_id
-                                                            ? "lightcoral"
-                                                            : "lightgray",
+                                                            ? theme.palette.red
+                                                                  .main
+                                                            : theme.palette
+                                                                  .lightgray
+                                                                  .main,
                                                     "&:hover": {
                                                         backgroundColor:
                                                             !game.predicted_winner_id
@@ -147,10 +151,14 @@ const EliminationGamesPrediction = ({
                                                             "string" &&
                                                         game.team2?.id ===
                                                             game.predicted_winner_id
-                                                            ? "lightgreen"
+                                                            ? theme.palette
+                                                                  .green.main
                                                             : game.predicted_winner_id
-                                                            ? "lightcoral"
-                                                            : "lightgray",
+                                                            ? theme.palette.red
+                                                                  .main
+                                                            : theme.palette
+                                                                  .lightgray
+                                                                  .main,
                                                     "&:hover": {
                                                         backgroundColor:
                                                             !game.predicted_winner_id
@@ -204,10 +212,15 @@ const EliminationGamesPrediction = ({
                                                             game.predicted_winner_id &&
                                                             game.team1?.id ===
                                                                 game.predicted_winner_id
-                                                                ? "lightgreen"
+                                                                ? theme.palette
+                                                                      .green
+                                                                      .main
                                                                 : game.predicted_winner_id
-                                                                ? "lightcoral"
-                                                                : "lightgray",
+                                                                ? theme.palette
+                                                                      .red.main
+                                                                : theme.palette
+                                                                      .lightgray
+                                                                      .main,
                                                         whiteSpace: "normal",
                                                         wordBreak: "break-word",
                                                         height: "100%",
@@ -238,10 +251,15 @@ const EliminationGamesPrediction = ({
                                                             game.predicted_winner_id &&
                                                             game.team2?.id ===
                                                                 game.predicted_winner_id
-                                                                ? "lightgreen"
+                                                                ? theme.palette
+                                                                      .green
+                                                                      .main
                                                                 : game.predicted_winner_id
-                                                                ? "lightcoral"
-                                                                : "lightgray",
+                                                                ? theme.palette
+                                                                      .red.main
+                                                                : theme.palette
+                                                                      .lightgray
+                                                                      .main,
                                                         textAlign: "center",
                                                     }}
                                                 >

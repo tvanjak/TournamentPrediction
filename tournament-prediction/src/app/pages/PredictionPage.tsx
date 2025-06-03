@@ -506,7 +506,7 @@ const PredictionPage = ({
                 <Box
                     sx={{
                         position: "fixed",
-                        top: "80px", // height of your navbar
+                        top: "80px", // height of navbar
                         left: 0,
                         width: "100vw",
                         height: "calc(100vh - 80px)", // remaining height
@@ -553,9 +553,6 @@ const PredictionPage = ({
                                     size="large"
                                     onClick={handleLockGroupPhase}
                                     sx={{
-                                        //position: "absolute",
-                                        //top: 180,
-                                        //right: 100,
                                         ml: 2,
                                         backgroundColor: "white",
                                     }}
@@ -570,9 +567,6 @@ const PredictionPage = ({
                                     size="large"
                                     onClick={handleUnlockGroupPhase}
                                     sx={{
-                                        //position: "absolute",
-                                        //top: 180,
-                                        //right: 100,
                                         ml: 2,
                                         backgroundColor: "white",
                                     }}

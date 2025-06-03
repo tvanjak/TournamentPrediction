@@ -16,7 +16,6 @@ interface EliminationGameType {
     result?: string;
 }
 
-// Elimination Games Section
 const EliminationGames = ({
     eliminationGames,
 }: {
@@ -28,7 +27,7 @@ const EliminationGames = ({
                 <Box
                     key={index}
                     mb={3}
-                    display="flex" // these three lines for vertical centering of elimination titles
+                    display="flex"
                     flexDirection="column"
                     alignItems="center"
                 >

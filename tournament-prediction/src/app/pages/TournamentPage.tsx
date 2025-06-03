@@ -46,7 +46,6 @@ interface Props {
     tournamentId: number;
 }
 
-// Main Page Component
 const TournamentPage = ({ tournamentId }: Props) => {
     const [loading, setLoading] = useState(true);
     const [groupGames, setGroupGames] = useState<GroupGamesType[]>([]);
@@ -146,7 +145,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
                 <Box
                     sx={{
                         position: "fixed",
-                        top: "80px", // height of your navbar
+                        top: "80px", // height of navbar
                         left: 0,
                         width: "100vw",
                         height: "calc(100vh - 80px)", // remaining height

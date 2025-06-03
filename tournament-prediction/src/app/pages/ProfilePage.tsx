@@ -1,24 +1,28 @@
 "use client";
-
 import { Avatar, Box, Container, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import theme from "../styles/theme";
 import { useSession } from "next-auth/react";
-//import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import GroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
 import Loading from "../components/General/Loading";
-import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
+import CustomTooltip from "../components/General/CustomTooltip";
+import { useRouter } from "next/navigation";
+import theme from "../styles/theme";
 import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
-import PrimaryBox from "../components/General/PrimaryBox";
 
 type Props = {};
+type TournamentData = {
+    id: number;
+    name: string;
+};
 
 const ProfilePage = (props: Props) => {
     const { data: session, status } = useSession();
     const [totalPoints, setTotalPoints] = useState<number>();
     const [averagePoints, setAveragePoints] = useState<number>();
-    const [groupIds, setGroupIds] = useState<number[]>();
+    const [tournamentsPlayed, setTournamentsPlayed] = useState(0);
     const [userId, setUserId] = useState<number>();
+    const [isLoading, setIsLoading] = useState(true);
+    const [userGroupIds, setUserGroupIds] = useState<number[]>();
+    const [tournamentsData, setTournamentsData] = useState<TournamentData[]>();
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -39,119 +43,205 @@ const ProfilePage = (props: Props) => {
     }, [session?.user.email]);
 
     useEffect(() => {
-        const fetchTotalPoints = async () => {
+        const fetchUserInfo = async () => {
             try {
-                const response = await fetch(
-                    `/api/users/${userId}/totalPoints`
-                );
+                const response = await fetch(`/api/users/${userId}/info`);
                 if (!response.ok) {
-                    throw new Error("Failed to fetch total points");
+                    throw new Error("Failed to fetch user info");
                 }
                 const data = await response.json();
                 setTotalPoints(data.totalPoints);
-            } catch (error) {
-                console.error("Error fetching total points: ", error);
-            }
-        };
-        const fetchAveragePoints = async () => {
-            try {
-                const response = await fetch(
-                    `/api/users/${userId}/averagePoints`
-                );
-                if (!response.ok) {
-                    throw new Error("Failed to fetch average points");
-                }
-                const data = await response.json();
                 setAveragePoints(data.averagePoints);
+                setTournamentsPlayed(data.tournamentsPlayed);
+                setUserGroupIds(data.userGroupIds);
+                setTournamentsData(data.tournamentsData);
             } catch (error) {
-                console.error("Error fetching average points: ", error);
-            }
-        };
-        const fetchGroupIds = async () => {
-            try {
-                const response = await fetch(`/api/users/${userId}/groupIds`);
-                if (!response.ok) {
-                    throw new Error("Failed to fetch group IDs");
-                }
-                const data = await response.json();
-                setGroupIds(data.groupIds);
-            } catch (error) {
-                console.log("Error fetching group IDs: ", error);
+                console.error("Error fetching user info: ", error);
+            } finally {
+                setIsLoading(false);
             }
         };
         if (userId) {
             console.log("User ID: ", userId);
-            fetchTotalPoints();
-            fetchAveragePoints();
-            fetchGroupIds();
+            fetchUserInfo();
         }
     }, [userId]);
 
-    if (session)
-        return (
-            <Container
+    const router = useRouter();
+    const viewPrediction = (tournamentId: number, userId: number) => {
+        router.push(`/prediction/${tournamentId}/${userId}`);
+    };
+    const viewTournament = (tournamentId: number) => {
+        router.push(`/tournament/${tournamentId}`);
+    };
+
+    if (isLoading || !session || !userId) return <Loading />;
+
+    return (
+        <Container
+            maxWidth="lg"
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                mt: 4,
+                gap: 2,
+            }}
+        >
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "start",
+                    alignItems: "center",
+                }}
+            >
+                <Box sx={{ p: 2 }}>
+                    {" "}
+                    {session.user.image && (
+                        <Avatar
+                            alt="User Profile"
+                            src={session.user.image}
+                            sx={{ width: 70, height: 70 }}
+                        />
+                    )}
+                    {/*{!session.user.image && (
+                            <AccountCircleIcon fontSize="large" />
+                        )}*/}
+                </Box>
+                <Box>
+                    <Typography>• Username: {session.user.name}</Typography>
+                    <Typography>• Total points: {totalPoints}</Typography>
+                    <Typography>• Average points: {averagePoints}</Typography>
+                    <Typography>
+                        Tournaments played: {tournamentsPlayed}
+                    </Typography>
+                </Box>
+            </Box>
+            <Box
                 sx={{
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
-                    mt: 4,
+                    alignItems: "start",
+                    width: "100%",
+                    gap: 2,
                 }}
             >
-                <Box
-                    sx={{
-                        width: 400,
-                        display: "flex",
-                        justifyContent: "start",
-                        alignItems: "center",
-                        mb: 2,
-                    }}
-                >
-                    <Box sx={{ p: 2 }}>
-                        {" "}
-                        {session.user.image && (
-                            <Avatar
-                                alt="User Profile"
-                                src={session.user.image}
-                                sx={{ width: 50, height: 50 }}
-                            />
-                        )}
-                        {/*{!session.user.image && (
-                            <AccountCircleIcon fontSize="large" />
-                        )}*/}
-                    </Box>
-                    <Box>
-                        <Typography>• Username: {session.user.name}</Typography>
-                        <Typography>• Total points: {totalPoints}</Typography>
-                        <Typography>
-                            • Average points: {averagePoints}
-                        </Typography>
-                    </Box>
-                </Box>
-                <PrimaryBox>All-time Group Leaderboards</PrimaryBox>
-                {groupIds ? (
+                <Typography variant="h4">Past tournaments</Typography>
+                {tournamentsData?.map((tournament, index) => (
                     <Box
+                        key={index}
                         sx={{
+                            width: "100%",
                             display: "flex",
-                            justifyContent: "space-evenly",
+                            flexDirection: "column",
                         }}
                     >
-                        {/*{groupIds.map((groupId, index) => (
-                            <GroupLeaderboard
-                                groupId={groupId}
-                                key={index}
-                                onLoaded= 
-                            ></GroupLeaderboard>
-                        ))}*/}
+                        <Box sx={{ display: "flex" }}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    alignItems: "center",
+                                    mr: 10,
+                                }}
+                            >
+                                <Typography variant="h6" component={"li"}>
+                                    Tournament:
+                                </Typography>
+                                <CustomTooltip
+                                    key={index}
+                                    title="View prediction"
+                                >
+                                    <Box
+                                        onClick={() =>
+                                            viewTournament(tournament.id)
+                                        }
+                                        sx={{
+                                            maxWidth: "250px",
+                                            borderRadius: 4,
+                                            textAlign: "left",
+                                            padding: 2,
+                                            margin: 1,
+                                            transition:
+                                                "background-color 0.3s ease",
+                                            backgroundColor:
+                                                theme.palette.secondary.main,
+                                            "&:hover": {
+                                                backgroundColor: "#e0e0e0",
+                                                cursor: "pointer",
+                                            },
+                                            fontSize: 16,
+                                        }}
+                                    >
+                                        {tournament.name}
+                                    </Box>
+                                </CustomTooltip>
+                            </Box>
+
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "start",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <Typography variant="h6" component={"li"}>
+                                    Your prediction:
+                                </Typography>
+                                <CustomTooltip
+                                    key={index}
+                                    title="View prediction"
+                                >
+                                    <Box
+                                        onClick={() =>
+                                            viewPrediction(
+                                                tournament.id,
+                                                userId
+                                            )
+                                        }
+                                        sx={{
+                                            maxWidth: "250px",
+                                            borderRadius: 4,
+                                            textAlign: "left",
+                                            padding: 2,
+                                            margin: 1,
+                                            transition:
+                                                "background-color 0.3s ease",
+                                            backgroundColor:
+                                                theme.palette.secondary.main,
+                                            "&:hover": {
+                                                backgroundColor: "#e0e0e0",
+                                                cursor: "pointer",
+                                            },
+                                            fontSize: 16,
+                                        }}
+                                    >
+                                        {tournament.name}
+                                    </Box>
+                                </CustomTooltip>
+                            </Box>
+                        </Box>
+                        <Box
+                            sx={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "space-evenly",
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            {userGroupIds?.map((userGroupId, index) => (
+                                <TournamentGroupLeaderboard
+                                    key={index}
+                                    groupId={userGroupId}
+                                    tournamentId={tournament.id}
+                                />
+                            ))}
+                        </Box>
                     </Box>
-                ) : (
-                    <Loading></Loading>
-                )}
-                <TournamentGroupLeaderboard
-                    tournamentId={1}
-                    groupId={1}
-                ></TournamentGroupLeaderboard>
-            </Container>
-        );
+                ))}
+            </Box>
+        </Container>
+    );
 };
 
 export default ProfilePage;
