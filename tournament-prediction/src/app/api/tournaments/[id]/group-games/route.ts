@@ -16,8 +16,18 @@ export async function GET(
       where: { tournament_id: tournamentId },
       include: {
         groups: true,
-        team1: { include: { countries: { select: { name: true } } } },
-        team2: { include: { countries: { select: { name: true } } } },
+        team1: {
+          select: {
+            id: true,
+            countries: { select: { name: true } },
+          },
+        },
+        team2: {
+          select: {
+            id: true,
+            countries: { select: { name: true } },
+          },
+        },
       },
     });
 
@@ -26,7 +36,8 @@ export async function GET(
       include: {
         groups: true,
         teams: {
-          include: {
+          select: {
+            id: true,
             countries: { select: { name: true } },
           },
         },
@@ -34,32 +45,46 @@ export async function GET(
       orderBy: [{ group_id: "asc" }, { rank: "asc" }],
     });
 
-    // Group games by group name
-    const groupedGamesMap: Record<string, any[]> = {};
+    const groupedGamesMap: Record<number, any[]> = {};
+    const groupIdToNameMap: Record<number, string> = {};
+
     for (const game of groupGames) {
+      const groupId = game.groups?.id;
       const groupName = game.groups?.name ?? "Unknown";
-      if (!groupedGamesMap[groupName]) groupedGamesMap[groupName] = [];
-      groupedGamesMap[groupName].push(game);
+
+      if (!groupedGamesMap[groupId]) {
+        groupedGamesMap[groupId] = [];
+        groupIdToNameMap[groupId] = groupName;
+      }
+
+      groupedGamesMap[groupId].push({
+        id: game.id,
+        team1: game.team1,
+        team2: game.team2,
+        result: game.result ?? null, // match predictions format
+        status: game.status ?? "pending",
+      });
     }
 
-    // Group rankings by group name
-    const groupedRankingsMap: Record<string, any[]> = {};
+    const groupedRankingsMap: Record<number, any[]> = {};
+
     for (const r of rankings) {
-      const groupName = r.groups?.name ?? "Unknown";
-      if (!groupedRankingsMap[groupName]) groupedRankingsMap[groupName] = [];
-      groupedRankingsMap[groupName].push({
+      const groupId = r.groups?.id;
+      if (!groupedRankingsMap[groupId]) groupedRankingsMap[groupId] = [];
+
+      groupedRankingsMap[groupId].push({
         rank: r.rank,
-        points: r.points,
+        points: r.points ?? 0,
         team: r.teams,
       });
     }
 
-    // Create ordered array of groups
-    const sortedGroupNames = Object.keys(groupedGamesMap).sort();
-    const data = sortedGroupNames.map((groupName) => ({
-      groupName,
-      games: groupedGamesMap[groupName],
-      rankings: groupedRankingsMap[groupName] ?? [],
+    const sortedGroupIds = Object.keys(groupedGamesMap).map(Number).sort((a, b) => a - b);
+    const data = sortedGroupIds.map((groupId) => ({
+      groupId,
+      groupName: groupIdToNameMap[groupId],
+      games: groupedGamesMap[groupId],
+      rankings: groupedRankingsMap[groupId] ?? [],
     }));
 
     return NextResponse.json(data);

@@ -44,13 +44,24 @@ export async function GET(
 
     const groupedByRound = eliminationGames.reduce((acc, game) => {
       const roundName = game.rounds?.name ?? "Unknown";
-      if (!acc[roundName]) acc[roundName] = [];
-      acc[roundName].push(game);
-      return acc;
-    }, {} as Record<string, typeof eliminationGames>);
 
-    const result = Object.entries(groupedByRound).map(([name, games]) => ({
-      name,
+      if (!acc[roundName]) acc[roundName] = [];
+
+      acc[roundName].push({
+        id: game.id,
+        team1: game.team1,
+        team2: game.team2,
+        rounds: game.rounds,
+        winner_id: game.winner_id ?? null,
+        status: game.status,
+      });
+
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const result = Object.entries(groupedByRound).map(([roundName, games]) => ({
+      roundName,
+      roundId: games[0]?.rounds?.id ?? null,
       games,
     }));
 

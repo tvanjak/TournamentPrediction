@@ -277,17 +277,6 @@ const GroupGamesPrediction = ({
                                             mt: 1,
                                         }}
                                     >
-                                        {/* <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                border: "1px solid black",
-                                                borderRadius: 1,
-                                                px: 1,
-                                                mx: 1,
-                                            }}
-                                        >
-                                            {game.predicted_result ?? "N/A"}
-                                        </Typography> */}
                                         <Typography
                                             variant="body1"
                                             textAlign="center"

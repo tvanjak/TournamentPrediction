@@ -89,21 +89,18 @@ const PredictionPage = ({
                     `/api/predictions/${predictionId}/group-games`
                 );
                 const groupData = await groupRes.json();
-                console.log("groupData: ", groupData);
                 setGroupGames(groupData);
 
                 const elimRes = await fetch(
                     `/api/predictions/${predictionId}/elimination-games`
                 );
                 const elimData = await elimRes.json();
-                //console.log("elimData: ", elimData);
                 setEliminationGames(elimData);
 
                 const nameRes = await fetch(
                     `/api/tournaments/${tournamentId}/info`
                 );
                 const infoData = await nameRes.json();
-                console.log("INFO: ", infoData);
                 setTournamentName(infoData.name);
                 setTournamentStatus(infoData.status);
                 setPointsSystem(infoData.sports);
@@ -113,7 +110,6 @@ const PredictionPage = ({
                 );
                 const championData = await championResponse.json();
                 setChampion(championData);
-                console.log("CHAMP: ", championData);
             } catch (err) {
                 console.error("Failed to load prediction:", err);
             } finally {
@@ -443,9 +439,6 @@ const PredictionPage = ({
 
     const handleSavePrediction = async () => {
         try {
-            //console.log("GROUP DATA for save: ", groupGames);
-            //console.log("ELIM DATA for save: ", eliminationGames);
-            //console.log("CHAMPION: ", champion);
             await fetch(`/api/predictions/save`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -483,25 +476,6 @@ const PredictionPage = ({
                 const teamMap: Record<string, Team | undefined> = {};
                 groupGames.forEach((group) => {
                     const rankings = group.rankings;
-
-                    // if (rankings.length >= 2) {
-                    //     teamMap[`${group.groupName}1`] = rankings.find(
-                    //         (r) => r.rank === 1
-                    //     )?.team;
-                    //     teamMap[`${group.groupName}2`] = rankings.find(
-                    //         (r) => r.rank === 2
-                    //     )?.team;
-                    // }
-                    // if (rankings.length >= 3) {
-                    //     teamMap[`${group.groupName}3`] = rankings.find(
-                    //         (r) => r.rank === 3
-                    //     )?.team;
-                    // }
-                    // if (rankings.length >= 4) {
-                    //     teamMap[`${group.groupName}4`] = rankings.find(
-                    //         (r) => r.rank === 4
-                    //     )?.team;
-                    // }
 
                     for (let i = 1; i <= rankings.length; i++) {
                         teamMap[`${group.groupName}${i}`] = rankings.find(

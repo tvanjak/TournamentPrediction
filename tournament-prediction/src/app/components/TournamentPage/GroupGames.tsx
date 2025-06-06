@@ -1,7 +1,14 @@
 "use client";
-import { Box, Typography, Paper } from "@mui/material";
+import {
+    Box,
+    Typography,
+    Paper,
+    Select,
+    SelectChangeEvent,
+    MenuItem,
+} from "@mui/material";
 import theme from "../../styles/theme";
-import { ResultEnum } from "@/types/enums";
+import { ResultEnum, StatusEnum } from "@/types/enums";
 
 interface Team {
     id: number;
@@ -10,11 +17,13 @@ interface Team {
 
 type GroupGamesType = {
     groupName: string;
+    groupId: number;
     games: {
         id: number;
-        team1?: { countries?: { name: string } };
-        team2?: { countries?: { name: string } };
+        team1?: Team;
+        team2?: Team;
         result?: ResultEnum;
+        status: StatusEnum;
     }[];
     rankings: {
         rank: number;
@@ -23,7 +32,23 @@ type GroupGamesType = {
     }[];
 };
 
-const GroupGames = ({ groups }: { groups: GroupGamesType[] }) => {
+const GroupGames = ({
+    groups,
+    adminMode,
+    groupGamesLock,
+    onResultChange,
+    adjustRankings,
+}: {
+    groups: GroupGamesType[];
+    adminMode: boolean;
+    groupGamesLock: boolean;
+    onResultChange: (
+        gameId: number,
+        groupId: number,
+        result: ResultEnum
+    ) => void;
+    adjustRankings: (team: Team) => void;
+}) => {
     const getBackgroundColor = (
         result: ResultEnum | undefined,
         team: number
@@ -74,7 +99,7 @@ const GroupGames = ({ groups }: { groups: GroupGamesType[] }) => {
             overflow="auto"
             flexWrap="wrap"
         >
-            {groups.map(({ groupName, games, rankings }) => (
+            {groups.map(({ groupName, groupId, games, rankings }) => (
                 <Box
                     key={groupName}
                     width={300}
@@ -153,25 +178,93 @@ const GroupGames = ({ groups }: { groups: GroupGamesType[] }) => {
                                     </Typography>
                                 </Box>
                             </Box>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    p: 1,
-                                }}
-                            >
-                                <Typography
-                                    variant="subtitle1"
-                                    textAlign="center"
+                            {adminMode ? (
+                                groupGamesLock ? (
+                                    <Box
+                                        sx={{
+                                            width: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            mt: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{
+                                                border: "1px solid black",
+                                                borderRadius: 1,
+                                                px: 1,
+                                                mx: 1,
+                                            }}
+                                        >
+                                            {game.result ?? "N/A"}
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <Select
+                                        sx={{ fontSize: 15 }}
+                                        value={game.result ?? ""}
+                                        onChange={(
+                                            e: SelectChangeEvent<ResultEnum>
+                                        ) =>
+                                            onResultChange(
+                                                game.id,
+                                                groupId,
+                                                e.target.value as ResultEnum
+                                            )
+                                        }
+                                        displayEmpty
+                                        size="small"
+                                        fullWidth
+                                        renderValue={(selected) => {
+                                            switch (selected) {
+                                                case ResultEnum.HomeWin:
+                                                    return "Home Win";
+                                                case ResultEnum.Draw:
+                                                    return "Draw";
+                                                case ResultEnum.AwayWin:
+                                                    return "Away Win";
+                                                default:
+                                                    return "Select result";
+                                            }
+                                        }}
+                                    >
+                                        <MenuItem value="">
+                                            Select result
+                                        </MenuItem>
+                                        <MenuItem value={ResultEnum.HomeWin}>
+                                            Home Win
+                                        </MenuItem>
+                                        <MenuItem value={ResultEnum.Draw}>
+                                            Draw
+                                        </MenuItem>
+                                        <MenuItem value={ResultEnum.AwayWin}>
+                                            Away Win
+                                        </MenuItem>
+                                    </Select>
+                                )
+                            ) : (
+                                <Box
                                     sx={{
-                                        width: "50%",
-                                        border: "1px solid black",
-                                        borderRadius: 1,
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        p: 1,
                                     }}
                                 >
-                                    {mapResult(game.result) ?? "N/A"}
-                                </Typography>
-                            </Box>
+                                    <Typography
+                                        variant="subtitle1"
+                                        textAlign="center"
+                                        sx={{
+                                            width: "50%",
+                                            border: "1px solid black",
+                                            borderRadius: 1,
+                                        }}
+                                    >
+                                        {mapResult(game.result) ?? "N/A"}
+                                    </Typography>
+                                </Box>
+                            )}
                         </Paper>
                     ))}
 
@@ -187,13 +280,41 @@ const GroupGames = ({ groups }: { groups: GroupGamesType[] }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {rankings.map((r, i) => (
-                                <tr key={i}>
-                                    <td>{r.rank}.</td>
-                                    <td>{r.team?.countries?.name ?? "N/A"}</td>
-                                    <td align="right">{r.points}</td>
-                                </tr>
-                            ))}
+                            {[...rankings] // copy and sort by rank
+                                .sort((a, b) => a.rank - b.rank)
+                                .map((r, i, sortedRankings) => {
+                                    const canMoveUp =
+                                        i > 0 &&
+                                        sortedRankings[i].points ===
+                                            sortedRankings[i - 1].points &&
+                                        r.rank !== 1 &&
+                                        r.rank !== 0 &&
+                                        !groupGamesLock &&
+                                        adminMode;
+
+                                    return (
+                                        <tr key={i}>
+                                            <td>{r.rank}.</td>
+                                            <td>
+                                                {r.team?.countries?.name ??
+                                                    "N/A"}
+                                            </td>
+                                            <td align="right">{r.points}</td>
+                                            {canMoveUp && (
+                                                <td
+                                                    onClick={() =>
+                                                        adjustRankings(r.team)
+                                                    }
+                                                    style={{
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    ⬆️
+                                                </td>
+                                            )}
+                                        </tr>
+                                    );
+                                })}
                         </tbody>
                     </Box>
                 </Box>
