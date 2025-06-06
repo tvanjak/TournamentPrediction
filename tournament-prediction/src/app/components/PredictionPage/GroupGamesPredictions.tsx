@@ -43,7 +43,11 @@ const GroupGamesPrediction = ({
     groupGamesLock: boolean;
     tournamentStatus: TournamentStatusEnum;
     groups: GroupGames[];
-    onResultChange: (gameId: number, result: ResultEnum) => void;
+    onResultChange: (
+        gameId: number,
+        groupId: number,
+        result: ResultEnum
+    ) => void;
     adjustRankings: (team: Team) => void;
 }) => {
     const getBackgroundColor = (
@@ -83,7 +87,7 @@ const GroupGamesPrediction = ({
             overflow="auto"
             flexWrap="wrap"
         >
-            {groups.map(({ groupName, games, rankings }) => (
+            {groups.map(({ groupId, groupName, games, rankings }) => (
                 <Box
                     key={groupName}
                     width={300}
@@ -225,6 +229,7 @@ const GroupGamesPrediction = ({
                                             ) =>
                                                 onResultChange(
                                                     game.id,
+                                                    groupId,
                                                     e.target.value as ResultEnum
                                                 )
                                             }

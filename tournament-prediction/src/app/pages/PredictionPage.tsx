@@ -4,7 +4,6 @@ import { Box, Typography, Button } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import { ResultEnum, StatusEnum, TournamentStatusEnum } from "@/types/enums";
 import Loading from "../components/General/Loading";
-import theme from "../styles/theme";
 import CustomTooltip from "../components/General/CustomTooltip";
 
 import EliminationGamesPrediction from "../components/PredictionPage/EliminationGamesPrediction";
@@ -90,7 +89,7 @@ const PredictionPage = ({
                     `/api/predictions/${predictionId}/group-games`
                 );
                 const groupData = await groupRes.json();
-                //console.log("groupData: ", groupData);
+                console.log("groupData: ", groupData);
                 setGroupGames(groupData);
 
                 const elimRes = await fetch(
@@ -151,9 +150,17 @@ const PredictionPage = ({
         if (tournamentId && userId) fetchPredictionId();
     }, [tournamentId, userId]);
 
-    const handleGroupResultChange = (gameId: number, value: ResultEnum) => {
+    const handleGroupResultChange = (
+        gameId: number,
+        groupId: number,
+        value: ResultEnum
+    ) => {
         setGroupGames((prevGroups) =>
             prevGroups.map((group) => {
+                if (group.groupId != groupId) {
+                    return group;
+                }
+
                 // Update games
                 const updatedGames = group.games.map((game) =>
                     game.id === gameId
@@ -170,24 +177,27 @@ const PredictionPage = ({
                 for (const game of updatedGames) {
                     const { team1, team2, predicted_result } = game;
 
-                    if (!team1 || !team2 || !predicted_result) continue;
+                    //if (!team1 || !team2 || !predicted_result) continue;
 
                     // Initialize teams
-                    if (!pointsMap[team1.id])
-                        pointsMap[team1.id] = { team: team1, points: 0 };
-                    if (!pointsMap[team2.id])
-                        pointsMap[team2.id] = { team: team2, points: 0 };
+                    if (!pointsMap[team1!.id])
+                        pointsMap[team1!.id] = { team: team1!, points: 0 };
+                    if (!pointsMap[team2!.id])
+                        pointsMap[team2!.id] = { team: team2!, points: 0 };
 
                     // Apply scoring rules--------------------------------------------------------------------------
                     if (predicted_result === ResultEnum.HomeWin) {
-                        pointsMap[team1.id].points += pointsSystem!.points_win;
+                        pointsMap[team1!.id].points += pointsSystem!.points_win;
                     } else if (predicted_result === ResultEnum.AwayWin) {
-                        pointsMap[team2.id].points += pointsSystem!.points_win;
+                        pointsMap[team2!.id].points += pointsSystem!.points_win;
                     } else if (predicted_result === ResultEnum.Draw) {
-                        pointsMap[team1.id].points += pointsSystem!.points_draw;
-                        pointsMap[team2.id].points += pointsSystem!.points_draw;
+                        pointsMap[team1!.id].points +=
+                            pointsSystem!.points_draw;
+                        pointsMap[team2!.id].points +=
+                            pointsSystem!.points_draw;
                     }
                 }
+                console.log("RANKING before: ", pointsMap);
 
                 // Convert to rankings array and sort
                 const rankings = Object.values(pointsMap)
@@ -197,6 +207,8 @@ const PredictionPage = ({
                         points: entry.points,
                         team: entry.team,
                     }));
+
+                console.log("RANKING after: ", rankings);
 
                 return {
                     ...group,
@@ -253,8 +265,8 @@ const PredictionPage = ({
         setEliminationGames((prevRounds) => {
             let changedRoundIndex = -1;
 
-            // Step 1: Update the selected game and find which round it's in
-            const updatedRounds = prevRounds.map((round) => {
+            // Update the selected game and find which round it's in
+            let updatedRounds = prevRounds.map((round) => {
                 const hasTargetGame = round.games.some(
                     (game) => game.id === gameId
                 );
@@ -262,120 +274,158 @@ const PredictionPage = ({
 
                 return {
                     ...round,
-                    games: round.games.map((game) =>
-                        game.id === gameId
-                            ? { ...game, predicted_winner_id: newWinner?.id }
-                            : game
-                    ),
+                    games: round.games.map((game) => {
+                        const clonedGame = { ...game }; // shallow copy
+                        if (game.id === gameId) {
+                            clonedGame.predicted_winner_id = newWinner?.id;
+                        }
+                        return clonedGame;
+                    }),
                 };
             });
 
-            let winnerIds_array = [previousWinnerId];
-            if (changedRoundIndex >= 0) {
+            if (changedRoundIndex > 1) {
+                let GameIndexInRound;
+
                 for (let i = 0; i < updatedRounds.length; i++) {
-                    if (updatedRounds[i].roundId == changedRoundIndex - 1) {
-                        // MIJENJAMO ELIMINACIJSKU FAZU NEPOSREDNO NAKON
-                        let ChangedTeam = false;
-                        console.log("Elimination games: ", eliminationGames);
-                        updatedRounds[i] = {
-                            ...updatedRounds[i],
-                            games: updatedRounds[i].games.map((game) => {
+                    if (updatedRounds[i].roundId == changedRoundIndex) {
+                        for (
+                            let j = 0;
+                            j < updatedRounds[i].games.length;
+                            j++
+                        ) {
+                            if (updatedRounds[i].games[j].id == gameId) {
+                                GameIndexInRound = j;
+                            }
+                        }
+                    }
+                }
+
+                let winnerIds_array = [previousWinnerId];
+                for (let i = 0; i < updatedRounds.length; i++) {
+                    let updatedGame = false;
+                    if (updatedRounds[i].roundId < roundId && !updatedGame) {
+                        GameIndexInRound = Math.floor(GameIndexInRound! / 2);
+
+                        //GLEDAMO RUNDU NEPOSREDNO NAKON
+                        if (updatedRounds[i].roundId == roundId - 1) {
+                            if (
+                                updatedRounds[i].games[GameIndexInRound].team1
+                                    ?.id == previousWinnerId &&
+                                previousWinnerId &&
+                                !updatedGame
+                            ) {
+                                updatedGame = true;
+                                updatedRounds[i].games[GameIndexInRound].team1 =
+                                    newWinner;
+                                updatedRounds[i].games[
+                                    GameIndexInRound
+                                ].predicted_winner_id = undefined;
                                 if (
-                                    // MIJENJAMO UTAKMICU U KOJOJ JE team1 BIO PRIJAŠNJI POBJEDNIK UPRAVO PROMIJENJENE UTAKMICE
-                                    game.team1?.id == previousWinnerId &&
-                                    previousWinnerId
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team2?.id != undefined
                                 ) {
-                                    game.team1 = newWinner; //ažuriraj novi tim u ovoj utakmici
-                                    ChangedTeam = true;
-                                    game.predicted_winner_id = undefined; //nemamo više definiranog pobjednika
-                                    if (game.team2?.id != undefined)
-                                        winnerIds_array.push(game.team2!.id); //ako je definiran, dodajemo drugi tim u array za propagaciju promjena
-                                    return {
-                                        ...game,
-                                    };
-                                } else if (
-                                    // MIJENJAMO UTAKMICU U KOJOJ JE team2 BIO PRIJAŠNJI POBJEDNIK UPRAVO PROMIJENJENE UTAKMICE
-                                    game.team2?.id == previousWinnerId &&
-                                    previousWinnerId
-                                ) {
-                                    game.team2 = newWinner; //ažuriraj novi tim u ovoj utakmici
-                                    ChangedTeam = true;
-                                    game.predicted_winner_id = undefined; //nemamo više definiranog pobjednika
-                                    if (game.team1?.id != undefined)
-                                        winnerIds_array.push(game.team1!.id); //ako je definiran, dodajemo drugi tim u array za propagaciju promjena
-                                    return {
-                                        ...game,
-                                    };
-                                } else {
-                                    // MIJENJAMO UTAKMICU U KOJOJ NEMA PRIJAŠNJEG POBJEDNIKA UPRAVO PROMIJENJENE UTAKMICE
-                                    if (!game.team1 && !ChangedTeam) {
-                                        //team1 je undefined, tu stavljamo novog pobjednika
-                                        game.team1 = newWinner;
-                                        ChangedTeam = true;
-                                        console.log(
-                                            "I just changed something in THIRD ELSE FIRST IF: ",
-                                            updatedRounds[i].games
-                                        );
-                                        return { ...game };
-                                    } else if (!game.team2 && !ChangedTeam) {
-                                        //team2 je undefined, tu stavljamo novog pobjednika
-                                        game.team2 = newWinner;
-                                        ChangedTeam = true;
-                                        console.log(
-                                            "I just changed something in THIRD ELSE SECOND IF: ",
-                                            updatedRounds[i].games
-                                        );
-                                        return { ...game };
-                                    }
-                                    return { ...game };
+                                    winnerIds_array.push(
+                                        updatedRounds[i].games[GameIndexInRound]
+                                            .team2!.id
+                                    );
                                 }
-                            }),
-                        };
-                    } else if (
-                        // MIJENJAMO ELIMINACIJSKE FAZE OSIM ONE NEPOSREDNO NAKON
-                        updatedRounds[i].roundId <
-                        changedRoundIndex - 1
-                    ) {
-                        updatedRounds[i] = {
-                            ...updatedRounds[i],
-                            games: updatedRounds[i].games.map((game) => {
-                                console.log(
-                                    "Elimination games: ",
-                                    eliminationGames
-                                );
+                            } else if (
+                                updatedRounds[i].games[GameIndexInRound].team2
+                                    ?.id == previousWinnerId &&
+                                previousWinnerId &&
+                                !updatedGame
+                            ) {
+                                updatedGame = true;
+                                updatedRounds[i].games[GameIndexInRound].team2 =
+                                    newWinner;
+                                updatedRounds[i].games[
+                                    GameIndexInRound
+                                ].predicted_winner_id = undefined;
                                 if (
-                                    //NAIŠLI SMO NA UTAKMICU U KOJOJ TREBAMO PROPAGIRATI PROMJENE IZ RANIJE FAZE
-                                    game.team1?.id &&
-                                    winnerIds_array.includes(game.team1?.id)
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team1?.id != undefined
                                 ) {
-                                    game.team1 = undefined;
-                                    game.predicted_winner_id = undefined;
-                                    if (game.team2?.id != undefined)
-                                        winnerIds_array.push(game.team2.id);
-                                    return {
-                                        ...game,
-                                    };
-                                } else if (
-                                    //NAIŠLI SMO NA UTAKMICU U KOJOJ TREBAMO PROPAGIRATI PROMJENE IZ RANIJE FAZE
-                                    game.team2?.id &&
-                                    winnerIds_array.includes(game.team2?.id)
-                                ) {
-                                    game.team2 = undefined;
-                                    game.predicted_winner_id = undefined;
-                                    if (game.team1?.id != undefined)
-                                        winnerIds_array.push(game.team1.id);
-                                    return {
-                                        ...game,
-                                    };
-                                } else {
-                                    return { ...game };
+                                    winnerIds_array.push(
+                                        updatedRounds[i].games[GameIndexInRound]
+                                            .team1!.id
+                                    );
                                 }
-                            }),
-                        };
+                            } else if (!updatedGame) {
+                                if (
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team1 == undefined
+                                ) {
+                                    updatedRounds[i].games[
+                                        GameIndexInRound
+                                    ].team1 = newWinner;
+                                    updatedGame = true;
+                                } else if (
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team2 == undefined
+                                ) {
+                                    updatedRounds[i].games[
+                                        GameIndexInRound
+                                    ].team2 = newWinner;
+                                    updatedGame = true;
+                                }
+                            }
+                        }
+                        //GLEDAMO OSTALE RUNDE (PROPAGIRAMO PROMJENE)
+                        else {
+                            if (
+                                //NAIŠLI SMO NA UTAKMICU U KOJOJ TREBAMO PROPAGIRATI PROMJENE IZ RANIJE FAZE
+                                updatedRounds[i].games[GameIndexInRound].team1
+                                    ?.id &&
+                                winnerIds_array.includes(
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team1?.id
+                                ) &&
+                                !updatedGame
+                            ) {
+                                updatedGame = true;
+                                updatedRounds[i].games[GameIndexInRound].team1 =
+                                    undefined;
+                                updatedRounds[i].games[
+                                    GameIndexInRound
+                                ].predicted_winner_id = undefined;
+                                if (
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team2?.id != undefined
+                                )
+                                    winnerIds_array.push(
+                                        updatedRounds[i].games[GameIndexInRound]
+                                            .team2!.id
+                                    );
+                            } else if (
+                                //NAIŠLI SMO NA UTAKMICU U KOJOJ TREBAMO PROPAGIRATI PROMJENE IZ RANIJE FAZE
+                                updatedRounds[i].games[GameIndexInRound].team2
+                                    ?.id &&
+                                winnerIds_array.includes(
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team2?.id
+                                ) &&
+                                !updatedGame
+                            ) {
+                                updatedGame = true;
+                                updatedRounds[i].games[GameIndexInRound].team2 =
+                                    undefined;
+                                updatedRounds[i].games[
+                                    GameIndexInRound
+                                ].predicted_winner_id = undefined;
+                                if (
+                                    updatedRounds[i].games[GameIndexInRound]
+                                        .team1?.id != undefined
+                                )
+                                    winnerIds_array.push(
+                                        updatedRounds[i].games[GameIndexInRound]
+                                            .team1!.id
+                                    );
+                            }
+                        }
                     }
                 }
             }
-
             for (let i = 0; i < updatedRounds.length; i++) {
                 if (updatedRounds[i].roundId == 1) {
                     if (!updatedRounds[i].games[0].predicted_winner_id) {
@@ -407,7 +457,7 @@ const PredictionPage = ({
                     champion,
                 }),
             });
-            //alert("Prediction saved successfully");
+            alert("Prediction saved successfully");
         } catch (err) {
             console.error("Failed to save prediction:", err);
             alert("Failed to save prediction");
@@ -455,7 +505,7 @@ const PredictionPage = ({
 
                     for (let i = 1; i <= rankings.length; i++) {
                         teamMap[`${group.groupName}${i}`] = rankings.find(
-                            (r) => r.rank === 1
+                            (r) => r.rank === i
                         )?.team;
                     }
                 });
@@ -496,6 +546,7 @@ const PredictionPage = ({
             }
         };
         constructEliminationPhase();
+        setChampion(null);
     };
 
     const handleUnlockGroupPhase = async () => {
