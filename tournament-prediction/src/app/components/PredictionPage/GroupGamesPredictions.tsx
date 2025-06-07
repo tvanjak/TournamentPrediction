@@ -50,6 +50,12 @@ const GroupGamesPrediction = ({
     ) => void;
     adjustRankings: (team: Team) => void;
 }) => {
+    const getTeamName = (team: Team | string | undefined) => {
+        if (!team) return "TBD";
+        if (typeof team === "string") return team;
+        return team.countries?.name ?? "TBD";
+    };
+
     const getBackgroundColor = (
         result: ResultEnum | undefined,
         team: number
@@ -115,28 +121,6 @@ const GroupGamesPrediction = ({
                                 height: 100,
                                 m: 2,
                                 p: 1,
-                                // borderLeft:
-                                //     game.status === StatusEnum.Finished
-                                //         ? game.points_awarded !== 0
-                                //             ? "6px solid theme.palette.green.main"
-                                //             : "6px solid theme.palette.red.main"
-                                //         : "6px solid theme.palette.lightgray.main",
-                                // borderRadius: 1,
-                                //------------------------------------------------
-                                // boxShadow:
-                                //     game.status === StatusEnum.Finished
-                                //         ? game.points_awarded !== 0
-                                //             ? "0 0 5px theme.palette.green.main"
-                                //             : "0 0 5px theme.palette.red.main"
-                                //         : "transparent",
-                                // border:
-                                //     game.status == StatusEnum.Finished
-                                //         ? game.points_awarded != 0
-                                //             ? "2px solid theme.palette.green.main"
-                                //             : "2px solid theme.palette.red.main"
-                                //         : "transparent",
-                                // transition: "all 0.3s ease-in-out",
-                                //-----------------------------------------------
                                 backgroundColor:
                                     game.status === StatusEnum.Finished
                                         ? game.points_awarded !== 0
@@ -168,8 +152,7 @@ const GroupGamesPrediction = ({
                                             color: theme.palette.textBlack.main,
                                         }}
                                     >
-                                        {game.team1?.countries?.name ??
-                                            "Team 1"}
+                                        {getTeamName(game.team1)}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ width: "50%", textAlign: "right" }}>
@@ -190,8 +173,7 @@ const GroupGamesPrediction = ({
                                             color: theme.palette.textBlack.main,
                                         }}
                                     >
-                                        {game.team2?.countries?.name ??
-                                            "Team 2"}
+                                        {getTeamName(game.team2)}
                                     </Typography>
                                 </Box>
                             </Box>

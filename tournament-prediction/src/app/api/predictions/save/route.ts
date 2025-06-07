@@ -1,155 +1,158 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client";
 import { StatusEnum, ResultEnum } from "@/types/enums";
-import { Prisma } from "@prisma/client"
 
-interface Team {
-    id: number;
-    countries?: { name: string };
-}
-
-type GroupGames = {
-    groupId: number;
-    groupName: string;
-    games: {
-        id: number;
-        team1?: Team;
-        team2?: Team;
-        predicted_result?: ResultEnum;
-        points_awarded: number;
-        status: StatusEnum;
-    }[];
-    rankings: {
-        rank: number;
-        points: number;
-        team: Team;
-    }[];
+type Team = {
+  id: number;
+  countries?: { name: string };
 };
 
-interface EliminationGames {
-    roundName: string;
-    roundId: number;
-    games: {
-        id: number;
-        actual_game_id: number;
-        rounds?: { name: string };
-        team1?: Team;
-        team2?: Team;
-        predicted_winner_id?: number;
-        points_awarded?: number;
-        status: StatusEnum;
-    }[];
-}
+type GroupGames = {
+  groupId: number;
+  groupName: string;
+  games: {
+    id: number;
+    team1?: Team;
+    team2?: Team;
+    predicted_result?: ResultEnum;
+    points_awarded: number;
+    status: StatusEnum;
+  }[];
+  rankings: {
+    rank: number;
+    points: number;
+    team: Team;
+  }[];
+};
 
+type EliminationGames = {
+  roundName: string;
+  roundId: number;
+  games: {
+    id: number;
+    actual_game_id: number;
+    rounds?: { name: string };
+    team1?: Team;
+    team2?: Team;
+    predicted_winner_id?: number;
+    points_awarded?: number;
+    status: StatusEnum;
+  }[];
+};
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { tournamentId, userId, groupGames, eliminationGames, champion } = body;
+    const { predictionId, groupGames, eliminationGames, champion } = body;
 
-    const GroupPredictions = groupGames as GroupGames[]
-    const EliminationPredictions = eliminationGames as EliminationGames[]
+    const GroupPredictions = groupGames as GroupGames[];
+    const EliminationPredictions = eliminationGames as EliminationGames[];
     const typedChampion = champion as Team | null | undefined;
 
-    if (isNaN(tournamentId) || isNaN(userId)) {
-      return new NextResponse("Missing tournamentId or userId", { status: 400 });
-    }
-    
-    const parsedUserId = Number(userId);
-    const parsedTournamentId = Number(tournamentId);
-
-    let prediction = await prisma.predictions.findFirst({
-      where: { tournament_id: parsedTournamentId, user_id: parsedUserId },
-    });
-
-    if (!prediction) {
-      prediction = await prisma.predictions.create({
-        data: { tournament_id: parsedTournamentId, user_id: parsedUserId },
-      });
+    if (isNaN(predictionId)) {
+      return new NextResponse("Missing predictionId", { status: 400 });
     }
 
-    const predictionId = prediction.id;
-
-    await prisma.group_games_predictions.deleteMany({ where: { prediction_id: predictionId } });
-    await prisma.elimination_games_predictions.deleteMany({ where: { prediction_id: predictionId } });
-    await prisma.group_rankings_predictions.deleteMany({where : {prediction_id: predictionId}})
-    
-    // Create group game predictions
-    const groupCreateData = GroupPredictions.flatMap((group) =>
-      group.games.map((game) => ({
-        prediction_id: predictionId,
-        game_id: game.id,
-        predicted_result: game.predicted_result ?? null,
-        points_awarded: game.points_awarded ?? null,
-      }))
-    );
-
-    // Create group rankings predictions
-    const groupRankingsCreateData = GroupPredictions.flatMap((group) =>
-      group.rankings.map((ranking) => ({
-        prediction_id: predictionId,
-        group_id: group.groupId,
-        team_id: ranking.team.id,
-        points: ranking.points,
-        rank: ranking.rank,
-      }))
-    );
-
-    // Create elimination game predictions
-    const eliminationCreateData: Prisma.elimination_games_predictionsCreateManyInput[] = [];
-
-    for (const round of EliminationPredictions) {
-      for (const game of round.games) {
-        if (!Number.isInteger(game.id)) continue;
-      
-        const dbGame = await prisma.elimination_games.findUnique({
-          where: { id: game.actual_game_id },
-          select: { team1_id: true, team2_id: true, round_id: true },
-        });
-      
-        if (!dbGame) continue;
-      
-        eliminationCreateData.push({
-          prediction_id: predictionId,
-          game_id: game.actual_game_id,
-          predicted_winner_id: game.predicted_winner_id ?? null,
-          points_awarded: game.points_awarded ?? null,
-          round_id: round.roundId,
-          team1_id: game.team1?.id ?? null,
-          team2_id: game.team2?.id ?? null,
-        });
-      }
-    }
+    const parsedPredictionId = Number(predictionId);
 
     await prisma.$transaction(async (tx) => {
-      if (groupCreateData.length > 0) {
-        await tx.group_games_predictions.createMany({ data: groupCreateData });
+      for (const group of GroupPredictions) {
+        for (const game of group.games) {
+          await tx.group_games_predictions.upsert({
+            where: {
+              prediction_id_game_id: {
+                prediction_id: parsedPredictionId,
+                game_id: game.id,
+              },
+            },
+            update: {
+              predicted_result: game.predicted_result ?? null,
+              points_awarded: game.points_awarded ?? null,
+              modified_at: new Date(),
+            },
+            create: {
+              prediction_id: parsedPredictionId,
+              game_id: game.id,
+              predicted_result: game.predicted_result ?? null,
+              points_awarded: game.points_awarded ?? null,
+            },
+          });
+        }
+
+        for (const ranking of group.rankings) {
+          await tx.group_rankings_predictions.upsert({
+            where: {
+              prediction_id_group_id_team_id: {
+                prediction_id: parsedPredictionId,
+                group_id: group.groupId,
+                team_id: ranking.team.id,
+              },
+            },
+            update: {
+              points: ranking.points,
+              rank: ranking.rank,
+              modified_at: new Date(),
+            },
+            create: {
+              prediction_id: parsedPredictionId,
+              group_id: group.groupId,
+              team_id: ranking.team.id,
+              points: ranking.points,
+              rank: ranking.rank,
+            },
+          });
+        }
       }
-    
-      if (groupRankingsCreateData.length > 0) {
-        await tx.group_rankings_predictions.createMany({ data: groupRankingsCreateData });
+
+      for (const round of EliminationPredictions) {
+        for (const game of round.games) {
+          if (!Number.isInteger(game.actual_game_id)) continue;
+
+          await tx.elimination_games_predictions.upsert({
+            where: {
+              prediction_id_game_id: {
+                prediction_id: parsedPredictionId,
+                game_id: game.actual_game_id,
+              },
+            },
+            update: {
+              predicted_winner_id: game.predicted_winner_id ?? null,
+              points_awarded: game.points_awarded ?? null,
+              round_id: round.roundId,
+              team1_id: game.team1?.id ?? null,
+              team2_id: game.team2?.id ?? null,
+              modified_at: new Date(),
+            },
+            create: {
+              prediction_id: parsedPredictionId,
+              game_id: game.actual_game_id,
+              predicted_winner_id: game.predicted_winner_id ?? null,
+              points_awarded: game.points_awarded ?? null,
+              round_id: round.roundId,
+              team1_id: game.team1?.id ?? null,
+              team2_id: game.team2?.id ?? null,
+            },
+          });
+        }
       }
-    
-      if (eliminationCreateData.length > 0) {
-        await tx.elimination_games_predictions.createMany({ data: eliminationCreateData });
-      }
-    
+
       if (typedChampion?.id && Number.isInteger(typedChampion.id)) {
         await tx.predictions.update({
-          where: { id: predictionId },
+          where: { id: parsedPredictionId },
           data: {
             predicted_champion_id: typedChampion.id,
+            modified_at: new Date(),
           },
         });
       }
     });
 
-
-    return NextResponse.json({ success: true, predictionId });
+    return NextResponse.json({ success: true, parsedPredictionId });
   } catch (error) {
     console.error("[SAVE_PREDICTION_ERROR]", error);
-    return new NextResponse(JSON.stringify({ error: (error as Error).message }), {
-    status: 500,
-  });
+    return new NextResponse(
+      JSON.stringify({ error: (error as Error).message }),
+      { status: 500 }
+    );
   }
 }

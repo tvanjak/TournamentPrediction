@@ -543,18 +543,17 @@ const TournamentPage = ({ tournamentId }: Props) => {
 
     const handleSaveChanges = async () => {
         try {
-            //await fetch(`/api/predictions/save`, {
-            //    method: "POST",
-            //    headers: { "Content-Type": "application/json" },
-            //    body: JSON.stringify({
-            //        tournamentId,
-            //        userId,
-            //        groupGames,
-            //        eliminationGames,
-            //        champion,
-            //    }),
-            //});
-            //alert("Changes saved successfully");
+            await fetch(`/api/tournaments/update`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    tournamentId,
+                    groupGames,
+                    eliminationGames,
+                    champion,
+                }),
+            });
+            alert("Changes saved successfully");
         } catch (err) {
             console.error("Failed to save change to tournament:", err);
             alert("Failed to save change to tournament");

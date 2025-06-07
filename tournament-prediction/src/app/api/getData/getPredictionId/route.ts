@@ -53,6 +53,7 @@ export async function POST(req: Request) {
 
       // Start transaction
       await prisma.$transaction(async (tx) => {
+        // Create prediction
         const newPrediction = await tx.predictions.create({
           data: {
             tournament_id: parsedTournamentId,
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
 
         const predictionId = newPrediction.id;
 
+        // Prepare data
         groupCreateData = groupGames.map((gg) => ({
           prediction_id: predictionId,
           game_id: gg.id,
@@ -81,17 +83,49 @@ export async function POST(req: Request) {
           rank: 0,
         }));
 
+        // Create prediction-related rows
         await tx.group_games_predictions.createMany({ data: groupCreateData });
         await tx.elimination_games_predictions.createMany({ data: eliminationCreateData });
         await tx.group_rankings_predictions.createMany({ data: rankingsCreateData });
 
-        // Update local prediction variable so it can be used after transaction
+        // Initialize tournament_leaderboards if not exists
+        await tx.tournament_leaderboards.upsert({
+          where: {
+            tournament_id_user_id: {
+              tournament_id: parsedTournamentId,
+              user_id: parsedUserId,
+            },
+          },
+          update: {}, // no update needed
+          create: {
+            tournament_id: parsedTournamentId,
+            user_id: parsedUserId,
+            total_points: 0,
+          },
+        });
+
+        // Initialize all_time_leaderboard if not exists
+        await tx.all_time_leaderboard.upsert({
+          where: { user_id: parsedUserId },
+          update: {
+            tournaments_played: {
+              increment: 1,
+            },
+          }, // no update needed
+          create: {
+            user_id: parsedUserId,
+            total_points: 0,
+            average_points: 0,
+            tournaments_played: 1,
+          },
+        });
+
         prediction = newPrediction;
       });
     }
 
     const predictionId = prediction!.id;
-    const championPoints = prediction!.champion_points
+    const championPoints = prediction!.champion_points;
 
     return NextResponse.json({ success: true, predictionId, championPoints });
   } catch (error) {

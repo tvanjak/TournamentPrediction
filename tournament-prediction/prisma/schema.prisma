@@ -73,6 +73,8 @@ model elimination_games_predictions {
   elimination_games   elimination_games? @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_elimination_game")
   team1               teams?             @relation("elimination_predictions_team1", fields: [team1_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_1")
   team2               teams?             @relation("elimination_predictions_team2", fields: [team2_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_new_team_2")
+
+  @@unique([prediction_id, game_id], map: "unique_prediction_elimination_game")
 }
 
 model elimination_matchups {
@@ -114,6 +116,8 @@ model group_games_predictions {
   modified_at      DateTime?    @default(now()) @db.Timestamp(6)
   group_games      group_games  @relation(fields: [game_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   predictions      predictions  @relation(fields: [prediction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([prediction_id, game_id], map: "unique_prediction_game")
 }
 
 model group_rankings {

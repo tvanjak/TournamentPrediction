@@ -234,8 +234,7 @@ const EliminationGamesPrediction = ({
                                                         textAlign: "center",
                                                     }}
                                                 >
-                                                    {game.team1?.countries
-                                                        ?.name ?? "Team 1"}
+                                                    {getTeamName(game.team1)}
                                                 </Typography>
                                             </Box>
                                             <Box
@@ -269,8 +268,7 @@ const EliminationGamesPrediction = ({
                                                         textAlign: "center",
                                                     }}
                                                 >
-                                                    {game.team2?.countries
-                                                        ?.name ?? "Team 2"}
+                                                    {getTeamName(game.team2)}
                                                 </Typography>
                                             </Box>
                                         </Box>

@@ -155,12 +155,12 @@ const HomePage = (props: Props) => {
                 <CustomTooltip title="Add new tournament">
                     <Button
                         variant="contained"
-                        size="medium"
+                        size="large"
                         onClick={handleAdmin}
                         sx={{
                             position: "absolute",
-                            top: 22,
-                            right: 100,
+                            top: 100,
+                            right: 50,
                             backgroundColor: theme.palette.accent.main,
                             color: theme.palette.textWhite.main,
                         }}
