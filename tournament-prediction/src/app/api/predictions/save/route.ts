@@ -1,52 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client";
-import { StatusEnum, ResultEnum } from "@/types/enums";
 
-type Team = {
-  id: number;
-  countries?: { name: string };
-};
-
-type GroupGames = {
-  groupId: number;
-  groupName: string;
-  games: {
-    id: number;
-    team1?: Team;
-    team2?: Team;
-    predicted_result?: ResultEnum;
-    points_awarded: number;
-    status: StatusEnum;
-  }[];
-  rankings: {
-    rank: number;
-    points: number;
-    team: Team;
-  }[];
-};
-
-type EliminationGames = {
-  roundName: string;
-  roundId: number;
-  games: {
-    id: number;
-    actual_game_id: number;
-    rounds?: { name: string };
-    team1?: Team;
-    team2?: Team;
-    predicted_winner_id?: number;
-    points_awarded?: number;
-    status: StatusEnum;
-  }[];
-};
+import { Team, PredictionGroupGamesType, PredictionEliminationGamesType } from "@/types/types";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { predictionId, groupGames, eliminationGames, champion } = body;
 
-    const GroupPredictions = groupGames as GroupGames[];
-    const EliminationPredictions = eliminationGames as EliminationGames[];
+    const GroupPredictions = groupGames as PredictionGroupGamesType[];
+    const EliminationPredictions = eliminationGames as PredictionEliminationGamesType[];
     const typedChampion = champion as Team | null | undefined;
 
     if (isNaN(predictionId)) {

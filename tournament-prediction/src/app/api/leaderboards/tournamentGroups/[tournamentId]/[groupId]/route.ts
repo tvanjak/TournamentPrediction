@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client";
 
-export async function GET(request: Request, { params }: { params: { tournamentId: string, groupId: string } }) {
+export async function GET(request: Request, context: { params: { tournamentId: string, groupId: string } }) {
   try {
-    const { tournamentId, groupId } = params;
+    const { tournamentId, groupId } = context.params;
 
     if (!tournamentId || !groupId) {
       console.error("No tournamentId or groupId provided in request params.");
       return new NextResponse("Tournament ID and Group ID are required", { status: 400 });
     }
 
-    // Parse IDs
     const tournamentIdInt = parseInt(tournamentId);
     const groupIdInt = parseInt(groupId);
 

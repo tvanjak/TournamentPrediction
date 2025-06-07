@@ -3,9 +3,11 @@ import prisma from "@/lib/prisma-client";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const predictionId = Number(params.id);
+  const { id } = context.params;
+  const predictionId = parseInt(id);
+
   if (isNaN(predictionId)) {
     return new NextResponse("Invalid prediction ID", { status: 400 });
   }

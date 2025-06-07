@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client"
 
-export async function GET(req: Request, {params}: {params: {id: string}}) {
-    const predictionId = Number(params.id);
+export async function GET(req: Request, context: {params: {id: string}}) {
+    const predictionId = context.params.id;
+    const parsedPredictionId = Number(predictionId)
 
-    if (isNaN(predictionId)) {
+    if (isNaN(parsedPredictionId)) {
         return new NextResponse("Invalid tournament ID", {status: 400});
     }
 
     try {
         const prediction = await prisma.predictions.findFirst({
             where: {
-              id: predictionId,
+              id: parsedPredictionId,
             },
             include: {
               teams: {

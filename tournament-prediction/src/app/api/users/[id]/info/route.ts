@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client"; 
 import { TournamentStatusEnum } from "@/types/enums";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const userId = parseInt(id)
 
     const leaderboardEntry = await prisma.all_time_leaderboard.findUnique({

@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
-import prisma from "../../../../../lib/prisma-client"; // Adjust path if needed
+import prisma from "@/lib/prisma-client";
 
-export async function GET(request: Request, { params }: { params: { tournamentId: string } }) {
+export async function GET(request: Request, context: { params: { tournamentId: string } }) {
   try {
-    const { tournamentId } = params;
-
+    const { tournamentId } = context.params;
+    
     if (!tournamentId) {
       console.error("No tournamentId provided in request params.");
       return new NextResponse("Tournament ID is required", { status: 400 });
     }
-
-    // Log tournamentId for debugging
-    console.log("Fetching leaderboard for tournamentId:", tournamentId);
-
-    // Query the database to get the tournament's name and all users and their total points in the specified tournament
+    
+    const parsedTournamentId = parseInt(tournamentId);
+    
     const tournamentData = await prisma.tournaments.findUnique({
-      where: { id: parseInt(tournamentId) },
+      where: { id: parsedTournamentId },
       select: {
         name: true, // Tournament name
         tournament_leaderboards: {
@@ -37,7 +35,7 @@ export async function GET(request: Request, { params }: { params: { tournamentId
     });
 
     if (!tournamentData) {
-      console.error(`Tournament with ID ${tournamentId} not found`);
+      console.error(`Tournament with ID ${parsedTournamentId} not found`);
       return new NextResponse("Tournament not found", { status: 404 });
     }
 

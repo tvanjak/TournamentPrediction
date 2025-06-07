@@ -3,18 +3,19 @@ import prisma from "@/lib/prisma-client";
 
 export async function GET(
   request: Request,
-  { params }: { params: { groupId: string } }
+  context: { params: { groupId: string } }
 ) {
   try {
-    const groupId = parseInt(params.groupId);
+    const { groupId } = context.params; 
+    const parsedGroupId = parseInt(groupId);
 
-    if (isNaN(groupId)) {
+    if (isNaN(parsedGroupId)) {
       return new NextResponse("Invalid or missing groupId", { status: 400 });
     }
 
     const group = await prisma.user_groups.findUnique({
       where: {
-        id: groupId,
+        id: parsedGroupId,
       },
       include: {
         user_group_members: {

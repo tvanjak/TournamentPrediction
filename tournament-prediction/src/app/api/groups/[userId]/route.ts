@@ -4,11 +4,12 @@ import { TournamentStatusEnum } from "@/types/enums";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  context : { params: { userId: string } }
 ) {
-  const userId = parseInt(params.userId, 10);
+  const { userId } = context.params; 
+  const parsedUserId = parseInt(userId, 10);
 
-  if (isNaN(userId)) {
+  if (isNaN(parsedUserId)) {
     return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
   }
 
@@ -18,7 +19,7 @@ export async function GET(
       where: {
         user_group_members: {
           some: {
-            user_id: userId,
+            user_id: parsedUserId,
           },
         },
       },

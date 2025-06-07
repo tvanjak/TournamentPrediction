@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client"; // Adjust path if needed
+import prisma from "@/lib/prisma-client"; 
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = context.params;
+    const parsedId = parseInt(id);
 
     if (!id) {
       console.error("No id provided in request params.");
       return new NextResponse("User ID is required", { status: 400 });
     }
 
-    // Log id for debugging
-    console.log("Fetching group IDs for id:", id);
-
     // Query the database to find the user's group IDs
     const userGroups = await prisma.user_group_members.findMany({
-      where: { user_id: parseInt(id) },
+      where: { user_id: parsedId },
       select: { user_group_id: true },
     });
 
