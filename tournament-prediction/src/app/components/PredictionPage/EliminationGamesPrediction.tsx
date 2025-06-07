@@ -3,25 +3,8 @@ import { Box, Typography } from "@mui/material";
 import { StatusEnum, TournamentStatusEnum } from "@/types/enums";
 import theme from "../../styles/theme";
 
-interface Team {
-    id: number;
-    countries?: { name: string };
-}
-
-interface EliminationGames {
-    roundName: string;
-    roundId: number;
-    games: {
-        id: number;
-        actual_game_id: number;
-        rounds?: { name: string };
-        team1?: Team;
-        team2?: Team;
-        predicted_winner_id?: number;
-        points_awarded?: number;
-        status: StatusEnum;
-    }[];
-}
+import { getTeamName } from "@/helpers/Helpers";
+import { Team, PredictionEliminationGamesType } from "@/types/types";
 
 const EliminationGamesPrediction = ({
     tournamentStatus,
@@ -29,7 +12,7 @@ const EliminationGamesPrediction = ({
     onResultChange,
 }: {
     tournamentStatus: TournamentStatusEnum;
-    eliminationGames: EliminationGames[];
+    eliminationGames: PredictionEliminationGamesType[];
     onResultChange: (
         gameId: number,
         roundId: number,
@@ -37,12 +20,6 @@ const EliminationGamesPrediction = ({
         previousWinnerId?: number
     ) => void;
 }) => {
-    const getTeamName = (team: Team | string | undefined) => {
-        if (!team) return "TBD";
-        if (typeof team === "string") return team;
-        return team.countries?.name ?? "TBD";
-    };
-
     return (
         <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
             {eliminationGames.map((rounds, index) => (

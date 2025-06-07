@@ -1,32 +1,16 @@
 "use client";
 import { Box, Typography } from "@mui/material";
 import theme from "../../styles/theme";
-import { StatusEnum } from "@/types/enums";
 
-interface Team {
-    id: number;
-    countries?: { name: string };
-}
-
-type EliminationGames = {
-    roundName: string;
-    roundId: number;
-    games: {
-        id: number;
-        rounds?: { name: string };
-        team1?: Team;
-        team2?: Team;
-        winner_id?: number;
-        status: StatusEnum;
-    }[];
-};
+import { getTeamName } from "@/helpers/Helpers";
+import { Team, TournamentEliminationGamesType } from "@/types/types";
 
 const EliminationGames = ({
     eliminationGames,
     adminMode,
     onResultChange,
 }: {
-    eliminationGames: EliminationGames[];
+    eliminationGames: TournamentEliminationGamesType[];
     adminMode: boolean;
     onResultChange: (
         gameId: number,
@@ -35,12 +19,6 @@ const EliminationGames = ({
         previousWinnerId?: number
     ) => void;
 }) => {
-    const getTeamName = (team: Team | string | undefined) => {
-        if (!team) return "TBD";
-        if (typeof team === "string") return team;
-        return team.countries?.name ?? "TBD";
-    };
-
     return (
         <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
             {eliminationGames.map((round, index) => (
@@ -214,8 +192,7 @@ const EliminationGames = ({
                                                     textAlign: "center",
                                                 }}
                                             >
-                                                {game.team1?.countries?.name ??
-                                                    "Team 1"}
+                                                {getTeamName(game.team1)}
                                             </Typography>
                                         </Box>
                                         <Box
@@ -248,8 +225,7 @@ const EliminationGames = ({
                                                     textAlign: "center",
                                                 }}
                                             >
-                                                {game.team2?.countries?.name ??
-                                                    "Team 2"}
+                                                {getTeamName(game.team2)}
                                             </Typography>
                                         </Box>
                                     </Box>

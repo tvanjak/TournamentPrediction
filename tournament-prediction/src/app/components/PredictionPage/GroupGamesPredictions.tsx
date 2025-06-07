@@ -10,28 +10,8 @@ import {
 import { ResultEnum, StatusEnum, TournamentStatusEnum } from "@/types/enums";
 import theme from "../../styles/theme";
 
-interface Team {
-    id: number;
-    countries?: { name: string };
-}
-
-type GroupGames = {
-    groupId: number;
-    groupName: string;
-    games: {
-        id: number;
-        team1?: Team;
-        team2?: Team;
-        predicted_result?: ResultEnum;
-        points_awarded: number;
-        status: StatusEnum;
-    }[];
-    rankings: {
-        rank: number;
-        points: number;
-        team: Team;
-    }[];
-};
+import { getTeamName, getBackgroundColor, mapResult } from "@/helpers/Helpers";
+import { Team, PredictionGroupGamesType } from "@/types/types";
 
 const GroupGamesPrediction = ({
     groupGamesLock,
@@ -42,7 +22,7 @@ const GroupGamesPrediction = ({
 }: {
     groupGamesLock: boolean;
     tournamentStatus: TournamentStatusEnum;
-    groups: GroupGames[];
+    groups: PredictionGroupGamesType[];
     onResultChange: (
         gameId: number,
         groupId: number,
@@ -50,41 +30,6 @@ const GroupGamesPrediction = ({
     ) => void;
     adjustRankings: (team: Team) => void;
 }) => {
-    const getTeamName = (team: Team | string | undefined) => {
-        if (!team) return "TBD";
-        if (typeof team === "string") return team;
-        return team.countries?.name ?? "TBD";
-    };
-
-    const getBackgroundColor = (
-        result: ResultEnum | undefined,
-        team: number
-    ): string => {
-        if (team == 0) {
-            switch (result) {
-                case ResultEnum.HomeWin:
-                    return theme.palette.green.main;
-                case ResultEnum.Draw:
-                    return theme.palette.lightgray.main;
-                case ResultEnum.AwayWin:
-                    return theme.palette.red.main;
-                default:
-                    return "transparent";
-            }
-        } else {
-            switch (result) {
-                case ResultEnum.HomeWin:
-                    return theme.palette.red.main;
-                case ResultEnum.Draw:
-                    return theme.palette.lightgray.main;
-                case ResultEnum.AwayWin:
-                    return theme.palette.green.main;
-                default:
-                    return "transparent";
-            }
-        }
-    };
-
     return (
         <Box
             display="flex"
@@ -199,7 +144,9 @@ const GroupGamesPrediction = ({
                                                     mx: 1,
                                                 }}
                                             >
-                                                {game.predicted_result ?? "N/A"}
+                                                {mapResult(
+                                                    game.predicted_result
+                                                ) ?? "N/A"}
                                             </Typography>
                                         </Box>
                                     ) : (
