@@ -280,6 +280,7 @@ model user_groups {
   created_by         Int
   created_at         DateTime?            @default(now()) @db.Timestamp(6)
   modified_at        DateTime?            @default(now()) @db.Timestamp(6)
+  invites            invites[]
   user_group_members user_group_members[]
   users              users                @relation(fields: [created_by], references: [id], onDelete: SetNull, onUpdate: NoAction)
 }
@@ -295,6 +296,7 @@ model users {
   accounts                Account[]
   sessions                Session[]
   all_time_leaderboard    all_time_leaderboard?
+  invites                 invites[]
   predictions             predictions[]
   tournament_leaderboards tournament_leaderboards[]
   user_group_members      user_group_members[]
@@ -333,6 +335,19 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model invites {
+  id          Int         @id @default(autoincrement())
+  token       String      @unique @db.VarChar(255)
+  group_id    Int
+  invited_by  Int
+  email       String      @db.VarChar(255)
+  accepted    Boolean     @default(false)
+  created_at  DateTime?   @default(now()) @db.Timestamp(6)
+  expires_at  DateTime    @db.Timestamp(6)
+  user_groups user_groups @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_group")
+  users       users       @relation(fields: [invited_by], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_invited_by")
 }
 
 enum result_enum {

@@ -41,7 +41,9 @@ const GroupsPage = () => {
     const [userId, setUserId] = useState<number>();
     const { data: session, status } = useSession();
     const [isLoading, setIsLoading] = useState(true);
-    const [leaderboardsLoaded, setLeaderboardsLoaded] = useState(0);
+    //const [leaderboardsLoaded, setLeaderboardsLoaded] = useState(0);
+    const [userGroupId, setUserGroupId] = useState<number>();
+    const [userGroupName, setUserGroupName] = useState<string>();
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -92,10 +94,41 @@ const GroupsPage = () => {
 
     const [openMember, setOpenMember] = useState(false);
     const [email, setEmail] = useState("");
-    const handleOpenMember = () => setOpenMember(true);
+
+    const handleOpenMember = (userGroupId: number, userGroupName: string) => {
+        setUserGroupId(userGroupId);
+        setUserGroupName(userGroupName);
+        setOpenMember(true);
+    };
     const handleCloseMember = () => setOpenMember(false);
-    const handleSubmitMember = () => {
+    const handleSubmitMember = async () => {
         console.log("Email submitted:", email);
+        try {
+            if (!email || !userId || !userGroupId || !userGroupName) {
+                alert("Missing required fields.");
+                return;
+            }
+            const res = await fetch("/api/emails/groupInvite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: email,
+                    userId: userId,
+                    userGroupId: userGroupId,
+                    userGroupName: userGroupName,
+                    username: session?.user.name,
+                }),
+            });
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Failed to send invite: ${errorText}`);
+            }
+            alert("Invite sent via email!");
+        } catch (error) {
+            console.error("Error while sending email: ", error);
+        } finally {
+            setEmail("");
+        }
         handleCloseMember();
     };
 
@@ -178,7 +211,12 @@ const GroupsPage = () => {
                                         <Button
                                             variant="contained"
                                             size="large"
-                                            onClick={handleOpenMember}
+                                            onClick={() => {
+                                                handleOpenMember(
+                                                    userGroup.groupId,
+                                                    userGroup.groupName
+                                                );
+                                            }}
                                             sx={{ m: 1 }}
                                         >
                                             Add member
@@ -293,7 +331,7 @@ const GroupsPage = () => {
             <Dialog
                 open={openGroup}
                 onClose={handleCloseGroup}
-                maxWidth="md" // options: 'xs', 'sm', 'md', 'lg', 'xl'
+                maxWidth="md"
                 fullWidth
             >
                 <DialogTitle>Fill out group info</DialogTitle>
