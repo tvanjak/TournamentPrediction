@@ -23,6 +23,7 @@ import {
     Team,
     PointsSystemType,
 } from "@/types/types";
+import { useRouter } from "next/navigation";
 
 const PredictionPage = ({
     tournamentId,
@@ -46,7 +47,7 @@ const PredictionPage = ({
         useState<TournamentStatusEnum>(TournamentStatusEnum.Upcoming);
     const [pointsSystem, setPointsSystem] = useState<PointsSystemType>();
     const [champion, setChampion] = useState<Team | null>();
-    const [championPoints, setChampionPoints] = useState<number>();
+    const [championPoints, setChampionPoints] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchPredictionData = async () => {
@@ -102,7 +103,11 @@ const PredictionPage = ({
                 }
                 const data = await res.json();
                 setPredictionId(Number(data.predictionId));
-                setChampionPoints(Number(data.championPoints));
+                setChampionPoints(
+                    data.championPoints != null
+                        ? Number(data.championPoints)
+                        : null
+                );
             } catch (error) {
                 console.log("Error when fetching predictionId: ", error);
             }
@@ -182,6 +187,11 @@ const PredictionPage = ({
             console.error("Failed to save prediction:", err);
             alert("Failed to save prediction");
         }
+    };
+
+    const router = useRouter();
+    const handleGoToTournament = async () => {
+        router.push(`/tournament/${tournamentId}`);
     };
 
     return (
@@ -295,9 +305,7 @@ const PredictionPage = ({
                             }}
                         >
                             Points awarded:{" "}
-                            {championPoints != undefined
-                                ? championPoints
-                                : "N/A"}
+                            {championPoints != null ? championPoints : "N/A"}
                         </Typography>
                     )}
                 </Box>
@@ -314,6 +322,16 @@ const PredictionPage = ({
                         </Button>
                     </CustomTooltip>
                 )}
+                <CustomTooltip title="Go to actual tournament">
+                    <Button
+                        variant="contained"
+                        size="large"
+                        onClick={handleGoToTournament}
+                        sx={{ position: "absolute", top: 100, right: 50 }}
+                    >
+                        View Tournament
+                    </Button>
+                </CustomTooltip>
             </Box>
         </Box>
     );

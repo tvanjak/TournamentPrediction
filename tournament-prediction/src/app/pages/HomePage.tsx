@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Box, Button, Container } from "@mui/material";
 import AllTimeLeaderboard from "../components/Leaderboards/AllTimeLeaderboard";
 import OngoingTournaments from "../components/HomePage/OngoingTournaments";
@@ -8,7 +8,6 @@ import UpcomingTournaments from "../components/HomePage/UpcomingTournaments";
 import Loading from "../components/General/Loading";
 import AllTimeGroupLeaderboard from "../components/Leaderboards/AllTimeGroupLeaderboard";
 import SecondaryBox from "../components/General/SecondaryBox";
-import Link from "next/link";
 import CustomTooltip from "../components/General/CustomTooltip";
 import { useRouter } from "next/navigation";
 import theme from "../styles/theme";
@@ -17,8 +16,6 @@ type Props = {};
 
 const HomePage = (props: Props) => {
     const { data: session, status } = useSession();
-    //const [totalPoints, setTotalPoints] = useState<number>();
-    //const [averagePoints, setAveragePoints] = useState<number>();
     const [groupIds, setGroupIds] = useState<number[]>([]);
     const [userId, setUserId] = useState<number>();
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -57,8 +54,6 @@ const HomePage = (props: Props) => {
         };
         if (userId) {
             console.log("User ID: ", userId);
-            //fetchTotalPoints();
-            //fetchAveragePoints();
             fetchGroupIds();
         }
     }, [userId]);
@@ -150,25 +145,25 @@ const HomePage = (props: Props) => {
                         </Box>
                     </>
                 )}
+                {isAdmin && (
+                    <CustomTooltip title="Add new tournament">
+                        <Button
+                            variant="contained"
+                            size="large"
+                            onClick={handleAdmin}
+                            sx={{
+                                position: "absolute",
+                                top: 100,
+                                right: 50,
+                                backgroundColor: theme.palette.accent.main,
+                                color: theme.palette.textWhite.main,
+                            }}
+                        >
+                            Create Tournament
+                        </Button>
+                    </CustomTooltip>
+                )}
             </Box>
-            {isAdmin && (
-                <CustomTooltip title="Add new tournament">
-                    <Button
-                        variant="contained"
-                        size="large"
-                        onClick={handleAdmin}
-                        sx={{
-                            position: "absolute",
-                            top: 100,
-                            right: 50,
-                            backgroundColor: theme.palette.accent.main,
-                            color: theme.palette.textWhite.main,
-                        }}
-                    >
-                        Create Tournament
-                    </Button>
-                </CustomTooltip>
-            )}
         </Container>
     );
 };

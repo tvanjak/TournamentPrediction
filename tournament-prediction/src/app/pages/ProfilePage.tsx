@@ -101,19 +101,16 @@ const ProfilePage = (props: Props) => {
                         <Avatar
                             alt="User Profile"
                             src={session.user.image}
-                            sx={{ width: 70, height: 70 }}
+                            sx={{ width: 75, height: 75 }}
                         />
                     )}
-                    {/*{!session.user.image && (
-                            <AccountCircleIcon fontSize="large" />
-                        )}*/}
                 </Box>
                 <Box>
                     <Typography>• Username: {session.user.name}</Typography>
                     <Typography>• Total points: {totalPoints}</Typography>
                     <Typography>• Average points: {averagePoints}</Typography>
                     <Typography>
-                        Tournaments played: {tournamentsPlayed}
+                        • Tournaments played: {tournamentsPlayed}
                     </Typography>
                 </Box>
             </Box>

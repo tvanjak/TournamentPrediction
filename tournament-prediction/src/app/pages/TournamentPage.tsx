@@ -7,7 +7,7 @@ import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderbo
 import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
 import { useSession } from "next-auth/react";
 import Loading from "../components/General/Loading";
-import { ResultEnum } from "@/types/enums";
+import { ResultEnum, TournamentStatusEnum } from "@/types/enums";
 import CustomTooltip from "../components/General/CustomTooltip";
 import { useRouter } from "next/navigation";
 import theme from "../styles/theme";
@@ -53,6 +53,8 @@ const TournamentPage = ({ tournamentId }: Props) => {
     const [groupIds, setGroupIds] = useState<number[]>();
 
     const [pointsSystem, setPointsSystem] = useState<PointsSystemType>();
+    const [tournamentStatus, setTournamentStatus] =
+        useState<TournamentStatusEnum>();
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -117,7 +119,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
         };
         if (session?.user.email) fetchUserId();
         if (userId) fetchGroupIds();
-        if (userId && tournamentId) fetchTournamentData();
+        if (tournamentId) fetchTournamentData();
     }, [tournamentId, session?.user.email, userId]);
 
     const router = useRouter();
@@ -199,6 +201,23 @@ const TournamentPage = ({ tournamentId }: Props) => {
         } catch (err) {
             console.error("Failed to save change to tournament:", err);
             alert("Failed to save change to tournament");
+        } finally {
+            setAdminMode(false);
+        }
+    };
+
+    const handleTournamentDone = async () => {
+        try {
+            const res = await fetch(`/api/tournaments/${tournamentId}/done`);
+            if (!res.ok) {
+                throw new Error("Failed to set tournament as done.");
+            }
+            alert("Changes saved successfully");
+            //router.push(`/home`);
+            setTournamentStatus(TournamentStatusEnum.Completed);
+        } catch (err) {
+            console.error("Failed to set tournament as done:", err);
+            alert("Failed to set tournament as done");
         } finally {
             setAdminMode(false);
         }
@@ -362,70 +381,98 @@ const TournamentPage = ({ tournamentId }: Props) => {
                         )}
                     </Box>
                 </Box>
-                <CustomTooltip title="Go to your prediction">
-                    <Button
-                        variant="contained"
-                        size="large"
-                        onClick={handleGoToPrediction}
-                        sx={{ position: "absolute", top: 100, right: 50 }}
-                    >
-                        View Prediction
-                    </Button>
-                </CustomTooltip>
-                {isAdmin && !adminMode && (
-                    <CustomTooltip title="Fill tournament results">
+                {userId && (
+                    <CustomTooltip title="Go to your prediction">
                         <Button
                             variant="contained"
                             size="large"
-                            onClick={handleAdminMode}
-                            sx={{
-                                backgroundColor: theme.palette.accent.main,
-                                color: theme.palette.textWhite.main,
-                                position: "absolute",
-                                top: 150,
-                                right: 50,
-                            }}
+                            onClick={handleGoToPrediction}
+                            sx={{ position: "absolute", top: 100, right: 50 }}
                         >
-                            Admin mode on
+                            View Prediction
                         </Button>
                     </CustomTooltip>
                 )}
-                {isAdmin && adminMode && (
-                    <CustomTooltip title="Turn off admin mode">
-                        <Button
-                            variant="contained"
-                            size="large"
-                            onClick={handleAdminMode}
-                            sx={{
-                                backgroundColor: theme.palette.accent.main,
-                                color: theme.palette.textWhite.main,
-                                position: "absolute",
-                                top: 150,
-                                right: 50,
-                            }}
-                        >
-                            Admin mode off
-                        </Button>
-                    </CustomTooltip>
-                )}
-                {isAdmin && adminMode && (
-                    <CustomTooltip title="Upload changes to database">
-                        <Button
-                            variant="contained"
-                            size="large"
-                            onClick={handleSaveChanges}
-                            sx={{
-                                backgroundColor: theme.palette.accent.main,
-                                color: theme.palette.textWhite.main,
-                                position: "absolute",
-                                top: 200,
-                                right: 50,
-                            }}
-                        >
-                            Save changes
-                        </Button>
-                    </CustomTooltip>
-                )}
+                {isAdmin &&
+                    !adminMode &&
+                    tournamentStatus != TournamentStatusEnum.Completed && (
+                        <CustomTooltip title="Fill tournament results">
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleAdminMode}
+                                sx={{
+                                    backgroundColor: theme.palette.accent.main,
+                                    color: theme.palette.textWhite.main,
+                                    position: "absolute",
+                                    top: 150,
+                                    right: 50,
+                                }}
+                            >
+                                Admin mode on
+                            </Button>
+                        </CustomTooltip>
+                    )}
+                {isAdmin &&
+                    adminMode &&
+                    tournamentStatus != TournamentStatusEnum.Completed && (
+                        <CustomTooltip title="Turn off admin mode">
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleAdminMode}
+                                sx={{
+                                    backgroundColor: theme.palette.accent.main,
+                                    color: theme.palette.textWhite.main,
+                                    position: "absolute",
+                                    top: 150,
+                                    right: 50,
+                                }}
+                            >
+                                Admin mode off
+                            </Button>
+                        </CustomTooltip>
+                    )}
+                {isAdmin &&
+                    adminMode &&
+                    tournamentStatus != TournamentStatusEnum.Completed && (
+                        <CustomTooltip title="Upload changes to database">
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleSaveChanges}
+                                sx={{
+                                    backgroundColor: theme.palette.accent.main,
+                                    color: theme.palette.textWhite.main,
+                                    position: "absolute",
+                                    top: 200,
+                                    right: 50,
+                                }}
+                            >
+                                Save changes
+                            </Button>
+                        </CustomTooltip>
+                    )}
+                {isAdmin &&
+                    !adminMode &&
+                    tournamentStatus != TournamentStatusEnum.Completed && (
+                        <CustomTooltip title="Announce tournament completed">
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleTournamentDone}
+                                sx={{
+                                    backgroundColor: theme.palette.accent.main,
+                                    color: theme.palette.textWhite.main,
+                                    position: "absolute",
+                                    top: 200,
+                                    right: 50,
+                                }}
+                            >
+                                Finish Tournament
+                            </Button>
+                        </CustomTooltip>
+                    )}
             </Box>
         </Box>
     );
