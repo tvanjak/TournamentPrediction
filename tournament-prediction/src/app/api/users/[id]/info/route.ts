@@ -12,6 +12,21 @@ export async function GET(request: Request, context: { params: { id: string } })
       select: { average_points: true, total_points: true },
     });
 
+    const averagePoints = 0;
+    const totalPoints = 0;
+
+    if (!leaderboardEntry ) {
+      await prisma.all_time_leaderboard.create({
+        data: {
+          user_id: userId,
+          total_points: 0,
+          average_points: 0,
+          tournaments_played: 0
+        }
+      })
+
+    }
+
     const tournamentCount = await prisma.tournament_leaderboards.count({
       where: {
         user_id: userId,
@@ -54,14 +69,12 @@ export async function GET(request: Request, context: { params: { id: string } })
 
 
 
-    if (!leaderboardEntry ) {
-      return new NextResponse("User not found in leaderboard", { status: 404 });
-    }
+
 
     // Return the average points as JSON
     return NextResponse.json({ 
-        averagePoints: leaderboardEntry.average_points,
-        totalPoints: leaderboardEntry.total_points,
+        averagePoints: leaderboardEntry ? leaderboardEntry.average_points : averagePoints,
+        totalPoints: leaderboardEntry ? leaderboardEntry.total_points : totalPoints,
         tournamentsPlayed: tournamentCount,
         tournamentsData,
         userGroupIds

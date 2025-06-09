@@ -1,9 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useSession } from "next-auth/react";
+import { Box, Typography } from "@mui/material";
+import SecondaryBox from "@/app/components/General/SecondaryBox";
 
-export default function InvitePage({ params }: { params: { token: string } }) {
+export default function InvitePage({
+    params,
+}: {
+    params: Promise<{ token: string }>;
+}) {
+    const { token } = use(params);
     const router = useRouter();
     const { data: session } = useSession();
     const [userId, setUserId] = useState();
@@ -12,7 +19,7 @@ export default function InvitePage({ params }: { params: { token: string } }) {
     );
 
     useEffect(() => {
-        if (!params.token || !session?.user) return; // wait for login
+        if (!token || !session?.user) return; // wait for login
 
         const getUserId = async () => {
             try {
@@ -36,7 +43,7 @@ export default function InvitePage({ params }: { params: { token: string } }) {
                     method: "POST",
                     body: JSON.stringify({
                         userId: userId,
-                        token: params.token,
+                        token: token,
                     }),
                 });
                 setStatus("success");
@@ -49,14 +56,61 @@ export default function InvitePage({ params }: { params: { token: string } }) {
 
         if (!userId) return;
         acceptInvite();
-    }, [session, params.token, userId]);
+    }, [session, token, userId]);
 
     if (!session?.user) {
-        return <p>Please log in to accept the invite.</p>;
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="300px"
+                gap={2}
+                padding={3}
+            >
+                <SecondaryBox>
+                    <Typography variant="h4">
+                        === Please log in to accept the invite ===
+                    </Typography>
+                </SecondaryBox>
+            </Box>
+        );
     }
 
-    if (status === "loading") return <p>Accepting your invite...</p>;
-    if (status === "error") return <p>Invalid or expired invite.</p>;
+    if (status === "loading")
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="300px"
+                gap={2}
+                padding={3}
+            >
+                <SecondaryBox>
+                    <Typography variant="h4">
+                        === Accepting your invite... ===
+                    </Typography>
+                </SecondaryBox>
+            </Box>
+        );
+    if (status === "error")
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="300px"
+                gap={2}
+                padding={3}
+            >
+                <SecondaryBox>
+                    <Typography variant="h4">
+                        === Invalid or expired invite ===
+                    </Typography>
+                </SecondaryBox>
+            </Box>
+        );
 
     return <p>You're being redirected...</p>;
 }

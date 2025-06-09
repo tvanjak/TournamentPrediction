@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
           dbUser = await prisma.users.update({
             where: { email: user.email },
             data: {
-              image: user.image,
+              image: user.image ?? dbUser.image,
               username: dbUser.username || user.name?.replace(/\s+/g, "_").toLowerCase(),
             },
           });

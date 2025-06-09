@@ -133,13 +133,44 @@ const GroupsPage = () => {
     };
 
     const [openGroup, setOpenGroup] = useState(false);
-    const [newGroupName, setNewGroupName] = useState<string>("");
+    const [newUserGroupName, setNewUserGroupName] = useState<string>("");
     const [emails, setEmails] = useState<string[]>([]);
     const handleOpenGroup = () => setOpenGroup(true);
-    const handleCloseGroup = () => setOpenGroup(false);
-    const handleSubmitGroup = () => {
-        console.log("New group name: ", newGroupName);
+    const handleCloseGroup = () => {
+        setEmails([]);
+        setNewUserGroupName("");
+        setOpenGroup(false);
+    };
+    const handleSubmitGroup = async () => {
+        console.log("New group name: ", newUserGroupName);
         console.log("Emails submitted:", emails);
+        console.log("USER: ", userId);
+        try {
+            if (emails.length == 0 || !userId || !newUserGroupName) {
+                alert("Missing required fields.");
+                return;
+            }
+            const res = await fetch("/api/emails/createGroup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    emails: emails,
+                    userId: userId,
+                    userGroupName: newUserGroupName,
+                    username: session?.user.name,
+                }),
+            });
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Failed to send invite: ${errorText}`);
+            }
+            alert("Invite sent via email!");
+        } catch (error) {
+            console.error("Error while sending email: ", error);
+        } finally {
+            setEmails([]);
+            setNewUserGroupName("");
+        }
         handleCloseGroup();
     };
 
@@ -178,122 +209,138 @@ const GroupsPage = () => {
                     alignItems: "start",
                 }}
             >
-                {userGroups?.map((userGroup, index) => (
+                {userGroups?.length == 0 ? (
                     <Box
-                        key={index}
                         sx={{
                             width: "100%",
                             display: "flex",
-                            justifyContent: "space-between",
+                            justifyContent: "center",
                         }}
                     >
+                        <Typography variant="h5">
+                            You aren't a member of any user groups.
+                        </Typography>
+                    </Box>
+                ) : (
+                    userGroups?.map((userGroup, index) => (
                         <Box
+                            key={index}
                             sx={{
-                                borderLeft: "2px solid black",
-                                borderRadius: 0.5,
-                                p: 2,
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "space-between",
                             }}
                         >
-                            <Typography variant="h4">
-                                {userGroup.groupName} [creator:{" "}
-                                {userGroup.createdBy.username}]
-                            </Typography>
                             <Box
                                 sx={{
-                                    pl: 3,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "start",
+                                    borderLeft: "2px solid black",
+                                    borderRadius: 0.5,
+                                    p: 2,
                                 }}
                             >
-                                {userGroup.createdBy.id == userId && (
-                                    <CustomTooltip title="Invite another user to group">
-                                        <Button
-                                            variant="contained"
-                                            size="large"
-                                            onClick={() => {
-                                                handleOpenMember(
-                                                    userGroup.groupId,
-                                                    userGroup.groupName
-                                                );
-                                            }}
-                                            sx={{ m: 1 }}
-                                        >
-                                            Add member
-                                        </Button>
-                                    </CustomTooltip>
-                                )}
-                                {userGroup.users.map((user, index) => (
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            p: 1,
-                                        }}
-                                        key={index}
-                                    >
-                                        <Typography
-                                            sx={{ fontSize: 22 }}
-                                            component="li"
-                                        >
-                                            {user.username}
-                                        </Typography>
+                                <Typography variant="h4">
+                                    {userGroup.groupName} [creator:{" "}
+                                    {userGroup.createdBy.username}]
+                                </Typography>
+                                <Box
+                                    sx={{
+                                        pl: 3,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "start",
+                                    }}
+                                >
+                                    {userGroup.createdBy.id == userId && (
+                                        <CustomTooltip title="Invite another user to group">
+                                            <Button
+                                                variant="contained"
+                                                size="large"
+                                                onClick={() => {
+                                                    handleOpenMember(
+                                                        userGroup.groupId,
+                                                        userGroup.groupName
+                                                    );
+                                                }}
+                                                sx={{ m: 1 }}
+                                            >
+                                                Add member
+                                            </Button>
+                                        </CustomTooltip>
+                                    )}
+                                    {userGroup.users.map((user, index) => (
                                         <Box
                                             sx={{
                                                 display: "flex",
-                                                justifyContent: "start",
-                                                alignItems: "center",
-                                                flexWrap: "wrap",
+                                                flexDirection: "column",
+                                                p: 1,
                                             }}
+                                            key={index}
                                         >
-                                            {user.predictions.map(
-                                                (prediction) => (
-                                                    <CustomTooltip
-                                                        key={index}
-                                                        title="View prediction"
-                                                    >
-                                                        <Box
-                                                            onClick={() =>
-                                                                viewPrediction(
-                                                                    prediction.id,
-                                                                    user.userId
-                                                                )
-                                                            }
-                                                            sx={{
-                                                                borderRadius: 4,
-                                                                textAlign:
-                                                                    "left",
-                                                                padding: 2,
-                                                                transition:
-                                                                    "background-color 0.3s ease",
-                                                                backgroundColor:
-                                                                    theme
-                                                                        .palette
-                                                                        .secondary
-                                                                        .main,
-                                                                "&:hover": {
-                                                                    backgroundColor:
-                                                                        "#e0e0e0",
-                                                                    cursor: "pointer",
-                                                                },
-                                                                fontSize: 16,
-                                                            }}
+                                            <Typography
+                                                sx={{ fontSize: 22 }}
+                                                component="li"
+                                            >
+                                                {user.username}
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    justifyContent: "start",
+                                                    alignItems: "center",
+                                                    flexWrap: "wrap",
+                                                }}
+                                            >
+                                                {user.predictions.map(
+                                                    (prediction) => (
+                                                        <CustomTooltip
+                                                            key={index}
+                                                            title="View prediction"
                                                         >
-                                                            {
-                                                                prediction.tournamentName
-                                                            }
-                                                        </Box>
-                                                    </CustomTooltip>
-                                                )
-                                            )}
+                                                            <Box
+                                                                onClick={() =>
+                                                                    viewPrediction(
+                                                                        prediction.id,
+                                                                        user.userId
+                                                                    )
+                                                                }
+                                                                sx={{
+                                                                    borderRadius: 4,
+                                                                    textAlign:
+                                                                        "left",
+                                                                    padding: 2,
+                                                                    transition:
+                                                                        "background-color 0.3s ease",
+                                                                    backgroundColor:
+                                                                        theme
+                                                                            .palette
+                                                                            .secondary
+                                                                            .main,
+                                                                    "&:hover": {
+                                                                        backgroundColor:
+                                                                            "#e0e0e0",
+                                                                        cursor: "pointer",
+                                                                    },
+                                                                    fontSize: 16,
+                                                                }}
+                                                            >
+                                                                {
+                                                                    prediction.tournamentName
+                                                                }
+                                                            </Box>
+                                                        </CustomTooltip>
+                                                    )
+                                                )}
+                                            </Box>
                                         </Box>
-                                    </Box>
-                                ))}
+                                    ))}
+                                </Box>
                             </Box>
+                            <AllTimeGroupLeaderboard
+                                groupId={userGroup.groupId}
+                            />
                         </Box>
-                        <AllTimeGroupLeaderboard groupId={userGroup.groupId} />
-                    </Box>
-                ))}
+                    ))
+                )}
             </Box>
             <Dialog open={openMember} onClose={handleCloseMember}>
                 <DialogTitle>Enter Email</DialogTitle>
@@ -340,8 +387,10 @@ const GroupsPage = () => {
                         <TextField
                             placeholder="Group Name"
                             variant="outlined"
-                            value={newGroupName}
-                            onChange={(e) => setNewGroupName(e.target.value)}
+                            value={newUserGroupName}
+                            onChange={(e) =>
+                                setNewUserGroupName(e.target.value)
+                            }
                         />
                     </Box>
                     <Autocomplete

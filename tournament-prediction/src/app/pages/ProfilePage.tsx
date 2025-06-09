@@ -18,7 +18,7 @@ const ProfilePage = (props: Props) => {
     const { data: session, status } = useSession();
     const [totalPoints, setTotalPoints] = useState<number>();
     const [averagePoints, setAveragePoints] = useState<number>();
-    const [tournamentsPlayed, setTournamentsPlayed] = useState(0);
+    const [tournamentsPlayed, setTournamentsPlayed] = useState();
     const [userId, setUserId] = useState<number>();
     const [isLoading, setIsLoading] = useState(true);
     const [userGroupIds, setUserGroupIds] = useState<number[]>();
@@ -102,6 +102,7 @@ const ProfilePage = (props: Props) => {
                             alt="User Profile"
                             src={session.user.image}
                             sx={{ width: 75, height: 75 }}
+                            imgProps={{ referrerPolicy: "no-referrer" }}
                         />
                     )}
                 </Box>
@@ -124,118 +125,134 @@ const ProfilePage = (props: Props) => {
                 }}
             >
                 <Typography variant="h4">Past tournaments</Typography>
-                {tournamentsData?.map((tournament, index) => (
+                {tournamentsData?.length == 0 ? (
                     <Box
-                        key={index}
                         sx={{
                             width: "100%",
                             display: "flex",
-                            flexDirection: "column",
+                            justifyContent: "center",
                         }}
                     >
-                        <Box sx={{ display: "flex" }}>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "start",
-                                    alignItems: "center",
-                                    mr: 10,
-                                }}
-                            >
-                                <Typography variant="h6" component={"li"}>
-                                    Tournament:
-                                </Typography>
-                                <CustomTooltip
-                                    key={index}
-                                    title="View prediction"
-                                >
-                                    <Box
-                                        onClick={() =>
-                                            viewTournament(tournament.id)
-                                        }
-                                        sx={{
-                                            maxWidth: "250px",
-                                            borderRadius: 4,
-                                            textAlign: "left",
-                                            padding: 2,
-                                            margin: 1,
-                                            transition:
-                                                "background-color 0.3s ease",
-                                            backgroundColor:
-                                                theme.palette.secondary.main,
-                                            "&:hover": {
-                                                backgroundColor: "#e0e0e0",
-                                                cursor: "pointer",
-                                            },
-                                            fontSize: 16,
-                                        }}
-                                    >
-                                        {tournament.name}
-                                    </Box>
-                                </CustomTooltip>
-                            </Box>
-
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "start",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Typography variant="h6" component={"li"}>
-                                    Your prediction:
-                                </Typography>
-                                <CustomTooltip
-                                    key={index}
-                                    title="View prediction"
-                                >
-                                    <Box
-                                        onClick={() =>
-                                            viewPrediction(
-                                                tournament.id,
-                                                userId
-                                            )
-                                        }
-                                        sx={{
-                                            maxWidth: "250px",
-                                            borderRadius: 4,
-                                            textAlign: "left",
-                                            padding: 2,
-                                            margin: 1,
-                                            transition:
-                                                "background-color 0.3s ease",
-                                            backgroundColor:
-                                                theme.palette.secondary.main,
-                                            "&:hover": {
-                                                backgroundColor: "#e0e0e0",
-                                                cursor: "pointer",
-                                            },
-                                            fontSize: 16,
-                                        }}
-                                    >
-                                        {tournament.name}
-                                    </Box>
-                                </CustomTooltip>
-                            </Box>
-                        </Box>
+                        <Typography variant="h5">
+                            You haven't played any tournaments yet.
+                        </Typography>
+                    </Box>
+                ) : (
+                    tournamentsData?.map((tournament, index) => (
                         <Box
+                            key={index}
                             sx={{
                                 width: "100%",
                                 display: "flex",
-                                justifyContent: "space-evenly",
-                                flexWrap: "wrap",
+                                flexDirection: "column",
                             }}
                         >
-                            {userGroupIds?.map((userGroupId, index) => (
-                                <TournamentGroupLeaderboard
-                                    key={index}
-                                    groupId={userGroupId}
-                                    tournamentId={tournament.id}
-                                />
-                            ))}
+                            <Box sx={{ display: "flex" }}>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "start",
+                                        alignItems: "center",
+                                        mr: 10,
+                                    }}
+                                >
+                                    <Typography variant="h6" component={"li"}>
+                                        Tournament:
+                                    </Typography>
+                                    <CustomTooltip
+                                        key={index}
+                                        title="View prediction"
+                                    >
+                                        <Box
+                                            onClick={() =>
+                                                viewTournament(tournament.id)
+                                            }
+                                            sx={{
+                                                maxWidth: "250px",
+                                                borderRadius: 4,
+                                                textAlign: "left",
+                                                padding: 2,
+                                                margin: 1,
+                                                transition:
+                                                    "background-color 0.3s ease",
+                                                backgroundColor:
+                                                    theme.palette.secondary
+                                                        .main,
+                                                "&:hover": {
+                                                    backgroundColor: "#e0e0e0",
+                                                    cursor: "pointer",
+                                                },
+                                                fontSize: 16,
+                                            }}
+                                        >
+                                            {tournament.name}
+                                        </Box>
+                                    </CustomTooltip>
+                                </Box>
+
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "start",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <Typography variant="h6" component={"li"}>
+                                        Your prediction:
+                                    </Typography>
+                                    <CustomTooltip
+                                        key={index}
+                                        title="View prediction"
+                                    >
+                                        <Box
+                                            onClick={() =>
+                                                viewPrediction(
+                                                    tournament.id,
+                                                    userId
+                                                )
+                                            }
+                                            sx={{
+                                                maxWidth: "250px",
+                                                borderRadius: 4,
+                                                textAlign: "left",
+                                                padding: 2,
+                                                margin: 1,
+                                                transition:
+                                                    "background-color 0.3s ease",
+                                                backgroundColor:
+                                                    theme.palette.secondary
+                                                        .main,
+                                                "&:hover": {
+                                                    backgroundColor: "#e0e0e0",
+                                                    cursor: "pointer",
+                                                },
+                                                fontSize: 16,
+                                            }}
+                                        >
+                                            {tournament.name}
+                                        </Box>
+                                    </CustomTooltip>
+                                </Box>
+                            </Box>
+                            <Box
+                                sx={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "space-evenly",
+                                    flexWrap: "wrap",
+                                }}
+                            >
+                                {userGroupIds?.map((userGroupId, index) => (
+                                    <TournamentGroupLeaderboard
+                                        key={index}
+                                        groupId={userGroupId}
+                                        tournamentId={tournament.id}
+                                    />
+                                ))}
+                            </Box>
                         </Box>
-                    </Box>
-                ))}
+                    ))
+                )}
             </Box>
         </Container>
     );

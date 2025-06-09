@@ -51,6 +51,7 @@ export default function LoginButton() {
                             alt="User Profile"
                             src={session.user.image}
                             sx={{ width: 40, height: 40 }}
+                            imgProps={{ referrerPolicy: "no-referrer" }}
                         />
                     )}
                     {!session.user.image && (
