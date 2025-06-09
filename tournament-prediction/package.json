@@ -4,10 +4,11 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "prisma generate && next build",
         "start": "next start",
         "lint": "next lint",
-        "email": "email dev --dir src/emails"
+        "email": "email dev --dir src/emails",
+        "postinstall": "prisma generate"
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
