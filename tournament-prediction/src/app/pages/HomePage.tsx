@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import theme from "../styles/theme";
 
 const HomePage = () => {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [groupIds, setGroupIds] = useState<number[]>([]);
     const [userId, setUserId] = useState<number>();
     const [isAdmin, setIsAdmin] = useState<boolean>(false);

@@ -8,14 +8,13 @@ import { useRouter } from "next/navigation";
 import theme from "../styles/theme";
 import TournamentGroupLeaderboard from "../components/Leaderboards/TournamentGroupLeaderboards";
 
-type Props = {};
 type TournamentData = {
     id: number;
     name: string;
 };
 
-const ProfilePage = (props: Props) => {
-    const { data: session, status } = useSession();
+const ProfilePage = () => {
+    const { data: session } = useSession();
     const [totalPoints, setTotalPoints] = useState<number>();
     const [averagePoints, setAveragePoints] = useState<number>();
     const [tournamentsPlayed, setTournamentsPlayed] = useState();
@@ -134,7 +133,7 @@ const ProfilePage = (props: Props) => {
                         }}
                     >
                         <Typography variant="h5">
-                            You haven't played any tournaments yet.
+                            You have not played any tournaments yet.
                         </Typography>
                     </Box>
                 ) : (
