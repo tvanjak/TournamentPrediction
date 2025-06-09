@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma-client";
 import { StatusEnum, ResultEnum } from "@/types/enums";
 
 import { Team, TournamentGroupGamesType, TournamentEliminationGamesType } from "@/types/types";

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma-client";
 
 import { Team, PredictionGroupGamesType, PredictionEliminationGamesType } from "@/types/types";
 

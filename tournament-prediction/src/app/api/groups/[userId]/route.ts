@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma-client";
 import { TournamentStatusEnum } from "@/types/enums";
 
 export async function GET(

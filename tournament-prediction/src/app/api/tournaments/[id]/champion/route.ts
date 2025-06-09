@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client"
+import { prisma } from "@/lib/prisma-client"
 
 export async function GET(req: Request, {params}: {params: {id: string}}) {
     const tournamentId = Number(params.id);

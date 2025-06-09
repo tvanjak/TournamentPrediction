@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma-client";
 import { Resend } from "resend";
 import GroupInvite from "@/emails/GroupInvite";
 import { randomBytes } from "crypto";
