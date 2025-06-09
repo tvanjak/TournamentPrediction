@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
-import { ResultEnum, StatusEnum, TournamentStatusEnum } from "@/types/enums";
+import { ResultEnum, TournamentStatusEnum } from "@/types/enums";
 import Loading from "../components/General/Loading";
 import CustomTooltip from "../components/General/CustomTooltip";
 

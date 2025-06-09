@@ -2,9 +2,7 @@
 import TournamentPage from "../../pages/TournamentPage";
 import { useParams } from "next/navigation";
 
-type Props = {};
-
-const tournament = (props: Props) => {
+const tournament = () => {
     const params = useParams();
     const id = Number(params.id);
     return <TournamentPage tournamentId={id} />;

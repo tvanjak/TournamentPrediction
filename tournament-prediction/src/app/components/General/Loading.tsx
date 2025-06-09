@@ -2,9 +2,7 @@ import React from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box, Typography } from "@mui/material";
 
-type Props = {};
-
-const Loading = (props: Props) => {
+const Loading = () => {
     return (
         <Box
             display="flex"

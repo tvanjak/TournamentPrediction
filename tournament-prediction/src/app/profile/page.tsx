@@ -1,9 +1,7 @@
 import React from "react";
 import ProfilePage from "../pages/ProfilePage";
 
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
     return <ProfilePage />;
 };
 

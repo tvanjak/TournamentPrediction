@@ -12,9 +12,7 @@ import CustomTooltip from "../components/General/CustomTooltip";
 import { useRouter } from "next/navigation";
 import theme from "../styles/theme";
 
-type Props = {};
-
-const HomePage = (props: Props) => {
+const HomePage = () => {
     const { data: session, status } = useSession();
     const [groupIds, setGroupIds] = useState<number[]>([]);
     const [userId, setUserId] = useState<number>();

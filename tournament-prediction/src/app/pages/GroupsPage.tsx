@@ -39,7 +39,7 @@ type userGroup = {
 const GroupsPage = () => {
     const [userGroups, setUserGroups] = useState<userGroup[]>();
     const [userId, setUserId] = useState<number>();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [isLoading, setIsLoading] = useState(true);
     //const [leaderboardsLoaded, setLeaderboardsLoaded] = useState(0);
     const [userGroupId, setUserGroupId] = useState<number>();
@@ -218,7 +218,7 @@ const GroupsPage = () => {
                         }}
                     >
                         <Typography variant="h5">
-                            You aren't a member of any user groups.
+                            You are not a member of any user groups.
                         </Typography>
                     </Box>
                 ) : (

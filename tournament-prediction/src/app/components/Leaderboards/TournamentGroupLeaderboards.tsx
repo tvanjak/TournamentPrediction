@@ -1,6 +1,5 @@
 import {
     Box,
-    Container,
     Table,
     TableBody,
     TableCell,
@@ -13,7 +12,6 @@ import {
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
 import Loading from "../General/Loading";
-import PrimaryBox from "../General/PrimaryBox";
 
 interface LeaderboardUser {
     username: string;

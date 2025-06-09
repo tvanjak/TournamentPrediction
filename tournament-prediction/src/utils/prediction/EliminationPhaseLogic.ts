@@ -15,7 +15,7 @@ export function handleEliminationResultChange(
     let changedRoundIndex = -1;
 
     // Update the selected game and find which round it's in
-    let updatedRounds = prevRounds.map((round) => {
+    const updatedRounds = prevRounds.map((round) => {
       const hasTargetGame = round.games.some((game) => game.id === gameId);
       if (hasTargetGame) changedRoundIndex = round.roundId;
 
@@ -44,7 +44,7 @@ export function handleEliminationResultChange(
         }
       }
 
-      let winnerIds_array = [previousWinnerId];
+      const winnerIds_array = [previousWinnerId];
       for (let i = 0; i < updatedRounds.length; i++) {
         let updatedGame = false;
         if (updatedRounds[i].roundId < roundId && !updatedGame) {

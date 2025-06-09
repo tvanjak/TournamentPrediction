@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client";
-import { StatusEnum } from "@/types/enums";
 import {
   Prisma,
   group_games,

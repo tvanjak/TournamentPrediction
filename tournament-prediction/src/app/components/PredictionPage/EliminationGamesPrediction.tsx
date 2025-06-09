@@ -1,6 +1,6 @@
 "use client";
 import { Box, Typography } from "@mui/material";
-import { StatusEnum, TournamentStatusEnum } from "@/types/enums";
+import { TournamentStatusEnum } from "@/types/enums";
 import theme from "../../styles/theme";
 
 import { getTeamName } from "@/helpers/Helpers";
@@ -83,23 +83,27 @@ const EliminationGamesPrediction = ({
                                                                       .green
                                                                       .main
                                                                 : game.predicted_winner_id
-                                                                ? theme.palette
-                                                                      .red.main
-                                                                : theme.palette
-                                                                      .lightgray
-                                                                      .main,
+                                                                  ? theme
+                                                                        .palette
+                                                                        .red
+                                                                        .main
+                                                                  : theme
+                                                                        .palette
+                                                                        .lightgray
+                                                                        .main,
                                                         "&:hover": {
                                                             backgroundColor:
                                                                 !game.predicted_winner_id
                                                                     ? "#3CB371"
                                                                     : game.predicted_winner_id &&
-                                                                      typeof game.team1 !==
-                                                                          "string" &&
-                                                                      game.team1
-                                                                          ?.id ===
-                                                                          game.predicted_winner_id
-                                                                    ? "#3CB371"
-                                                                    : "#CD5C5C",
+                                                                        typeof game.team1 !==
+                                                                            "string" &&
+                                                                        game
+                                                                            .team1
+                                                                            ?.id ===
+                                                                            game.predicted_winner_id
+                                                                      ? "#3CB371"
+                                                                      : "#CD5C5C",
                                                             cursor: "pointer",
                                                         },
                                                         transition:
@@ -141,23 +145,27 @@ const EliminationGamesPrediction = ({
                                                                       .green
                                                                       .main
                                                                 : game.predicted_winner_id
-                                                                ? theme.palette
-                                                                      .red.main
-                                                                : theme.palette
-                                                                      .lightgray
-                                                                      .main,
+                                                                  ? theme
+                                                                        .palette
+                                                                        .red
+                                                                        .main
+                                                                  : theme
+                                                                        .palette
+                                                                        .lightgray
+                                                                        .main,
                                                         "&:hover": {
                                                             backgroundColor:
                                                                 !game.predicted_winner_id
                                                                     ? "#3CB371"
                                                                     : game.predicted_winner_id &&
-                                                                      typeof game.team2 !==
-                                                                          "string" &&
-                                                                      game.team2
-                                                                          ?.id ===
-                                                                          game.predicted_winner_id
-                                                                    ? "#3CB371"
-                                                                    : "#CD5C5C",
+                                                                        typeof game.team2 !==
+                                                                            "string" &&
+                                                                        game
+                                                                            .team2
+                                                                            ?.id ===
+                                                                            game.predicted_winner_id
+                                                                      ? "#3CB371"
+                                                                      : "#CD5C5C",
                                                             cursor: "pointer",
                                                         },
                                                         transition:
@@ -206,14 +214,14 @@ const EliminationGamesPrediction = ({
                                                                           .green
                                                                           .main
                                                                     : game.predicted_winner_id
-                                                                    ? theme
-                                                                          .palette
-                                                                          .red
-                                                                          .main
-                                                                    : theme
-                                                                          .palette
-                                                                          .lightgray
-                                                                          .main,
+                                                                      ? theme
+                                                                            .palette
+                                                                            .red
+                                                                            .main
+                                                                      : theme
+                                                                            .palette
+                                                                            .lightgray
+                                                                            .main,
                                                             whiteSpace:
                                                                 "normal",
                                                             wordBreak:
@@ -257,14 +265,14 @@ const EliminationGamesPrediction = ({
                                                                           .green
                                                                           .main
                                                                     : game.predicted_winner_id
-                                                                    ? theme
-                                                                          .palette
-                                                                          .red
-                                                                          .main
-                                                                    : theme
-                                                                          .palette
-                                                                          .lightgray
-                                                                          .main,
+                                                                      ? theme
+                                                                            .palette
+                                                                            .red
+                                                                            .main
+                                                                      : theme
+                                                                            .palette
+                                                                            .lightgray
+                                                                            .main,
                                                             textAlign: "center",
                                                         }}
                                                     >

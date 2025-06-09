@@ -1,5 +1,4 @@
 import { SimplePaletteColorOptions } from "@mui/material";
-import { SxProps } from "@mui/system";
 
 declare module "@mui/material/styles" {
     // Extend the Palette interface to add custom colors

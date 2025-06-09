@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client"
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const rounds = await prisma.rounds.findMany({
             select: {

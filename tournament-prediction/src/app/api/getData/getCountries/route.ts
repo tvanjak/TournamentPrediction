@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma-client"
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const countries = await prisma.countries.findMany({})
 

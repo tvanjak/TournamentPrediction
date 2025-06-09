@@ -1,6 +1,5 @@
 import {
     Box,
-    Container,
     Table,
     TableBody,
     TableCell,
@@ -11,7 +10,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import SecondaryBox from "../General/SecondaryBox";
-import Loading from "../General/Loading";
 import TablePagination from "@mui/material/TablePagination";
 
 interface LeaderboardUser {

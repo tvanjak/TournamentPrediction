@@ -1,6 +1,5 @@
-import { Box, List, ListItem, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import theme from "../../styles/theme";
 import PrimaryBox from "../General/PrimaryBox";
 import CustomTooltip from "../General/CustomTooltip";
 import { useRouter } from "next/navigation";

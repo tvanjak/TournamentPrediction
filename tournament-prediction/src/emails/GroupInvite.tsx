@@ -26,7 +26,7 @@ export default function GroupInviteEmail({
         <Html>
             <Head />
             <Preview>
-                {inviterName} invited you to join "{groupName}"
+                {inviterName} invited you to join {groupName}
             </Preview>
             <Body
                 style={{
@@ -48,7 +48,7 @@ export default function GroupInviteEmail({
                         <Heading
                             style={{ fontSize: "24px", marginBottom: "20px" }}
                         >
-                            You're invited to join <strong>{groupName}</strong>
+                            You are invited to join <strong>{groupName}</strong>
                         </Heading>
                         <Text style={{ fontSize: "16px", lineHeight: "1.5" }}>
                             Hi there,

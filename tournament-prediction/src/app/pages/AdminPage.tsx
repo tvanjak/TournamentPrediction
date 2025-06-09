@@ -50,9 +50,7 @@ type EliminationMatchup = {
     round_id: number;
 };
 
-type Props = {};
-
-const AdminPage = (props: Props) => {
+const AdminPage = () => {
     //const { data: session } = useSession();
     const [countries, setCountries] = useState<Country[]>();
     const [rounds, setRounds] = useState<Round[]>();
@@ -237,13 +235,16 @@ const AdminPage = (props: Props) => {
     };
 
     // Inside your component's body, before return
-    const groupedGames = groupGames.reduce((acc, game) => {
-        if (!acc[game.group_name]) {
-            acc[game.group_name] = [];
-        }
-        acc[game.group_name].push(game);
-        return acc;
-    }, {} as Record<string, GroupGame[]>);
+    const groupedGames = groupGames.reduce(
+        (acc, game) => {
+            if (!acc[game.group_name]) {
+                acc[game.group_name] = [];
+            }
+            acc[game.group_name].push(game);
+            return acc;
+        },
+        {} as Record<string, GroupGame[]>
+    );
 
     if (!countries || !rounds || !sports) {
         return <Loading />;

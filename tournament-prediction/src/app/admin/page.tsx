@@ -1,9 +1,7 @@
 import React from "react";
 import AdminPage from "../pages/AdminPage";
 
-type Props = {};
-
-const page = (props: Props) => {
+const page = () => {
     return <AdminPage />;
 };
 

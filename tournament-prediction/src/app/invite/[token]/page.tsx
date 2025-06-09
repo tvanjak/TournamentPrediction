@@ -51,6 +51,7 @@ export default function InvitePage({
                 router.push("/home");
             } catch (err) {
                 setStatus("error");
+                console.error("Error: ", err);
             }
         };
 
@@ -112,5 +113,5 @@ export default function InvitePage({
             </Box>
         );
 
-    return <p>You're being redirected...</p>;
+    return <p>You are being redirected...</p>;
 }

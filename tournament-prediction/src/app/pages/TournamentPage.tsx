@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Box, Typography, Paper, Button } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import AccentBox from "../components/General/AccentBox";
 import PrimaryBox from "../components/General/PrimaryBox";
 import TournamentLeaderboard from "../components/Leaderboards/TournamentLeaderboard";
