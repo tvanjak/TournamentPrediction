@@ -2,6 +2,13 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/lib/prisma-client";
 
+console.log("ENV CHECK:", {
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+});
+
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
