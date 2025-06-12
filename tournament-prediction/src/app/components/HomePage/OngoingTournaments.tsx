@@ -10,6 +10,7 @@ interface Tournament {
 }
 
 type Props = {
+    userId: number;
     onLoaded: () => void;
 };
 
@@ -20,7 +21,7 @@ const OngoingTournaments = (props: Props) => {
     const router = useRouter();
 
     const handleClick = (id: number) => {
-        router.push(`/tournament/${id}`);
+        if (props.userId != -1) router.push(`/tournament/${id}`);
     };
 
     useEffect(() => {

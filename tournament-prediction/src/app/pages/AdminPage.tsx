@@ -51,24 +51,13 @@ type EliminationMatchup = {
 };
 
 const AdminPage = () => {
-    //const { data: session } = useSession();
+    const { data: session } = useSession();
     const [countries, setCountries] = useState<Country[]>();
     const [rounds, setRounds] = useState<Round[]>();
     const [sports, setSports] = useState<Sport[]>();
-    const [isAdmin, setIsAdmin] = useState<boolean>(true);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     useEffect(() => {
-        //const fetchAdmin = async () => {
-        //    try {
-        //        const res = await fetch(
-        //            `/api/getIdByEmail?email=${session?.user.email}`
-        //        );
-        //        const data = await res.json();
-        //        setIsAdmin(data.isAdmin);
-        //    } catch (error) {
-        //        console.error("Error while fetching user: ", error);
-        //    }
-        //};
         const fetchCountries = async () => {
             try {
                 const res = await fetch("/api/getData/getCountries");
@@ -96,11 +85,25 @@ const AdminPage = () => {
                 console.error("Error while fetching sports: ", error);
             }
         };
-        //fetchAdmin();
         fetchCountries();
         fetchRounds();
         fetchSports();
     }, []);
+
+    useEffect(() => {
+        const fetchAdmin = async () => {
+            try {
+                const res = await fetch(
+                    `/api/getIdByEmail?email=${session?.user.email}`
+                );
+                const data = await res.json();
+                setIsAdmin(data.isAdmin);
+            } catch (error) {
+                console.error("Error while fetching user: ", error);
+            }
+        };
+        fetchAdmin();
+    }, [session?.user.email]);
 
     const [groupGames, setGroupGames] = useState<GroupGame[]>([]);
     const [groupRankings, setGroupRankings] = useState<GroupRanking[]>([]);

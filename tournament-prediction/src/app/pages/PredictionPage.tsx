@@ -24,6 +24,8 @@ import {
     PointsSystemType,
 } from "@/types/types";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import theme from "../styles/theme";
 
 const PredictionPage = ({
     tournamentId,
@@ -34,6 +36,8 @@ const PredictionPage = ({
 }) => {
     const [predictionId, setPredictionId] = useState<number>();
     const [loading, setLoading] = useState(true);
+    const { data: session } = useSession();
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     const [groupGames, setGroupGames] = useState<PredictionGroupGamesType[]>(
         []
@@ -88,6 +92,20 @@ const PredictionPage = ({
     }, [predictionId]);
 
     useEffect(() => {
+        const fetchIsAdmin = async () => {
+            try {
+                const res = await fetch(
+                    `/api/users/getIdByEmail?email=${session?.user.email}`
+                );
+                if (!res.ok) {
+                    throw new Error("Failed to fetch user id with eamil");
+                }
+                const data = await res.json();
+                setIsAdmin(data.isAdmin);
+            } catch (error) {
+                console.log("Error while fetching userId: ", error);
+            }
+        };
         const fetchPredictionId = async () => {
             try {
                 const res = await fetch("/api/getData/getPredictionId", {
@@ -114,8 +132,9 @@ const PredictionPage = ({
         };
         console.log(tournamentId);
         console.log(userId);
+        if (session?.user.email) fetchIsAdmin();
         if (tournamentId && userId) fetchPredictionId();
-    }, [tournamentId, userId]);
+    }, [tournamentId, userId, session?.user.email]);
 
     const onGroupResultChange = (
         gameId: number,
@@ -186,6 +205,16 @@ const PredictionPage = ({
         } catch (err) {
             console.error("Failed to save prediction:", err);
             alert("Failed to save prediction");
+        }
+    };
+
+    const handleTournamentStart = async () => {
+        try {
+            await fetch(`/api/tournaments/start`);
+            alert("Tournament set to ONGOING successfuly.");
+        } catch (err) {
+            console.error("Failed to start tournament:", err);
+            alert("Failed to start tournament");
         }
     };
 
@@ -322,6 +351,25 @@ const PredictionPage = ({
                         </Button>
                     </CustomTooltip>
                 )}
+                {tournamentStatus == TournamentStatusEnum.Upcoming &&
+                    isAdmin && (
+                        <CustomTooltip title="Update prediction">
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleTournamentStart}
+                                sx={{
+                                    backgroundColor: theme.palette.accent.main,
+                                    color: theme.palette.textWhite.main,
+                                    position: "absolute",
+                                    top: 100,
+                                    right: 50,
+                                }}
+                            >
+                                Start Tournament
+                            </Button>
+                        </CustomTooltip>
+                    )}
                 <CustomTooltip title="Go to actual tournament">
                     <Button
                         variant="contained"

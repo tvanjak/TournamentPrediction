@@ -30,7 +30,7 @@ type userGroup = {
         userId: number;
         username: string;
         predictions: {
-            id: number;
+            tournamentId: number;
             tournamentName: string;
         }[];
     }[];
@@ -299,7 +299,7 @@ const GroupsPage = () => {
                                                             <Box
                                                                 onClick={() =>
                                                                     viewPrediction(
-                                                                        prediction.id,
+                                                                        prediction.tournamentId,
                                                                         user.userId
                                                                     )
                                                                 }
@@ -359,22 +359,6 @@ const GroupsPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <CustomTooltip title="Update prediction">
-                <Button
-                    variant="contained"
-                    size="large"
-                    onClick={handleOpenGroup}
-                    sx={{
-                        position: "absolute",
-                        top: 100,
-                        right: 50,
-                        backgroundColor: theme.palette.accent.main,
-                        color: theme.palette.textWhite.main,
-                    }}
-                >
-                    Create new group
-                </Button>
-            </CustomTooltip>
             <Dialog
                 open={openGroup}
                 onClose={handleCloseGroup}
@@ -425,6 +409,22 @@ const GroupsPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <CustomTooltip title="Update prediction">
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={handleOpenGroup}
+                    sx={{
+                        position: "absolute",
+                        top: 100,
+                        right: 50,
+                        backgroundColor: theme.palette.primary.main,
+                        color: theme.palette.textWhite.main,
+                    }}
+                >
+                    Create new group
+                </Button>
+            </CustomTooltip>
         </Container>
     );
 };

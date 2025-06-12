@@ -116,7 +116,10 @@ const HomePage = () => {
                         justifyContent: "space-evenly",
                     }}
                 >
-                    <OngoingTournaments onLoaded={handleLoaded} />
+                    <OngoingTournaments
+                        onLoaded={handleLoaded}
+                        userId={userId || -1}
+                    />
                     <UpcomingTournaments
                         onLoaded={handleLoaded}
                         userId={userId || -1}

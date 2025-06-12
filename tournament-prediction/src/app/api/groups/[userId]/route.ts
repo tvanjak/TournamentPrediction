@@ -42,7 +42,7 @@ export async function GET(
                     },
                   },
                   select: {
-                    id: true,
+                    tournament_id: true,
                     tournaments: {
                       select: {
                         name: true,
@@ -70,7 +70,7 @@ export async function GET(
         userId: member.users.id,
         username: member.users.username,
         predictions: member.users.predictions.map((p) => ({
-          id: p.id,
+          tournamentId: p.tournament_id,
           tournamentName: p.tournaments.name,
         })),
       })),
