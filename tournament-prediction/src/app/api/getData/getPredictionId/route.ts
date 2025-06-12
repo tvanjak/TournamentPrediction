@@ -131,6 +131,9 @@ export async function POST(req: Request) {
 
           prediction = newPrediction;
         });
+      } 
+      else {
+        return NextResponse.json({ success: true, predictionId: -1, championPoints: null });
       }
     }
 

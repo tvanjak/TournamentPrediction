@@ -88,7 +88,8 @@ const PredictionPage = ({
             }
         };
 
-        if (predictionId && tournamentId) fetchPredictionData();
+        if (predictionId && tournamentId && predictionId != -1)
+            fetchPredictionData();
     }, [predictionId]);
 
     useEffect(() => {
@@ -225,7 +226,22 @@ const PredictionPage = ({
 
     return (
         <Box>
-            {loading && (
+            {predictionId == -1 && (
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "100vw",
+                        height: "50vh",
+                    }}
+                >
+                    <Typography variant="h4">
+                        You don't have a prediction for this tournament.
+                    </Typography>
+                </Box>
+            )}
+            {loading && predictionId != -1 && (
                 <Box
                     sx={{
                         position: "fixed",
