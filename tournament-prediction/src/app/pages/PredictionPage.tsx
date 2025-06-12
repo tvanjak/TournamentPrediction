@@ -362,7 +362,7 @@ const PredictionPage = ({
                                     backgroundColor: theme.palette.accent.main,
                                     color: theme.palette.textWhite.main,
                                     position: "absolute",
-                                    top: 100,
+                                    top: 150,
                                     right: 50,
                                 }}
                             >
@@ -370,16 +370,18 @@ const PredictionPage = ({
                             </Button>
                         </CustomTooltip>
                     )}
-                <CustomTooltip title="Go to actual tournament">
-                    <Button
-                        variant="contained"
-                        size="large"
-                        onClick={handleGoToTournament}
-                        sx={{ position: "absolute", top: 100, right: 50 }}
-                    >
-                        View Tournament
-                    </Button>
-                </CustomTooltip>
+                {tournamentStatus == TournamentStatusEnum.Ongoing && (
+                    <CustomTooltip title="Go to actual tournament">
+                        <Button
+                            variant="contained"
+                            size="large"
+                            onClick={handleGoToTournament}
+                            sx={{ position: "absolute", top: 100, right: 50 }}
+                        >
+                            View Tournament
+                        </Button>
+                    </CustomTooltip>
+                )}
             </Box>
         </Box>
     );
