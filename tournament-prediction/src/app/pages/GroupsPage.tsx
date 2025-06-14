@@ -419,7 +419,6 @@ const GroupsPage = () => {
                         top: 100,
                         right: 50,
                         backgroundColor: theme.palette.primary.main,
-                        color: theme.palette.textWhite.main,
                     }}
                 >
                     Create new group

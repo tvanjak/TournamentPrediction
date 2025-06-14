@@ -4,8 +4,10 @@ import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
 import LoginButton from "./LoginButton";
 import Link from "next/link";
 import theme from "../../styles/theme";
+import { useSession } from "next-auth/react";
 
 export default function Navbar() {
+    const { data: session } = useSession();
     return (
         <AppBar
             position="static"
@@ -32,9 +34,11 @@ export default function Navbar() {
                     <Button href="/" color="inherit">
                         Home
                     </Button>
-                    <Button href="/groups" color="inherit">
-                        My groups
-                    </Button>
+                    {session?.user.email && (
+                        <Button href="/groups" color="inherit">
+                            My groups
+                        </Button>
+                    )}
                 </Box>
                 <Box
                     sx={{

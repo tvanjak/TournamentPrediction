@@ -94,7 +94,7 @@ const AdminPage = () => {
         const fetchAdmin = async () => {
             try {
                 const res = await fetch(
-                    `/api/getIdByEmail?email=${session?.user.email}`
+                    `/api/users/getIdByEmail?email=${session?.user.email}`
                 );
                 const data = await res.json();
                 setIsAdmin(data.isAdmin);
@@ -102,7 +102,7 @@ const AdminPage = () => {
                 console.error("Error while fetching user: ", error);
             }
         };
-        fetchAdmin();
+        if (session?.user.email) fetchAdmin();
     }, [session?.user.email]);
 
     const [groupGames, setGroupGames] = useState<GroupGame[]>([]);
@@ -213,12 +213,6 @@ const AdminPage = () => {
 
     const handleTournamentCreate = async () => {
         try {
-            console.log("name: ", name);
-            console.log("sport: ", selectedSport);
-            console.log("groups: ", groups);
-            console.log("GROUP GAMES: ", groupGames);
-            console.log("GROUP RANKINGS: ", groupRankings);
-            console.log("ELIMINATION MATCHUPS: ", eliminationMatchups);
             await fetch("/api/tournaments/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
