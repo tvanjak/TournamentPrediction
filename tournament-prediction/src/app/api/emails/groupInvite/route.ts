@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma-client';
 import { NextResponse } from 'next/server';
 
 import { Resend } from 'resend';
-import GroupInvite from "@/emails/GroupInvite"
+import GroupInvite from "@/app/components/EmailComponents/GroupInvite"
 import { randomBytes } from "crypto";
 
 

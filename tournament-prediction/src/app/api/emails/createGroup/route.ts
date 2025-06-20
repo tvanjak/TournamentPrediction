@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma-client";
 import { Resend } from "resend";
-import GroupInvite from "@/emails/GroupInvite";
+import GroupInvite from "@/app/components/EmailComponents/GroupInvite";
 import { randomBytes } from "crypto";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
