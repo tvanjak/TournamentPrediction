@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               image: user.image,
               username: user.name?.replace(/\s+/g, "_").toLowerCase(),
+              is_admin: false
             },
           });
         }

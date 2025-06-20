@@ -39,9 +39,9 @@ export async function POST(request: Request) {
         });
         console.log("Email sent response:", response);
 
-        return NextResponse.json({ success: true }); // ✅ This is necessary
+        return NextResponse.json({ success: true }); 
     } catch (err) {
         console.error("Email sending error:", err);
-        return new NextResponse("Internal Server Error", { status: 500 }); // ✅ Also necessary
+        return new NextResponse("Internal Server Error", { status: 500 });
     }
 }
