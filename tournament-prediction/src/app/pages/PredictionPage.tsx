@@ -211,7 +211,10 @@ const PredictionPage = ({
 
     const handleTournamentStart = async () => {
         try {
-            await fetch(`/api/tournaments/start`);
+            const res = await fetch(`/api/tournaments/${tournamentId}/start`);
+            if (!res.ok) {
+                throw new Error("Failed to start tournament!");
+            }
             alert("Tournament set to ONGOING successfuly.");
         } catch (err) {
             console.error("Failed to start tournament:", err);

@@ -212,7 +212,7 @@ const TournamentPage = ({ tournamentId }: Props) => {
             if (!res.ok) {
                 throw new Error("Failed to set tournament as done.");
             }
-            alert("Changes saved successfully");
+            alert("Tournament finished successfully");
             //router.push(`/home`);
             setTournamentStatus(TournamentStatusEnum.Completed);
         } catch (err) {

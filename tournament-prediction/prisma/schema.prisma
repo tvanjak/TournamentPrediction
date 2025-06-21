@@ -7,18 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model additional_group_rankings {
-  id            Int          @id @default(autoincrement())
-  tournament_id Int?
-  team_id       Int?
-  points        Int
-  rank          Int
-  created_at    DateTime?    @default(now()) @db.Timestamp(6)
-  modified_at   DateTime?    @default(now()) @db.Timestamp(6)
-  teams         teams?       @relation(fields: [team_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tournaments   tournaments? @relation(fields: [tournament_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-}
-
 model all_time_leaderboard {
   id                 Int       @id @default(autoincrement())
   user_id            Int       @unique
@@ -154,7 +142,7 @@ model group_rankings_predictions {
 
 model groups {
   id                         Int                          @id @default(autoincrement())
-  tournament_id              Int?
+  tournament_id              Int
   name                       String                       @db.Char(1)
   created_at                 DateTime?                    @default(now()) @db.Timestamp(6)
   modified_at                DateTime?                    @default(now()) @db.Timestamp(6)
@@ -170,7 +158,6 @@ model predictions {
   id                            Int                             @id @default(autoincrement())
   tournament_id                 Int
   user_id                       Int
-  status                        status_enum?                    @default(pending)
   created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
   modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
   predicted_champion_id         Int?
@@ -191,7 +178,6 @@ model rounds {
   teamguessed_points            Int
   created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
   modified_at                   DateTime?                       @default(now()) @db.Timestamp(6)
-  outcomeguessed_points         Int?
   elimination_games             elimination_games[]
   elimination_games_predictions elimination_games_predictions[]
   elimination_matchups          elimination_matchups[]
@@ -213,7 +199,6 @@ model teams {
   country_id                                                                  Int                             @unique
   created_at                                                                  DateTime?                       @default(now()) @db.Timestamp(6)
   modified_at                                                                 DateTime?                       @default(now()) @db.Timestamp(6)
-  additional_group_rankings                                                   additional_group_rankings[]
   elimination_games_elimination_games_team1_idToteams                         elimination_games[]             @relation("elimination_team1")
   elimination_games_elimination_games_team2_idToteams                         elimination_games[]             @relation("elimination_team2")
   elimination_games_elimination_games_winner_idToteams                        elimination_games[]             @relation("elimination_winner")
@@ -243,23 +228,22 @@ model tournament_leaderboards {
 }
 
 model tournaments {
-  id                        Int                         @id @default(autoincrement())
-  sport_id                  Int?
-  name                      String                      @db.VarChar(100)
-  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
-  modified_at               DateTime?                   @default(now()) @db.Timestamp(6)
-  status                    TournamentStatus            @default(ONGOING)
-  champion_id               Int?
-  additional_group_rankings additional_group_rankings[]
-  elimination_games         elimination_games[]
-  elimination_matchups      elimination_matchups[]
-  group_games               group_games[]
-  group_rankings            group_rankings[]
-  groups                    groups[]
-  predictions               predictions[]
-  tournament_leaderboards   tournament_leaderboards[]
-  teams                     teams?                      @relation(fields: [champion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_champion_team")
-  sports                    sports?                     @relation(fields: [sport_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                      Int                       @id @default(autoincrement())
+  sport_id                Int
+  name                    String                    @db.VarChar(100)
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  modified_at             DateTime?                 @default(now()) @db.Timestamp(6)
+  status                  TournamentStatus          @default(ONGOING)
+  champion_id             Int?
+  elimination_games       elimination_games[]
+  elimination_matchups    elimination_matchups[]
+  group_games             group_games[]
+  group_rankings          group_rankings[]
+  groups                  groups[]
+  predictions             predictions[]
+  tournament_leaderboards tournament_leaderboards[]
+  teams                   teams?                    @relation(fields: [champion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_champion_team")
+  sports                  sports?                   @relation(fields: [sport_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model user_group_members {
@@ -294,7 +278,6 @@ model users {
   modified_at             DateTime?                 @default(now()) @db.Timestamp(6)
   image                   String?
   accounts                Account[]
-  sessions                Session[]
   all_time_leaderboard    all_time_leaderboard?
   invites                 invites[]
   predictions             predictions[]
@@ -319,22 +302,6 @@ model Account {
   user              users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       Int
-  expires      DateTime
-  user         users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
 }
 
 model invites {

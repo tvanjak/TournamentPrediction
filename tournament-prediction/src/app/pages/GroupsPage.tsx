@@ -308,6 +308,7 @@ const GroupsPage = () => {
                                                                     textAlign:
                                                                         "left",
                                                                     padding: 2,
+                                                                    m: 0.5,
                                                                     transition:
                                                                         "background-color 0.3s ease",
                                                                     backgroundColor:
